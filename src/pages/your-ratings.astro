@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+import YourRatings from '../components/YourRatings.svelte';
+---
+
+<Base title="Your ratings" description="Ratings you've made in this browser — local only, exportable as JSON.">
+  <section class="wrap" style="padding-top:3rem;">
+    <h1>Your ratings</h1>
+    <p class="muted" style="max-width:640px;">
+      Everything you've rated with the ten-part system, stored only in this browser.
+    </p>
+  </section>
+  <section class="wrap" style="margin-top:1.6rem;">
+    <YourRatings client:only="svelte" />
+  </section>
+</Base>

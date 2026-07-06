@@ -1,0 +1,15 @@
+---
+import { withBase, tmdbImg, fmt1 } from '../lib/util.js';
+
+const { slug, title, year, poster, my = null, sub = null } = Astro.props;
+const img = tmdbImg(poster, 'w342');
+---
+
+<a class="movie-card" href={withBase(`/movie/${slug}`)}>
+  <div class="poster">
+    {img ? <img src={img} alt={`${title} poster`} loading="lazy" width="154" height="231" /> : <div class="no-poster">{title}</div>}
+    {my != null && <span class="rating-tag">{fmt1(my)}</span>}
+  </div>
+  <div class="card-title">{title}</div>
+  <div class="card-sub">{sub ?? year ?? ''}</div>
+</a>

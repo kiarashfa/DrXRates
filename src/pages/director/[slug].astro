@@ -1,0 +1,154 @@
+---
+import Base from '../../layouts/Base.astro';
+import SortableGrid from '../../components/SortableGrid.svelte';
+import { directors, collections, movieById } from '../../lib/data.js';
+import { withBase, tmdbImg, fmt1 } from '../../lib/util.js';
+
+export async function getStaticPaths() {
+  return directors.map((d) => ({ params: { slug: d.slug }, props: { director: d } }));
+}
+
+const { director } = Astro.props;
+const collection = director.collectionSlug ? collections.find((c) => c.slug === director.collectionSlug) : null;
+const filmographyIds = collection ? collection.movieIds : [];
+const filmography = filmographyIds.map((id) => movieById.get(id)).filter(Boolean);
+const archiveFilms = director.films.filter((f) => f.movieId != null && movieById.has(f.movieId));
+const cards = filmography.length
+  ? filmography
+  : archiveFilms.map((f) => movieById.get(f.movieId));
+const gridFilms = cards.map((m) => ({
+  slug: m.slug,
+  title: m.title,
+  year: m.year,
+  poster: m.poster,
+  my: m.myRating?.overall ?? null,
+  tmdb: m.tmdbRating?.score ?? null,
+  imdb: m.omdb?.imdb ?? null,
+}));
+// TMDB headshot first; Wikipedia/Wikimedia portrait as fallback (compound
+// entries like 'Coen Brothers' only exist there).
+const portrait = tmdbImg(director.profile, 'w185') ?? director.portraitUrl ?? null;
+const bioParas = (director.bio ?? '').split(/\n+/).filter(Boolean).slice(0, 3);
+---
+
+<Base title={director.name} description={`${director.name} — films, ratings, and average shot length.`}>
+  <section class="wrap" style="padding-top:3rem; display:flex; gap:2rem; align-items:flex-start; flex-wrap:wrap;">
+    {portrait && <img src={portrait} alt={director.name} width="140" data-testid="director-portrait" style="border-radius:6px; border:1px solid var(--border); flex-shrink:0; max-height:210px; object-fit:cover;" />}
+    <div style="flex:1; min-width:280px;">
+      <p class="faint small" style="letter-spacing:0.15em; text-transform:uppercase; margin:0;">Hall of fame</p>
+      <h1 style="font-size:clamp(2rem, 4.5vw, 3rem);">{director.name}</h1>
+      {(director.born || director.died) && (
+        <p class="muted small" style="margin-top:-0.3rem;">
+          {director.born?.slice(0, 4)}{director.died ? ` — ${director.died.slice(0, 4)}` : ''}
+        </p>
+      )}
+      <div class="panel-row" style="margin:1rem 0;" data-testid="stat-cards">
+        <div class="panel" style="padding:0.8rem 1.2rem;" data-testid="stat-my">
+          <div class="faint small">My average</div>
+          <div class="score-badge">{director.myAvg != null ? fmt1(director.myAvg) : '—'} <small>/ 10</small></div>
+          <div class="faint small">{director.myCount} rated</div>
+        </div>
+        <div class="panel" style="padding:0.8rem 1.2rem;" data-testid="stat-asl">
+          <div class="faint small">Average shot length</div>
+          <div class="score-badge">{director.aslAvg != null ? `${director.aslAvg}s` : '—'}</div>
+          <div class="faint small">{director.aslCount} films measured</div>
+        </div>
+        {director.sourceAvgs?.tmdb && (
+          <div class="panel" style="padding:0.8rem 1.2rem;" data-testid="stat-tmdb">
+            <div class="faint small">TMDB average</div>
+            <div class="score-badge" style="color:var(--ink);">{fmt1(director.sourceAvgs.tmdb.avg)} <small>/ 10</small></div>
+            <div class="faint small">{director.sourceAvgs.tmdb.count} films</div>
+          </div>
+        )}
+        {director.sourceAvgs?.imdb && (
+          <div class="panel" style="padding:0.8rem 1.2rem;" data-testid="stat-imdb">
+            <div class="faint small">IMDb average</div>
+            <div class="score-badge" style="color:var(--ink);">{fmt1(director.sourceAvgs.imdb.avg)} <small>/ 10</small></div>
+            <div class="faint small">{director.sourceAvgs.imdb.count} films</div>
+          </div>
+        )}
+        {director.sourceAvgs?.metacritic && (
+          <div class="panel" style="padding:0.8rem 1.2rem;" data-testid="stat-metacritic">
+            <div class="faint small">Metacritic average</div>
+            <div class="score-badge" style="color:var(--ink);">{Math.round(director.sourceAvgs.metacritic.avg)} <small>/ 100</small></div>
+            <div class="faint small">{director.sourceAvgs.metacritic.count} films</div>
+          </div>
+        )}
+        {collection && (
+          <a class="panel" style="padding:0.8rem 1.2rem; text-decoration:none;" href={withBase(`/collection/${collection.slug}`)}>
+            <div class="faint small">Collection</div>
+            <div style="font-family:var(--font-display); font-size:1.2rem; color:var(--accent);">complete filmography →</div>
+            <div class="faint small">{filmography.length} films</div>
+          </a>
+        )}
+      </div>
+      {bioParas.map((p) => <p class="muted small" style="max-width:660px;">{p}</p>)}
+    </div>
+  </section>
+
+  <section class="wrap" style="margin-top:2.4rem;">
+    {cards.length > 0 && director.films.length > 0 && (
+      <div class="seg" role="tablist" aria-label="Director sections" data-director-tabs style="margin-bottom:1.4rem;">
+        <button class="active" role="tab" aria-selected="true" data-tab-btn="films" data-testid="tab-films">
+          Films ({cards.length})
+        </button>
+        <button role="tab" aria-selected="false" data-tab-btn="asl" data-testid="tab-asl">
+          Shot length ({director.films.length})
+        </button>
+      </div>
+    )}
+
+    {cards.length > 0 && (
+      <div data-tab-panel="films" data-testid="panel-films">
+        <div class="shelf-head">
+          <h2>{filmography.length ? 'Filmography' : 'In the archive'}</h2>
+          <span class="shelf-note">{cards.length} films</span>
+        </div>
+        <SortableGrid client:load films={gridFilms} defaultLabel="Chronological" />
+      </div>
+    )}
+
+    {director.films.length > 0 && (
+      <div data-tab-panel="asl" data-testid="panel-asl" hidden={cards.length > 0}>
+        <div class="shelf-head">
+          <h2>Shot length ledger</h2>
+          <span class="shelf-note">average seconds per shot, film by film</span>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>Film</th><th>Year</th><th>ASL</th><th>My rating</th></tr></thead>
+          <tbody>
+            {director.films.map((f) => {
+              const rec = f.movieId != null ? movieById.get(f.movieId) : null;
+              return (
+                <tr>
+                  <td>{rec ? <a href={withBase(`/movie/${rec.slug}`)}>{f.title}</a> : f.title}</td>
+                  <td class="num">{f.year ?? '—'}</td>
+                  <td class="num">{f.asl}s</td>
+                  <td class="num">{rec?.myRating ? fmt1(rec.myRating.overall) : '—'}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </section>
+</Base>
+
+<script>
+  document.querySelectorAll('[data-director-tabs]').forEach((tabs) => {
+    const buttons = tabs.querySelectorAll('[data-tab-btn]');
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const target = (btn as HTMLElement).dataset.tabBtn;
+        buttons.forEach((b) => {
+          b.classList.toggle('active', b === btn);
+          b.setAttribute('aria-selected', String(b === btn));
+        });
+        document.querySelectorAll('[data-tab-panel]').forEach((panel) => {
+          (panel as HTMLElement).hidden = (panel as HTMLElement).dataset.tabPanel !== target;
+        });
+      });
+    });
+  });
+</script>

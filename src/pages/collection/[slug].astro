@@ -1,0 +1,52 @@
+---
+import Base from '../../layouts/Base.astro';
+import SortableGrid from '../../components/SortableGrid.svelte';
+import { collections, movieById, directorBySlug } from '../../lib/data.js';
+import { withBase, fmt1 } from '../../lib/util.js';
+
+export async function getStaticPaths() {
+  return collections.map((c) => ({ params: { slug: c.slug }, props: { collection: c } }));
+}
+
+const { collection } = Astro.props;
+const films = collection.movieIds.map((id) => movieById.get(id)).filter(Boolean);
+const gridFilms = films.map((m) => ({
+  slug: m.slug,
+  title: m.title,
+  year: m.year,
+  poster: m.poster,
+  my: m.myRating?.overall ?? null,
+  tmdb: m.tmdbRating?.score ?? null,
+  imdb: m.omdb?.imdb ?? null,
+}));
+const rated = films.filter((m) => m.myRating);
+const avg = rated.length ? rated.reduce((a, m) => a + m.myRating.overall, 0) / rated.length : null;
+const directorSlug =
+  collection.type === 'director' && collection.personName
+    ? [...directorBySlug.keys()].find((s) => directorBySlug.get(s).name === collection.personName) ?? null
+    : null;
+---
+
+<Base title={collection.title} description={collection.description}>
+  <section class="wrap" style="padding-top:3rem;">
+    <p class="faint small" style="letter-spacing:0.15em; text-transform:uppercase; margin:0;">
+      {collection.type === 'director' ? 'Director collection' : collection.type === 'franchise' ? 'Franchise collection' : 'Collection'}
+    </p>
+    <h1 style="font-size:clamp(2rem, 4.5vw, 3rem);">{collection.title}</h1>
+    <p class="muted" style="max-width:640px;">{collection.description}</p>
+    <div style="display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center; margin-top:0.6rem;">
+      <span class="pill">{films.length} films</span>
+      <span class="pill">{rated.length} rated</span>
+      {avg != null && <span class="pill" style="color:var(--accent);">my average {fmt1(avg)} / 10</span>}
+      {directorSlug && (
+        <a class="pill" style="text-decoration:none; color:var(--accent);" href={withBase(`/director/${directorSlug}`)}>
+          hall of fame page →
+        </a>
+      )}
+    </div>
+  </section>
+
+  <section class="wrap" style="margin-top:2.4rem;">
+    <SortableGrid client:load films={gridFilms} defaultLabel={collection.type === 'franchise' ? 'Release order' : 'Chronological'} />
+  </section>
+</Base>

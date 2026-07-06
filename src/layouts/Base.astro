@@ -1,0 +1,70 @@
+---
+import '../styles/global.css';
+import ThemeToggle from '../components/ThemeToggle.svelte';
+import { SITE_TITLE, withBase } from '../lib/util.js';
+
+const { title, description = 'A personal archive of film, rated in ten parts.' } = Astro.props;
+const pageTitle = title ? `${title} · ${SITE_TITLE}` : SITE_TITLE;
+---
+
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{pageTitle}</title>
+    <link rel="icon" id="favicon" type="image/svg+xml" href={withBase('/favicon.svg')} />
+    <script is:inline>
+      (function () {
+        var colors = { light: '#8a6d3b', dark: '#c9a86a', matrix: '#3aff8f' };
+        window.__setFavicon = function (theme) {
+          var c = colors[theme] || colors.dark;
+          var svg =
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">' +
+            '<circle cx="16" cy="16" r="14" fill="none" stroke="' + c + '" stroke-width="2.5"/>' +
+            '<path d="M13 10.5 L23 16 L13 21.5 Z" fill="' + c + '"/></svg>';
+          var link = document.getElementById('favicon');
+          if (link) link.href = 'data:image/svg+xml,' + encodeURIComponent(svg);
+        };
+        try {
+          var t = localStorage.getItem('cinema.theme');
+          if (t === 'light' || t === 'dark' || t === 'matrix') document.documentElement.dataset.theme = t;
+          window.__setFavicon(t || 'dark');
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href={withBase('/')}>{SITE_TITLE}<span class="reel-dot"> ●</span></a>
+        <nav class="site-nav" aria-label="Site">
+          <a href={withBase('/#catalog')}>Archive</a>
+          <a href={withBase('/collections')}>Collections</a>
+          <a href={withBase('/directors')}>Directors</a>
+          <a href={withBase('/your-ratings')}>Your ratings</a>
+          <a href={withBase('/about')}>About</a>
+          <ThemeToggle client:load />
+        </nav>
+      </div>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="wrap">
+        <span>{SITE_TITLE} — a personal film archive.</span>
+        <span style="display:inline-flex;align-items:center;gap:0.6em;">
+          <img
+            class="tmdb-logo"
+            src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_short-8e7b30f73a4020692ccca9c88bafe5dcb6f8a62a4c6bc55cd9ba82bb2cd95f6c.svg"
+            alt="TMDB logo"
+            loading="lazy"
+          />
+          This product uses the TMDB API but is not endorsed or certified by TMDB.
+        </span>
+      </div>
+    </footer>
+  </body>
+</html>

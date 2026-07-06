@@ -1,0 +1,54 @@
+{
+  "_readme": "User-editable. Three collection types: 'director' (person: exact TMDB person name; full directed filmography is auto-resolved), 'franchise' (tmdbCollectionSearch or explicit tmdbCollectionId), 'custom' (movies: array of {title, year} matched like Excel rows). Order here = display order on the shelf.",
+  "collections": [
+    {
+      "slug": "alfred-hitchcock",
+      "type": "director",
+      "person": "Alfred Hitchcock",
+      "title": "Alfred Hitchcock",
+      "description": "The master of suspense — the complete directed filmography, from the silent era to Family Plot."
+    },
+    {
+      "slug": "stanley-kubrick",
+      "type": "director",
+      "person": "Stanley Kubrick",
+      "title": "Stanley Kubrick",
+      "description": "Thirteen films in forty-six years. Perfectionism as a body of work."
+    },
+    {
+      "slug": "andrei-tarkovsky",
+      "type": "director",
+      "person": "Andrei Tarkovsky",
+      "title": "Andrei Tarkovsky",
+      "description": "Sculpting in time — seven features that treat cinema as prayer."
+    },
+    {
+      "slug": "christopher-nolan",
+      "type": "director",
+      "person": "Christopher Nolan",
+      "title": "Christopher Nolan",
+      "description": "Puzzle boxes at blockbuster scale."
+    },
+    {
+      "slug": "quentin-tarantino",
+      "type": "director",
+      "person": "Quentin Tarantino",
+      "title": "Quentin Tarantino",
+      "description": "Dialogue, needle drops, and a career-long conversation with film history."
+    },
+    {
+      "slug": "david-fincher",
+      "type": "director",
+      "person": "David Fincher",
+      "title": "David Fincher",
+      "description": "Precision-machined thrillers and the dark side of institutions."
+    },
+    {
+      "slug": "transformers",
+      "type": "franchise",
+      "tmdbCollectionSearch": "Transformers",
+      "title": "Transformers",
+      "description": "Every Transformers movie — the complete franchise, for better or worse."
+    }
+  ]
+}

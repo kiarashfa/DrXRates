@@ -1,0 +1,44 @@
+---
+const { title, note = null, paged = true } = Astro.props;
+---
+
+<section class="shelf" data-shelf>
+  <div class="shelf-head">
+    <h2>{title}</h2>
+    {note && <span class="shelf-note">{note}</span>}
+    {paged && (
+      <div class="shelf-arrows">
+        <button class="shelf-arrow" data-shelf-prev aria-label="Previous films" data-testid="shelf-prev" disabled>←</button>
+        <button class="shelf-arrow" data-shelf-next aria-label="Next films" data-testid="shelf-next">→</button>
+      </div>
+    )}
+  </div>
+  <div class={`shelf-row${paged ? ' paged' : ''}`} data-shelf-row>
+    <slot />
+  </div>
+</section>
+
+<script>
+  function initShelf(shelf: Element) {
+    const row = shelf.querySelector('[data-shelf-row]') as HTMLElement | null;
+    const prev = shelf.querySelector('[data-shelf-prev]') as HTMLButtonElement | null;
+    const next = shelf.querySelector('[data-shelf-next]') as HTMLButtonElement | null;
+    if (!row || !prev || !next) return;
+    // One full view per click: N cards + inner gaps = clientWidth, plus the
+    // gap that separates this view from the next.
+    const step = () => {
+      const gap = parseFloat(getComputedStyle(row).columnGap || '16') || 16;
+      return row.clientWidth + gap;
+    };
+    const sync = () => {
+      prev.disabled = row.scrollLeft <= 4;
+      next.disabled = row.scrollLeft + row.clientWidth >= row.scrollWidth - 4;
+    };
+    prev.addEventListener('click', () => row.scrollBy({ left: -step(), behavior: 'smooth' }));
+    next.addEventListener('click', () => row.scrollBy({ left: step(), behavior: 'smooth' }));
+    row.addEventListener('scroll', sync, { passive: true });
+    window.addEventListener('resize', sync);
+    sync();
+  }
+  document.querySelectorAll('[data-shelf]').forEach(initShelf);
+</script>

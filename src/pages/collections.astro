@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+import { collections, movieById } from '../lib/data.js';
+import { withBase, tmdbImg } from '../lib/util.js';
+---
+
+<Base title="Collections" description="Curated shelves — director filmographies, franchises, and other groupings.">
+  <section class="wrap" style="padding-top:3rem;">
+    <h1>Collections</h1>
+    <p class="muted" style="max-width:640px;">
+      Curated shelves inside the archive — complete director filmographies, franchises, and other groupings.
+      Each is a view into the same film database.
+    </p>
+  </section>
+  <section class="wrap collection-grid" style="margin-top:2rem;" data-testid="collection-cards">
+    {collections.map((c) => {
+      const films = c.movieIds.map((id) => movieById.get(id)).filter(Boolean);
+      const posters = films.filter((m) => m.poster).slice(0, 4);
+      return (
+        <a class="panel collection-card" href={withBase(`/collection/${c.slug}`)}>
+          <div style="display:flex; gap:0.4rem; margin-bottom:0.9rem;">
+            {posters.map((m) => (
+              <img src={tmdbImg(m.poster, 'w154')} alt="" loading="lazy" style="width:56px; height:84px; object-fit:cover; border-radius:3px; border:1px solid var(--border);" />
+            ))}
+          </div>
+          <h3>{c.title}</h3>
+          <p class="small muted collection-desc">{c.description}</p>
+          <span class="small faint mono collection-count">{films.length} films</span>
+        </a>
+      );
+    })}
+  </section>
+</Base>

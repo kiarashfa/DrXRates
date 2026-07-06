@@ -1,0 +1,60 @@
+---
+import Base from '../layouts/Base.astro';
+import Shelf from '../components/Shelf.astro';
+import MovieCard from '../components/MovieCard.astro';
+import CatalogBrowser from '../components/CatalogBrowser.svelte';
+import { movies, collections, meta, movieById } from '../lib/data.js';
+import { withBase, SITE_TAGLINE } from '../lib/util.js';
+
+const rated = movies.filter((m) => m.myRating);
+const topRated = [...rated].sort((a, b) => b.myRating.overall - a.myRating.overall || (b.year ?? 0) - (a.year ?? 0)).slice(0, 16);
+const recent = [...rated].sort((a, b) => (b.year ?? 0) - (a.year ?? 0) || b.myRating.overall - a.myRating.overall).slice(0, 16);
+const cardProps = (m) => ({ slug: m.slug, title: m.title, year: m.year, poster: m.poster, my: m.myRating?.overall ?? null });
+---
+
+<Base>
+  <section class="wrap" style="padding-top:3.2rem;">
+    <h1 style="font-size:clamp(2.1rem, 5vw, 3.4rem); max-width:720px;">{SITE_TAGLINE}.</h1>
+    <p class="muted" style="max-width:640px;">
+      Every film scored out of ten — five points of <span class="pill content">content</span> and five of
+      <span class="pill form">form</span>. {meta.counts.rated.toLocaleString()} films rated so far,
+      shelved among {meta.counts.movies.toLocaleString()} in the archive.
+    </p>
+  </section>
+
+  <section class="wrap">
+    <div class="shelf-head" style="margin-top:2.6rem;">
+      <h2>Collections</h2>
+      <span class="shelf-note"><a href={withBase('/collections')} style="color:inherit;">all shelves →</a></span>
+    </div>
+    <div class="spine-row">
+      {collections.map((c, i) => {
+        const inArchive = c.movieIds.filter((id) => movieById.has(id)).length;
+        return (
+          <a class="spine" href={withBase(`/collection/${c.slug}`)}>
+            <span class="spine-num">№ {String(i + 1).padStart(2, '0')}</span>
+            <span class="spine-title">{c.title}</span>
+            <span class="spine-count">{inArchive}</span>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+
+  <section class="wrap">
+    <Shelf title="Top of the ledger" note="highest scores on the shelf">
+      {topRated.map((m) => <MovieCard {...cardProps(m)} />)}
+    </Shelf>
+    <Shelf title="Latest screenings" note="most recent releases I've rated">
+      {recent.map((m) => <MovieCard {...cardProps(m)} />)}
+    </Shelf>
+  </section>
+
+  <section class="wrap" id="catalog" style="margin-top:3rem;">
+    <div class="shelf-head">
+      <h2>The catalog</h2>
+      <span class="shelf-note">browse, filter, and sort the whole archive</span>
+    </div>
+    <CatalogBrowser client:only="svelte" />
+  </section>
+</Base>

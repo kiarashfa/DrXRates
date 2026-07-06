@@ -1,0 +1,3 @@
+{
+  "_readme": "Manual match fixes, honored by every build. Key: 'Excel Title|Year' exactly as in Rating_DB.xlsx. Value: a TMDB movie id (number), or the string 'skip' to exclude the row. Entries here silence the corresponding review-file item."
+}

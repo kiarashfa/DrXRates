@@ -1,0 +1,66 @@
+---
+import Base from '../layouts/Base.astro';
+import { meta } from '../lib/data.js';
+import { CONTENT_KEYS, FORM_KEYS } from '../../shared/rating-meta.mjs';
+---
+
+<Base title="About" description="How the ten-part rating system works, and where the data comes from.">
+  <section class="wrap" style="padding-top:3rem; max-width:860px;">
+    <h1>About the ledger</h1>
+    <p class="muted">
+      This is a personal film archive: every film I watch is scored out of ten, split into two halves —
+      what the film says and how it says it.
+    </p>
+
+    <h2 style="margin-top:2.4rem;">The ten-part system</h2>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.2rem; margin-top:1rem;">
+      <div class="panel">
+        <span class="pill content">Content — 5 points</span>
+        <ul class="muted small" style="margin:0.8rem 0 0; padding-left:1.2rem; line-height:2;">
+          {CONTENT_KEYS.map((k) => <li>{k.label}</li>)}
+        </ul>
+      </div>
+      <div class="panel">
+        <span class="pill form">Form — 5 points</span>
+        <ul class="muted small" style="margin:0.8rem 0 0; padding-left:1.2rem; line-height:2;">
+          {FORM_KEYS.map((k) => <li>{k.label}</li>)}
+        </ul>
+      </div>
+    </div>
+    <p class="muted small" style="margin-top:1rem;">
+      Each half is scored 0–5 per criterion and averaged; the two averages add up to the score out of ten.
+      Visitors can rate any film with the exact same system — see the scorecard on any film page.
+    </p>
+
+    <h2 style="margin-top:2.4rem;">Your ratings stay with you</h2>
+    <p class="muted small">
+      There is no server behind this site. Ratings you make are stored in your own browser's local storage —
+      never uploaded, never aggregated. Use the export button to download them as JSON and the import button to
+      bring them back in another browser.
+    </p>
+
+    <h2 style="margin-top:2.4rem;">Data &amp; credits</h2>
+    <p class="muted small">
+      Film metadata, posters, and community scores come from
+      <a href="https://www.themoviedb.org/" target="_blank" rel="noopener" style="color:var(--accent);">TMDB</a>.
+      IMDb, Rotten Tomatoes, and Metacritic scores are retrieved via the
+      <a href="https://www.omdbapi.com/" target="_blank" rel="noopener" style="color:var(--accent);">OMDb API</a>.
+      Director portraits come from TMDB or Wikimedia Commons.
+      Average shot length figures are compiled by hand, largely from
+      <a href="https://cinemetrics.uchicago.edu/" target="_blank" rel="noopener" style="color:var(--accent);">Cinemetrics</a>-style measurement.
+      My ratings are my own.
+    </p>
+    <div class="panel" style="display:flex; gap:1rem; align-items:center; margin-top:1rem;">
+      <img
+        src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_short-8e7b30f73a4020692ccca9c88bafe5dcb6f8a62a4c6bc55cd9ba82bb2cd95f6c.svg"
+        alt="TMDB logo" style="height:16px; width:auto;" loading="lazy"
+      />
+      <span class="small muted">This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
+    </div>
+    <p class="faint small" style="margin-top:1.6rem;">
+      Archive generated {meta.generatedAt.slice(0, 10)} — {meta.counts.movies.toLocaleString()} films,
+      {meta.counts.rated.toLocaleString()} rated, {meta.counts.directors} directors,
+      {meta.counts.collections} collections.
+    </p>
+  </section>
+</Base>

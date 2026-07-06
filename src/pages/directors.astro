@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import { directors } from '../lib/data.js';
+import { withBase, fmt1 } from '../lib/util.js';
+
+const sorted = [...directors].sort((a, b) => a.name.localeCompare(b.name));
+---
+
+<Base title="Directors" description="The directors' wing — average shot length and my ratings, director by director.">
+  <section class="wrap" style="padding-top:3rem;">
+    <h1>The directors' wing</h1>
+    <p class="muted" style="max-width:660px;">
+      {directors.length} directors with measured average shot length (ASL) — how long a shot lasts, on average,
+      before a cut. A fingerprint of editing style: Tarkovsky holds for a minute, Michael Bay for a blink.
+    </p>
+  </section>
+  <section class="wrap" style="margin-top:2rem;">
+    <table class="data-table" data-testid="directors-table">
+      <thead>
+        <tr><th>Director</th><th>Avg shot length</th><th>Films measured</th><th>My average</th><th>Rated</th></tr>
+      </thead>
+      <tbody>
+        {sorted.map((d) => (
+          <tr>
+            <td><a href={withBase(`/director/${d.slug}`)}>{d.name}</a></td>
+            <td class="num">{d.aslAvg}s</td>
+            <td class="num">{d.aslCount}</td>
+            <td class="num">{d.myAvg != null ? `${fmt1(d.myAvg)} / 10` : '—'}</td>
+            <td class="num">{d.myCount || '—'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </section>
+</Base>
