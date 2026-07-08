@@ -9,7 +9,8 @@
     "omdb": "node scripts/fetch-omdb-batch.mjs",
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "qa": "playwright test"
   },
   "dependencies": {
     "@astrojs/svelte": "^9.0.1",
@@ -20,5 +21,8 @@
     "dotenv": "^17.4.2",
     "exceljs": "^4.4.0",
     "svelte": "^5.56.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1"
   }
 }

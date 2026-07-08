@@ -11,6 +11,7 @@
   --radius: 6px;
   --shelf-wood: transparent;
   --glow: none;
+  --ribbon: #000;
 }
 
 :root[data-theme='light'] {
@@ -22,6 +23,7 @@
   --hero-ink: #221e19;
   --hero-ink-muted: rgb(34 30 25 / 0.72);
   --hero-shade: rgb(240 234 221 / 0.62);
+  --ribbon: #fff;
   --ink: #221e19;
   --ink-muted: #6d6557;
   --ink-faint: #9b9284;
@@ -44,6 +46,7 @@
   --hero-ink: #ece7dc;
   --hero-ink-muted: rgb(236 231 220 / 0.72);
   --hero-shade: rgb(0 0 0 / 0.55);
+  --ribbon: #000;
   --ink: #eae4d8;
   --ink-muted: #a49b8d;
   --ink-faint: #6f685d;
@@ -66,6 +69,7 @@
   --hero-ink: #c8f2d8;
   --hero-ink-muted: rgb(200 242 216 / 0.7);
   --hero-shade: rgb(0 0 0 / 0.6);
+  --ribbon: #000;
   --ink: #c8f2d8;
   --ink-muted: #6fad8b;
   --ink-faint: #3f7557;
@@ -265,7 +269,7 @@ button { font: inherit; cursor: pointer; }
    paper-light wash in light theme, always with legible text. */
 .screen-hero { background: var(--hero-bg); color: var(--hero-ink); position: relative; overflow: hidden; }
 .screen-hero::before, .screen-hero::after {
-  content: ''; display: block; height: 16px; background: #000; position: relative; z-index: 3;
+  content: ''; display: block; height: 2px; background: var(--ribbon); position: relative; z-index: 3;
 }
 .screen-hero .backdrop {
   position: absolute; inset: 0; background-size: cover; background-position: center 25%;
@@ -274,7 +278,7 @@ button { font: inherit; cursor: pointer; }
 .screen-hero .backdrop-fade { position: absolute; inset: 0; background: linear-gradient(to top, var(--hero-bg) 4%, transparent 55%), linear-gradient(to right, var(--hero-shade), transparent 60%); }
 .screen-hero .hero-inner {
   position: relative; z-index: 2; display: flex; gap: 2.2rem; align-items: flex-end;
-  padding: 3.2rem 0 2.4rem;
+  padding: 1.2rem 0 1.2rem;
 }
 .screen-hero .hero-poster { width: 200px; flex-shrink: 0; border-radius: 4px; overflow: hidden; box-shadow: 0 10px 30px rgb(0 0 0 / 0.35); border: 1px solid var(--border-strong); }
 .screen-hero h1 { font-size: clamp(1.9rem, 4.5vw, 3.1rem); margin-bottom: 0.4rem; }

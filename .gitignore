@@ -3,6 +3,16 @@ dist/
 .astro/
 .env
 data/cache/
+data/review/
 test-results/
 playwright-report/
 *.log
+
+# Local-only dev files (not part of the published site)
+.claude/
+HANDOFF.md
+tests/
+playwright.config.mjs
+
+# Owner's X data-archive drop zone (see HANDOFF.md — stills import), added when it arrives
+x-archive/
