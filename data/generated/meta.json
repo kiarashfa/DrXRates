@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-08T21:50:16.918Z",
+  "generatedAt": "2026-07-12T21:00:36.327Z",
   "imageBase": "https://image.tmdb.org/t/p/",
   "counts": {
     "movies": 10370,
@@ -9,7 +9,7 @@
     "collections": 7
   },
   "omdbCoverage": {
-    "have": 2999,
+    "have": 4998,
     "withImdbId": 10033,
     "ratedWithOmdb": 1266,
     "limitHit": true
