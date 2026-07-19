@@ -1,18 +1,18 @@
 {
-  "generatedAt": "2026-07-12T21:00:36.327Z",
+  "generatedAt": "2026-07-19T16:31:06.221Z",
   "imageBase": "https://image.tmdb.org/t/p/",
   "counts": {
-    "movies": 10370,
+    "movies": 10368,
     "rated": 1272,
     "withAsl": 1180,
     "directors": 154,
     "collections": 7
   },
   "omdbCoverage": {
-    "have": 4998,
+    "have": 9690,
     "withImdbId": 10033,
     "ratedWithOmdb": 1266,
-    "limitHit": true
+    "limitHit": false
   },
   "attribution": "This product uses the TMDB API but is not endorsed or certified by TMDB."
 }
