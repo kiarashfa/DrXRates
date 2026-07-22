@@ -5,7 +5,9 @@ export const SITE_TAGLINE = 'A personal archive of film, rated in ten parts';
 
 // TMDB image base comes from their /configuration endpoint at data-build time
 // (meta.imageBase) — this is the ONLY place URLs get assembled from it. The JSON
-// data stores relative file paths only.
+// data stores relative TMDB file paths, with one exception: OMDb-fallback
+// posters (films TMDB has no artwork for) are stored as full URLs and passed
+// through untouched below.
 const IMG_BASE = meta.imageBase || 'https://image.tmdb.org/t/p/';
 
 export function withBase(path) {
@@ -14,7 +16,9 @@ export function withBase(path) {
 }
 
 export function tmdbImg(path, size = 'w342') {
-  return path ? `${IMG_BASE}${size}${path}` : null;
+  if (!path) return null;
+  if (path.startsWith('http')) return path; // OMDb-fallback poster: already a full URL
+  return `${IMG_BASE}${size}${path}`;
 }
 
 // Delegates to the one shared score formatter — see shared/rating-meta.mjs.

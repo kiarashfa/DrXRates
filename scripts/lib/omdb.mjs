@@ -36,7 +36,7 @@ function parseOmdb(d) {
 
 export async function omdbByImdbId(imdbId, { offline = false } = {}) {
   const key = process.env.OMDB_API_KEY;
-  if (!key || !imdbId) return { ratings: null, fetched: false };
+  if (!key || !imdbId) return { ratings: null, poster: null, fetched: false };
 
   const url = `https://www.omdbapi.com/?i=${encodeURIComponent(imdbId)}&apikey=${key}`;
   const { data, fromCache } = await cachedJson(url, {
@@ -50,7 +50,9 @@ export async function omdbByImdbId(imdbId, { offline = false } = {}) {
   if (data && data.Response === 'False' && /limit|exceeded|invalid api key|unauthorized/i.test(data.Error ?? '')) {
     if (!limitHit) console.log(`  OMDb stopped: ${data.Error}`);
     limitHit = true;
-    return { ratings: null, fetched: false };
+    return { ratings: null, poster: null, fetched: false };
   }
-  return { ratings: parseOmdb(data), fetched: !fromCache && data != null };
+  // Poster is independent of ratings — some obscure films have artwork but no scores.
+  const poster = data?.Response === 'True' && data.Poster && data.Poster !== 'N/A' ? data.Poster : null;
+  return { ratings: parseOmdb(data), poster, fetched: !fromCache && data != null };
 }

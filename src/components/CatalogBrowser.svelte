@@ -7,17 +7,27 @@
   let rated = $state('all');
   let decade = $state('all');
   let genre = $state('all');
-  let sort = $state('title');
+  let sort = $state('shuffle');
   let visible = $state(120);
 
   const base = withBase('');
   const img = (p) => tmdbImg(p, 'w342');
   const f1 = fmtScore;
 
+  // Fisher–Yates; runs once per visit so the default order is fresh every time
+  // but stable while filtering/paginating within the visit.
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
   $effect(() => {
     fetch(`${base}/data/catalog.json`)
       .then((r) => r.json())
-      .then((d) => (catalog = d))
+      .then((d) => (catalog = shuffle(d)))
       .catch(() => (catalog = []));
   });
 
@@ -29,6 +39,7 @@
   import { RATING_SORTS } from '../lib/sorts.js';
 
   const SORTS = {
+    shuffle: { label: 'Shuffled', cmp: null }, // null cmp = keep the per-visit random order
     title: { label: 'Title A–Z', cmp: (a, b) => a.title.localeCompare(b.title) },
     'year-desc': { label: 'Newest first', cmp: (a, b) => (b.year ?? 0) - (a.year ?? 0) },
     ...RATING_SORTS,
@@ -45,7 +56,8 @@
       if (genre !== 'all' && !m.genres.includes(genre)) return false;
       return true;
     });
-    return [...list].sort((SORTS[sort] ?? SORTS.title).cmp);
+    const cmp = (SORTS[sort] ?? SORTS.shuffle).cmp;
+    return cmp ? [...list].sort(cmp) : list; // no cmp: `list` is already a fresh array in shuffled order
   });
 
   $effect(() => {

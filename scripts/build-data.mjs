@@ -11,6 +11,7 @@ import {
   collectionDetails,
   topRated,
   popular,
+  mostVoted,
   configuration,
   fetchStats,
 } from './lib/tmdb.mjs';
@@ -20,9 +21,13 @@ import { wikiSummary } from './lib/wiki.mjs';
 const offline = process.argv.includes('--excel-only');
 const OUT_DIR = path.resolve('data/generated');
 const REVIEW_DIR = path.resolve('data/review');
-// Base layer target ~10,000 movies: TMDB top-rated + popular list pages (20 movies each).
-const TOP_RATED_PAGES = 465;
+// Base layer target ≥20,000 movies: TMDB top-rated + popular list pages (20
+// movies each; the API caps any list at page 500) + most-voted films via
+// /discover, walked downward in vote-count bands until TARGET_MOVIES unique ids.
+const TOP_RATED_PAGES = 500;
 const POPULAR_PAGES = 160;
+const VOTE_FLOOR = 100; // never take films below this many TMDB votes
+const TARGET_MOVIES = 20300; // small buffer over 20k for detail-fetch dropouts
 const FALLBACK_IMG_BASE = 'https://image.tmdb.org/t/p/';
 
 function slugify(s) {
@@ -192,6 +197,39 @@ async function main() {
       popular(i + 1, { offline }).then((page) => (page?.results ?? []).forEach((m) => wantedIds.add(m.id)))
     ),
   ]);
+  log(`  ${wantedIds.size} unique after list pages`);
+
+  // Most-voted films, walked downward in vote-count bands (each band is one
+  // /discover sort, page-capped at 500 by the API; the next band resumes below
+  // the previous band's floor). Stops at TARGET_MOVIES. Pages are disk-cached
+  // like everything else, so the selection freezes once fetched and re-runs
+  // (including --excel-only) reproduce it exactly.
+  log(`— Base layer: most-voted films via discover (target ${TARGET_MOVIES})…`);
+  const CHUNK_PAGES = 50;
+  let bandMax = null; // vote_count.lte of the current band; null = open-topped first band
+  for (let band = 1; band <= 8 && wantedIds.size < TARGET_MOVIES; band++) {
+    const bandOpts = { minVotes: VOTE_FLOOR, maxVotes: bandMax, offline };
+    const first = await mostVoted(1, bandOpts);
+    if (!first?.results?.length) break;
+    let floor = Infinity;
+    const absorb = (page) =>
+      (page?.results ?? []).forEach((m) => {
+        wantedIds.add(m.id);
+        if (m.vote_count < floor) floor = m.vote_count;
+      });
+    absorb(first);
+    const totalPages = Math.min(first.total_pages ?? 1, 500);
+    for (let p = 2; p <= totalPages && wantedIds.size < TARGET_MOVIES; p += CHUNK_PAGES) {
+      await Promise.all(
+        Array.from({ length: Math.min(CHUNK_PAGES, totalPages - p + 1) }, (_, i) =>
+          mostVoted(p + i, bandOpts).then(absorb)
+        )
+      );
+    }
+    log(`  band ${band}: down to ${floor} votes — ${wantedIds.size} unique`);
+    if (totalPages < 500) break; // universe above VOTE_FLOOR exhausted
+    bandMax = floor;
+  }
   log(`  total unique movies wanted: ${wantedIds.size}`);
 
   const tmdbConfig = await configuration({ offline });
@@ -262,15 +300,33 @@ async function main() {
     .sort((a, b) => (b.myRating ? 1 : 0) - (a.myRating ? 1 : 0) || (b.tmdbRating?.votes ?? 0) - (a.tmdbRating?.votes ?? 0));
   let omdbHave = 0;
   let omdbFetchedNow = 0;
+  let omdbPosterFilled = 0;
+  // OMDb poster URLs are often stale (IMDb rotates image ids) — a dead URL
+  // would render a broken image where the styled no-poster card should be, so
+  // verify with a HEAD request before adopting. Only runs for the handful of
+  // TMDB-posterless films, and not in --excel-only mode (no network there).
+  const posterAlive = async (url) => {
+    try {
+      return (await fetch(url, { method: 'HEAD' })).ok;
+    } catch {
+      return false;
+    }
+  };
   {
     const workers = Array.from({ length: 8 }, async () => {
       while (omdbQueue.length) {
         const rec = omdbQueue.shift();
         if (!rec) break;
-        const { ratings, fetched } = await omdbByImdbId(rec.imdbId, { offline });
+        const { ratings, poster, fetched } = await omdbByImdbId(rec.imdbId, { offline });
         if (ratings) {
           rec.omdb = ratings;
           omdbHave++;
+        }
+        // TMDB occasionally has no artwork for obscure films — fall back to OMDb's
+        // poster. Stored as a full URL; tmdbImg passes absolute URLs through as-is.
+        if (!rec.poster && poster && !offline && (await posterAlive(poster))) {
+          rec.poster = poster;
+          omdbPosterFilled++;
         }
         if (fetched) omdbFetchedNow++;
       }
@@ -279,7 +335,7 @@ async function main() {
   }
   const withImdbId = [...records.values()].filter((r) => r.imdbId).length;
   const ratedWithOmdb = [...records.values()].filter((r) => r.myRating && r.omdb).length;
-  log(`  OMDb ratings on ${omdbHave}/${withImdbId} films (${omdbFetchedNow} fetched this run)${omdbLimitHit() ? ' — DAILY LIMIT HIT, rerun tomorrow to extend coverage' : ''}`);
+  log(`  OMDb ratings on ${omdbHave}/${withImdbId} films (${omdbFetchedNow} fetched this run, ${omdbPosterFilled} missing posters filled from OMDb)${omdbLimitHit() ? ' — DAILY LIMIT HIT, rerun tomorrow to extend coverage' : ''}`);
 
   log('— Joining ASL data…');
   const aslIndex = new Map();
