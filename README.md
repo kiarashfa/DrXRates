@@ -9,3 +9,7 @@ Fully static: Astro + Svelte, no backend, three themes (light / dark / matrix).
 ## Credits
 
 Film metadata and posters from [TMDB](https://www.themoviedb.org/) — this product uses the TMDB API but is not endorsed or certified by TMDB. Supplementary ratings via the [OMDb API](https://www.omdbapi.com/). Director portraits from TMDB and Wikimedia Commons.
+
+© 2026 Kiarash Farajzadehahary.
+
+⚖ Licensed under the [KFA Source-Available License 1.0](LICENSE).
