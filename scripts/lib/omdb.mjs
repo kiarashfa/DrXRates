@@ -5,8 +5,8 @@ import { cachedJson } from './cached-fetch.mjs';
 
 const CACHE_DIR = path.resolve('data/cache/omdb');
 
-// True when a real OMDb answer (found or not-found) is already on disk —
-// rate-limit errors are never cached, so this is safe for quota planning.
+// True when a real OMDb answer (found or not-found) is already on disk.
+// Rate-limit errors are never cached, so this is safe for quota planning.
 export function omdbHasCached(imdbId) {
   const hash = createHash('sha1').update(`omdb:${imdbId}`).digest('hex');
   return existsSync(path.join(CACHE_DIR, `${hash}.json`));
@@ -43,7 +43,7 @@ export async function omdbByImdbId(imdbId, { offline = false } = {}) {
     cacheDir: CACHE_DIR,
     cacheKey: `omdb:${imdbId}`,
     offline: offline || limitHit,
-    // Never cache rate-limit or auth errors — only real answers (incl. not-found).
+    // Never cache rate-limit or auth errors, only real answers (incl. not-found).
     shouldCache: (d) =>
       d.__notFound === true || d.Response === 'True' || (d.Response === 'False' && /not found/i.test(d.Error ?? '')),
   });
@@ -52,7 +52,7 @@ export async function omdbByImdbId(imdbId, { offline = false } = {}) {
     limitHit = true;
     return { ratings: null, poster: null, fetched: false };
   }
-  // Poster is independent of ratings — some obscure films have artwork but no scores.
+  // Poster is independent of ratings: some obscure films have artwork but no scores.
   const poster = data?.Response === 'True' && data.Poster && data.Poster !== 'N/A' ? data.Poster : null;
   return { ratings: parseOmdb(data), poster, fetched: !fromCache && data != null };
 }

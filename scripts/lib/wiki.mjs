@@ -3,7 +3,7 @@ import { cachedJson } from './cached-fetch.mjs';
 
 const CACHE_DIR = path.resolve('data/cache/wiki');
 
-// Wikipedia REST summary — portrait + first-paragraph fallback for directors
+// Wikipedia REST summary: portrait + first-paragraph fallback for directors
 // TMDB can't resolve (e.g. 'Coen Brothers', 'The Wachowskis').
 export async function wikiSummary(title, { offline = false } = {}) {
   const slug = encodeURIComponent(title.trim().replace(/ /g, '_'));

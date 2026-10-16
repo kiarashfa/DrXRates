@@ -25,7 +25,7 @@ function titlesEqual(a, b) {
   return a === b || stripThe(a) === stripThe(b);
 }
 
-// 'Anchorman 2' vs 'Anchorman 2: The Legend Continues' — the Excel title is a
+// 'Anchorman 2' vs 'Anchorman 2: The Legend Continues': the Excel title is a
 // word-boundary prefix and the extra text looks like a subtitle, or the Excel
 // title is the movie's suffix behind a short prelude ("Lemony Snicket's …").
 function subtitleMatch(candNorm, candRaw, norm) {
@@ -81,7 +81,7 @@ function byVotes(year) {
 }
 
 // A "clear favourite" has ≥10× the runner-up's votes (and a meaningful count
-// itself) — such picks go to the skim list instead of the must-verify list.
+// itself); such picks go to the skim list instead of the must-verify list.
 function clearFavourite(sorted) {
   const [a, b] = sorted;
   return votes(a) >= 50 && votes(a) >= 10 * votes(b);
@@ -89,7 +89,7 @@ function clearFavourite(sorted) {
 
 // Orders candidates for picking. A film dated exactly the Excel year keeps
 // priority (remakes often land a year apart: Perfect Strangers 2016 vs 2017)
-// unless an off-by-one film dwarfs it — the premiere-vs-release-year case.
+// unless an off-by-one film dwarfs it (the premiere-vs-release-year case).
 function rank(cands, year) {
   const sorted = [...cands].sort(byVotes(year));
   const sameYear = year ? sorted.find((c) => candYear(c) === year) : null;
@@ -100,7 +100,7 @@ function rank(cands, year) {
 // Matches one Excel row (title + year) to a TMDB movie.
 // Returns { id, status, review } where status is one of
 // 'override' | 'exact' | 'loose' | 'ambiguous' | 'unmatched'.
-// Anything not 'exact'/'override' also produces a review entry — never a silent guess.
+// Anything not 'exact'/'override' also produces a review entry: never a silent guess.
 export async function matchMovie({ title, year }, { overrides = {}, offline = false } = {}) {
   const key = `${title}|${year}`;
   if (overrides[key] != null) {
@@ -144,7 +144,7 @@ export async function matchMovie({ title, year }, { overrides = {}, offline = fa
   if (!hadYearResults && results.length && year) searchNote = 'matched via year-less search, year within ±1';
 
   if (!results.length) {
-    // Exact title exists but under a different year — probably a year typo in Excel.
+    // Exact title exists but under a different year: probably a year typo in Excel.
     const exactWrongYear = yearlessAll.filter((c) =>
       titlesEqual(normalizeTitle(c.title), norm) || titlesEqual(normalizeTitle(c.original_title || ''), norm)
     );
@@ -159,7 +159,7 @@ export async function matchMovie({ title, year }, { overrides = {}, offline = fa
           title,
           year,
           chosen: summarize(pick),
-          reason: `exact title but year differs (Excel ${year} vs TMDB ${candYear(pick)}) — check for a year typo`,
+          reason: `exact title but year differs (Excel ${year} vs TMDB ${candYear(pick)}); check for a year typo`,
           candidates: exactWrongYear.slice(0, 4).map(summarize),
         },
       };
@@ -204,7 +204,7 @@ export async function matchMovie({ title, year }, { overrides = {}, offline = fa
       notes.push(
         clear
           ? `picked the clear favourite of ${pool.length} ${useSubtitle ? 'candidates' : 'same-title films'} (${votes(pool[0])} votes vs ${votes(pool[1])})`
-          : `${pool.length} ${useSubtitle ? 'subtitle-completion candidates' : 'same-title films (remake/re-release?)'} — verify the pick`
+          : `${pool.length} ${useSubtitle ? 'subtitle-completion candidates' : 'same-title films (remake/re-release?)'}; verify the pick`
       );
     }
     if (useSubtitle && exact.length) notes.push(`out-votes the exact-title namesake (${votes(exact[0])} votes)`);
@@ -217,7 +217,7 @@ export async function matchMovie({ title, year }, { overrides = {}, offline = fa
     };
   }
 
-  // No exact title hit — rank by edit distance, then votes.
+  // No exact title hit: rank by edit distance, then votes.
   const ranked = [...results].sort((a, b) => {
     const da = Math.min(levenshtein(normalizeTitle(a.title), norm), levenshtein(normalizeTitle(a.original_title || ''), norm));
     const db = Math.min(levenshtein(normalizeTitle(b.title), norm), levenshtein(normalizeTitle(b.original_title || ''), norm));

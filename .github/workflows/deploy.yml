@@ -1,7 +1,7 @@
 name: Deploy to GitHub Pages
 
 # Builds the static site and publishes it via GitHub Pages (Actions source).
-# One-time repo setup: Settings → Pages → Source: "GitHub Actions". That's all —
+# One-time repo setup: Settings → Pages → Source: "GitHub Actions". That's all:
 # the site URL and base path are detected automatically below, and the build
 # needs no secrets (it renders from the committed data/generated JSON).
 
@@ -42,7 +42,7 @@ jobs:
       - name: Build site
         run: npm run build
         env:
-          # Consumed by astro.config.mjs — correct for both user sites
+          # Consumed by astro.config.mjs; correct for both user sites
           # (username.github.io → base "/") and project sites (→ "/<repo>").
           SITE: ${{ steps.pages.outputs.origin }}
           BASE_PATH: ${{ steps.pages.outputs.base_path }}

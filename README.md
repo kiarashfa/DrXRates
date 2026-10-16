@@ -1,17 +1,15 @@
 # The Cinema Ledger
 
-A personal film archive and rating system. Every film I watch is scored out of ten — five points of **content** (originality, character, continuity, suspense, meaning) and five of **form** (acting, cinematography, sound, directing, production design). The site holds 20,000+ films, 1,300+ of them personally rated, alongside curated collections, director hall-of-fame pages with average-shot-length data, and scores from TMDB, IMDb, Rotten Tomatoes, and Metacritic.
+**The Cinema Ledger** is a personal film archive and rating system. Every film I watch is scored out of ten: five points of **content** (originality, character, continuity, suspense, meaning) and five of **form** (acting, cinematography, sound, directing, production design).
 
-Visitors can rate any film with the same ten-part system — ratings stay in your own browser (nothing is uploaded), with JSON export/import to move them between machines.
+Browse 20,000+ films, 1,300+ of them rated, with curated collections, director pages with average-shot-length data, and scores from TMDB, IMDb, Rotten Tomatoes and Metacritic. Rate any film yourself with the same ten-part system; your ratings stay in your browser. No sign-up, no accounts, no ads.
 
-Fully static: Astro + Svelte, no backend, three themes (light / dark / matrix). No accounts, no sign-up, no ads.
+---
 
-**Live site:** <https://kiarashfa.github.io/DrXRates/>
-
-## Credits
-
-Film metadata and posters from [TMDB](https://www.themoviedb.org/) — this product uses the TMDB API but is not endorsed or certified by TMDB. Supplementary ratings via the [OMDb API](https://www.omdbapi.com/). Director portraits from TMDB and Wikimedia Commons.
+Film data and posters from [TMDB](https://www.themoviedb.org/). This product uses the TMDB API but is not endorsed or certified by TMDB. Supplementary ratings via the [OMDb API](https://www.omdbapi.com/).
 
 © 2026 Kiarash Farajzadehahary.
 
-⚖ Source-available under the [KFA Source-Available License 1.0](LICENSE).
+⚖ Licensed under the [KFA Source-Available License 1.0](LICENSE).
+
+Made with ❤️ for cinephiles.

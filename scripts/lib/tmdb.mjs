@@ -42,7 +42,7 @@ async function throttled(fn) {
 // Cache reads need their own concurrency gate: build-data fires tens of
 // thousands of tmdbGet calls at once, and unbounded parallel readFile calls
 // exhaust Windows' ~8k open-file limit (EMFILE). Before this gate existed,
-// those failures were silently treated as cache misses — a full re-fetch of
+// those failures were silently treated as cache misses, causing a full re-fetch of
 // the movie-detail cache on every run once the archive passed ~10k films.
 const IO_MAX = 256;
 let ioInFlight = 0;
@@ -97,7 +97,7 @@ export async function tmdbGet(endpoint, params = {}, { offline = false } = {}) {
     return cached.data;
   } catch (err) {
     // Only a genuinely absent file (or corrupt JSON, which has no .code) is a
-    // cache miss. Anything else (EMFILE, EPERM, …) must fail loudly — silently
+    // cache miss. Anything else (EMFILE, EPERM, …) must fail loudly; silently
     // refetching would waste thousands of calls and mask the real problem.
     if (err?.code && err.code !== 'ENOENT') throw err;
   }

@@ -1,4 +1,4 @@
-// Visitor ratings live ONLY in the browser's localStorage — there is no backend.
+// Visitor ratings live ONLY in the browser's localStorage; there is no backend.
 import { ALL_KEYS } from '../../shared/rating-meta.mjs';
 
 const KEY = 'cinema.visitor.v1';

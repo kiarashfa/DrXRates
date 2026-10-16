@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
 import ThemeToggle from '../components/ThemeToggle.svelte';
-import { SITE_TITLE, SITE_AUTHOR, REPO_URL, THEME_BG, withBase } from '../lib/util.js';
+import { SITE_TITLE, SITE_AUTHOR, THEME_BG, withBase } from '../lib/util.js';
 import { GA_MEASUREMENT_ID } from '../lib/analytics';
 
 const {
@@ -93,7 +93,11 @@ const copyrightYears = thisYear > COPYRIGHT_START_YEAR ? `${COPYRIGHT_START_YEAR
   <body>
     <header class="site-header">
       <div class="wrap">
-        <a class="brand" href={withBase('/')}>{SITE_TITLE}<span class="reel-dot"> ●</span></a>
+        <a class="brand" href={withBase('/')}>
+          {/* The site mark: favicon.svg used as a CSS mask, filled with the theme accent (same color the favicon switches to). */}
+          <span class="brand-mark" aria-hidden="true" style={`--mark: url('${withBase('/favicon.svg')}')`}></span>
+          {SITE_TITLE}
+        </a>
         <nav class="site-nav" aria-label="Site">
           <a href={withBase('/#catalog')}>Archive</a>
           <a href={withBase('/collections')}>Collections</a>
@@ -108,20 +112,30 @@ const copyrightYears = thisYear > COPYRIGHT_START_YEAR ? `${COPYRIGHT_START_YEAR
       <slot />
     </main>
     <footer class="site-footer">
-      <div class="wrap">
-        <span>
-          © {copyrightYears} {SITE_AUTHOR} · {SITE_TITLE}, a personal film archive ·{' '}
-          <a href={`${REPO_URL}/blob/main/LICENSE`} target="_blank" rel="noopener" style="color:inherit;">source-available</a>
-        </span>
-        <span style="display:inline-flex;align-items:center;gap:0.6em;">
-          <img
-            class="tmdb-logo"
-            src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_short-8e7b30f73a4020692ccca9c88bafe5dcb6f8a62a4c6bc55cd9ba82bb2cd95f6c.svg"
-            alt="TMDB logo"
-            loading="lazy"
-          />
-          This product uses the TMDB API but is not endorsed or certified by TMDB.
-        </span>
+      <div class="wrap footer-inner">
+        <div class="footer-row">
+          <div class="footer-start">
+            <span>{SITE_TITLE}, a personal film archive</span>
+            <span class="footer-sep" aria-hidden="true">|</span>
+            <nav class="footer-links" aria-label="Footer">
+              <a href={withBase('/collections')}>Collections</a>
+              <a href={withBase('/directors')}>Directors</a>
+              <a href={withBase('/about')}>About</a>
+            </nav>
+          </div>
+          <span>© {copyrightYears} {SITE_AUTHOR}</span>
+        </div>
+        <div class="footer-row footer-credits">
+          <span>This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
+          <a href="https://www.themoviedb.org/" target="_blank" rel="noopener" aria-label="TMDB">
+            <img
+              class="tmdb-logo"
+              src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_short-8e7b30f73a4020692ccca9c88bafe5dcb6f8a62a4c6bc55cd9ba82bb2cd95f6c.svg"
+              alt="TMDB logo"
+              loading="lazy"
+            />
+          </a>
+        </div>
       </div>
     </footer>
   </body>

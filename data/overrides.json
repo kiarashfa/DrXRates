@@ -2,7 +2,6 @@
   "_readme": "Manual match fixes, honored by every build. Key: 'Excel Title|Year' exactly as in Rating_DB.xlsx. Value: a TMDB movie id (number), an array of ids (one rating shared by a film TMDB splits into parts), or the string 'skip' to exclude the row. Entries here silence the corresponding review-file item.",
   "Kill Bill|2003": 414419,
   "Nymphomaniac|2013": [258216, 249397],
-  "Eternal Sunshine of The Spotless Mind|2014": "skip",
   "Escape Room|2017": 449664,
   "Swan Song|2021": 765245,
   "Night at the Museum 1|2006": 1593,

@@ -25,7 +25,7 @@
   }
 
   // The catalog JSON is large, so it's fetched only once the section comes
-  // near the viewport — it no longer competes with the shelves above it for
+  // near the viewport, so it no longer competes with the shelves above it for
   // first paint (it was the homepage's mobile LCP / blocking-time cost).
   let root = $state(null);
   $effect(() => {

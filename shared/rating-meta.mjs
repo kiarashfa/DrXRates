@@ -25,9 +25,9 @@ export function halfAverage(scores, keys) {
   return vals.reduce((a, b) => a + b, 0) / keys.length;
 }
 
-// THE score formatter — every score on the site renders through this.
+// THE score formatter: every score on the site renders through this.
 // (A previous per-component copy stripped trailing zeros with a regex and
-// turned 10 into "1" and 0 into "" — never format scores with string surgery.)
+// turned 10 into "1" and 0 into "". Never format scores with string surgery.)
 export function fmtScore(n) {
   if (n == null || Number.isNaN(Number(n))) return '–';
   return String(Math.round(n * 100) / 100);

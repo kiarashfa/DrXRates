@@ -14,7 +14,7 @@
 
   const f1 = fmtScore;
 
-  // Content occupies the right half, form the left — 10 spokes, 36° apart.
+  // Content occupies the right half, form the left: 10 spokes, 36° apart.
   const spokes = $derived(
     [...CONTENT_KEYS.map((k, i) => ({ ...k, angle: -72 + i * 36, color: 'var(--content-c)' })),
      ...FORM_KEYS.map((k, i) => ({ ...k, angle: 108 + i * 36, color: 'var(--form-c)' }))]

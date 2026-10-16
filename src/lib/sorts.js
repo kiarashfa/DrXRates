@@ -1,5 +1,5 @@
 // Shared movie-sort definitions. Rating sorts always group films without that
-// score at the end (alphabetical there) — never interleaved blanks.
+// score at the end (alphabetical there), never interleaved blanks.
 export const nullsLast = (get, dir) => (a, b) => {
   const va = get(a);
   const vb = get(b);

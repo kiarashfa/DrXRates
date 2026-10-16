@@ -1,19 +1,27 @@
+# --- Build output ---
 node_modules/
 dist/
 .astro/
+
+# --- Environment ---
 .env
+
+# --- Data & Test ---
 data/cache/
 data/review/
 test-results/
 playwright-report/
 *.log
 
-# Local-only dev files (not part of the published site)
+# --- Office lock ---
+~$*
+
+# --- Local-only ---
 .claude/
 handoff.md
 HANDOFF.md
 tests/
 playwright.config.mjs
 
-# Owner's X data-archive drop zone (see handoff.md — stills import), added when it arrives
+# --- data-archive ---
 x-archive/

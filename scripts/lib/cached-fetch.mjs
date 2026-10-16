@@ -21,7 +21,7 @@ export async function cachedJson(url, { cacheDir, cacheKey, headers = {}, offlin
       const res = await fetch(url, { headers });
       if (!res.ok) {
         // APIs like OMDb return their real error as a JSON body on 4xx
-        // (e.g. 401 'Request limit reached!') — surface it, don't retry it.
+        // (e.g. 401 'Request limit reached!'), so surface it; don't retry it.
         let body = null;
         try {
           body = await res.json();

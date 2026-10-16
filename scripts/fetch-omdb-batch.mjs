@@ -5,7 +5,7 @@
 // Each run fetches OMDb data for the next ~1,000 movies that don't have a cached
 // answer yet, in the same priority order the main build uses (your rated films
 // first, then by TMDB vote count). Results land in the shared disk cache
-// (data/cache/omdb/), so the next `npm run data` picks them up automatically —
+// (data/cache/omdb/), so the next `npm run data` picks them up automatically;
 // there is no separate data format. Already-cached movies are skipped, so
 // re-running any batch number never wastes quota. Exits cleanly, no prompts.
 import 'dotenv/config';
@@ -24,7 +24,7 @@ const limit = Number(arg('limit', DEFAULT_LIMIT));
 
 async function main() {
   if (!process.env.OMDB_API_KEY) {
-    console.error('OMDB_API_KEY missing from .env — nothing to do.');
+    console.error('OMDB_API_KEY missing from .env; nothing to do.');
     process.exit(1);
   }
 
@@ -32,7 +32,7 @@ async function main() {
   try {
     movies = JSON.parse(await readFile('data/generated/movies.json', 'utf8'));
   } catch {
-    console.error("Can't read data/generated/movies.json — run `npm run data` first.");
+    console.error("Can't read data/generated/movies.json. Run `npm run data` first.");
     process.exit(1);
   }
 
@@ -44,11 +44,11 @@ async function main() {
   const cachedAlready = queue.filter((m) => omdbHasCached(m.imdbId));
   const todo = queue.filter((m) => !omdbHasCached(m.imdbId));
 
-  console.log(`OMDb batch${batch ? ` #${batch}` : ''} — ${new Date().toISOString().slice(0, 16)}`);
+  console.log(`OMDb batch${batch ? ` #${batch}` : ''} (${new Date().toISOString().slice(0, 16)})`);
   console.log(`  ${queue.length} movies with an IMDb id · ${cachedAlready.length} already cached · ${todo.length} still to fetch`);
 
   if (!todo.length) {
-    console.log('  Nothing left to fetch — coverage is complete. 🎬');
+    console.log('  Nothing left to fetch: coverage is complete. 🎬');
   }
 
   let fetched = 0;
@@ -78,7 +78,7 @@ async function main() {
   console.log('');
   console.log(`  Fetched this run: ${fetched} (${noData} had no scores on OMDb)`);
   if (errors) console.log(`  Errors: ${errors}`);
-  if (omdbLimitHit()) console.log('  Stopped early: OMDb daily limit reached — run again tomorrow.');
+  if (omdbLimitHit()) console.log('  Stopped early: OMDb daily limit reached. Run again tomorrow.');
 
   // Overall coverage summary (cache-only, no extra quota).
   const nowCached = queue.filter((m) => omdbHasCached(m.imdbId)).length;
@@ -86,7 +86,7 @@ async function main() {
   console.log('');
   console.log(`  Overall coverage: ${nowCached}/${queue.length} movies cached (${pct}%)`);
   if (remaining > 0) {
-    console.log(`  Remaining: ${remaining} — roughly ${Math.ceil(remaining / limit)} more daily run(s).`);
+    console.log(`  Remaining: ${remaining} (roughly ${Math.ceil(remaining / limit)} more daily run(s)).`);
   } else {
     console.log('  All done. Run `npm run data` once more so the site JSON includes everything.');
   }

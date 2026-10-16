@@ -1,4 +1,4 @@
-// Build-time data access (Astro pages only — never shipped to the client).
+// Build-time data access (Astro pages only; never shipped to the client).
 import movies from '../../data/generated/movies.json';
 import collections from '../../data/generated/collections.json';
 import directors from '../../data/generated/directors.json';

@@ -26,8 +26,8 @@
 
   const f1 = fmtScore;
 
-  // Missing sources simply don't render — no empty slots, no broken layout.
-  // (Content/Form sub-scores live ONLY in the scorecard island — not repeated here.)
+  // Missing sources simply don't render: no empty slots, no broken layout.
+  // (Content/Form sub-scores live ONLY in the scorecard island and are not repeated here.)
   const sources = $derived.by(() => {
     const list = [];
     if (movie.myRating) {
