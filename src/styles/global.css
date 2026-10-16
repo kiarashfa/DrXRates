@@ -136,6 +136,18 @@ button { font: inherit; cursor: pointer; }
 .site-footer img.tmdb-logo { height: 13px; width: auto; display: block; }
 @media (max-width: 640px) { .site-footer .footer-sep { display: none; } }
 
+/* ---------- Support links (About page) ---------- */
+/* Same pair and wording as the owner's other sites; outlined in the theme accent. */
+.support-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 220px)); gap: 0.6rem; margin-top: 1rem; }
+.support-link {
+  display: flex; align-items: center; justify-content: center; gap: 0.55em;
+  padding: 0.65em 1em; border: 1px solid var(--accent); border-radius: var(--radius);
+  background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent);
+  font-size: 0.86rem; text-decoration: none; transition: background 0.25s, color 0.25s;
+}
+.support-link:hover { background: var(--accent); color: var(--bg); }
+.support-link svg { width: 15px; height: 15px; flex: none; fill: currentColor; }
+
 /* ---------- Pills & badges ---------- */
 .pill {
   display: inline-flex; align-items: center; gap: 0.35em;

@@ -3,6 +3,8 @@ import Base from '../layouts/Base.astro';
 import { meta } from '../lib/data.js';
 import { CONTENT_KEYS, FORM_KEYS } from '../../shared/rating-meta.mjs';
 import { REPO_URL } from '../lib/util.js';
+import PayPalMark from '../assets/paypal.svg';
+import CoffeeMark from '../assets/buy-me-a-coffee.svg';
 
 const c = meta.counts;
 const archiveLine = `Archive generated ${meta.generatedAt.slice(0, 10)}: ${c.movies.toLocaleString()} films, ${c.rated.toLocaleString()} rated, ${c.directors} directors, ${c.collections} collections.`;
@@ -62,6 +64,22 @@ const archiveLine = `Archive generated ${meta.generatedAt.slice(0, 10)}: ${c.mov
       />
       <span class="small muted">This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
     </div>
+    <h2 style="margin-top:2.4rem;">Support</h2>
+    <p class="muted small">
+      The Cinema Ledger is free, ad-free and login-free, and stays that way. If it found you your next film
+      night, you can put something toward the next hundred films.
+    </p>
+    <div class="support-links">
+      <a class="support-link" href="https://www.paypal.com/donate/?hosted_button_id=S3BD5XFBMMWSJ" target="_blank" rel="noopener">
+        <PayPalMark />
+        <span>Donate · PayPal</span>
+      </a>
+      <a class="support-link" href="https://www.buymeacoffee.com/kiarashfa" target="_blank" rel="noopener">
+        <CoffeeMark />
+        <span>Buy Me a Coffee</span>
+      </a>
+    </div>
+
     <p class="faint small" style="margin-top:1.6rem;">{archiveLine}</p>
   </section>
 </Base>
