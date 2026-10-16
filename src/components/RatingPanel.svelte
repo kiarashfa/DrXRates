@@ -101,7 +101,7 @@
         {/each}
       </div>
       {#if mine && visitorScores}
-        <span class="small faint">solid — my score · outline — yours</span>
+        <span class="small faint">solid: my score · outline: yours</span>
       {/if}
     </div>
     <div data-testid={`chart-${mode}`}>
@@ -126,14 +126,14 @@
 
   <details bind:open={formOpen} style="margin-top:1.2rem; border-top:1px solid var(--border); padding-top:1rem;">
     <summary style="cursor:pointer; font-weight:600; font-size:0.92rem;" data-testid="rate-toggle">
-      {visitorScores ? 'Edit your rating' : 'Rate it yourself'} <span class="faint small">— same ten-part system</span>
+      {visitorScores ? 'Edit your rating' : 'Rate it yourself'} <span class="faint small">(same ten-part system)</span>
     </summary>
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.2rem 2rem; margin-top:1rem;">
       {#each [{ label: 'Content', keys: CONTENT_KEYS, cls: 'content', avg: draftTotals?.contentAvg }, { label: 'Form', keys: FORM_KEYS, cls: 'form', avg: draftTotals?.formAvg }] as half}
         <div>
           <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
             <span class={`pill ${half.cls}`}>{half.label}</span>
-            <span class="mono small">{half.avg != null ? f1(half.avg) : '—'} / 5</span>
+            <span class="mono small">{half.avg != null ? f1(half.avg) : '–'} / 5</span>
           </div>
           {#each half.keys as k}
             <label style="display:grid; grid-template-columns:1fr 110px 30px; align-items:center; gap:0.6rem; font-size:0.82rem; padding:0.18rem 0;">
@@ -146,7 +146,7 @@
       {/each}
     </div>
     <div style="display:flex; align-items:center; gap:0.9rem; margin-top:1rem; flex-wrap:wrap;">
-      <span class="score-badge">{draftTotals ? f1(draftTotals.overall) : '—'} <small>/ 10</small></span>
+      <span class="score-badge">{draftTotals ? f1(draftTotals.overall) : '–'} <small>/ 10</small></span>
       <button class="btn primary" onclick={saveVisitor} data-testid="save-rating">Save rating</button>
       {#if visitorScores}
         <button class="btn" onclick={deleteVisitor}>Remove my rating</button>
@@ -160,7 +160,7 @@
     <input type="file" accept=".json,application/json" style="display:none" bind:this={fileInput} onchange={onImportFile} data-testid="import-input" />
     {#if notice}<span class="small" style="color:var(--accent);" data-testid="notice">{notice}</span>{/if}
     <p class="small faint" style="flex-basis:100%; margin:0.3rem 0 0;">
-      Your ratings are stored only in this browser — nothing is sent to a server, and there is no shared visitor average.
+      Your ratings are stored only in this browser. They are never uploaded, and there is no shared visitor average.
       Export a JSON backup to move them between browsers.
     </p>
   </div>

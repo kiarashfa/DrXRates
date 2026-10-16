@@ -65,10 +65,10 @@
     </text>
   {/each}
   <text x="305" y="150" text-anchor="middle" style="fill: var(--ink); font-family: var(--font-numeral); font-size: 26px; font-weight: 600;">
-    {primaryTotals ? f1(primaryTotals.overall) : '—'}
+    {primaryTotals ? f1(primaryTotals.overall) : '–'}
   </text>
   <text x="305" y="170" text-anchor="middle" style="fill: var(--ink-muted); font-family: var(--font-ui); font-size: 12px;">/ 10</text>
   {#if overlay}
-    <text x="305" y="308" text-anchor="middle" style="fill: var(--ink-muted); font-family: var(--font-ui); font-size: 11.5px;">solid — my score · dashed — yours</text>
+    <text x="305" y="308" text-anchor="middle" style="fill: var(--ink-muted); font-family: var(--font-ui); font-size: 11.5px;">solid: my score · dashed: yours</text>
   {/if}
 </svg>

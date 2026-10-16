@@ -12,6 +12,8 @@ export async function getStaticPaths() {
 const { movie } = Astro.props;
 const backdrop = tmdbImg(movie.backdrop, 'w1280');
 const poster = tmdbImg(movie.poster, 'w342');
+// Link previews: the wide backdrop suits summary_large_image; poster as fallback.
+const shareImage = backdrop ?? tmdbImg(movie.poster, 'w500') ?? undefined;
 const directorLinks = movie.directors.map((d) => ({ ...d, page: directorPageFor(d.name) }));
 const aslDirector = movie.asl ? allDirectors.find((d) => d.name === movie.asl.director) : null;
 const reportProps = {
@@ -29,7 +31,13 @@ const panelProps = {
 };
 ---
 
-<Base title={`${movie.title}${movie.year ? ` (${movie.year})` : ''}`} description={movie.overview ?? undefined}>
+<Base
+  title={`${movie.title}${movie.year ? ` (${movie.year})` : ''}`}
+  description={movie.overview || undefined}
+  image={shareImage}
+  imageAlt={shareImage ? `${movie.title}${backdrop ? ' still' : ' poster'}` : undefined}
+  ogType="video.movie"
+>
   <section class="screen-hero">
     {backdrop && <div class="backdrop" style={`background-image:url('${backdrop}')`}></div>}
     <div class="backdrop-fade"></div>
@@ -84,7 +92,7 @@ const panelProps = {
             <div class="credit-row">
               <span class="actor">{c.name}</span>
               <span class="dots">·</span>
-              <span class="role">{c.character || '—'}</span>
+              <span class="role">{c.character || '–'}</span>
             </div>
           ))}
         </div>
@@ -98,8 +106,8 @@ const panelProps = {
           </p>
           {aslDirector && (
             <p class="small muted" style="margin:0.4rem 0 0;">
-              {aslDirector.name}'s career average is {aslDirector.aslAvg}s across {aslDirector.aslCount} measured films —
-              <a href={withBase(`/director/${aslDirector.slug}`)} style="color:var(--accent);">see the full picture</a>.
+              {aslDirector.name}'s career average is {aslDirector.aslAvg}s across {aslDirector.aslCount} measured films.
+              <a href={withBase(`/director/${aslDirector.slug}`)} style="color:var(--accent);">See the full picture</a>.
             </p>
           )}
         </div>

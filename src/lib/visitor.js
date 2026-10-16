@@ -76,7 +76,7 @@ export async function importRatingsFile(file) {
   }
   const incoming = parsed?.ratings;
   if (!incoming || typeof incoming !== 'object') {
-    throw new Error('Not a Cinema Ledger export — missing a "ratings" object.');
+    throw new Error('Not a Cinema Ledger export: missing a "ratings" object.');
   }
   const store = loadStore();
   let imported = 0;

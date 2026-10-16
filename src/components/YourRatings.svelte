@@ -52,7 +52,7 @@
     <p class="muted">Loading…</p>
   {:else if entries.length === 0}
     <p class="muted" data-testid="empty-state">
-      You haven't rated anything yet. Open any film and use "Rate it yourself" — your scores stay in this browser.
+      You haven't rated anything yet. Open any film and use "Rate it yourself"; your scores stay in this browser.
     </p>
   {:else}
     <table class="data-table" data-testid="ratings-table">
@@ -69,17 +69,17 @@
                 {e.title}
               {/if}
             </td>
-            <td class="num" style="color:var(--content-c);">{e.totals ? f1(e.totals.contentAvg) : '—'}</td>
-            <td class="num" style="color:var(--form-c);">{e.totals ? f1(e.totals.formAvg) : '—'}</td>
-            <td class="num">{e.totals ? f1(e.totals.overall) : '—'}</td>
-            <td class="num faint">{e.updatedAt ? e.updatedAt.slice(0, 10) : '—'}</td>
+            <td class="num" style="color:var(--content-c);">{e.totals ? f1(e.totals.contentAvg) : '–'}</td>
+            <td class="num" style="color:var(--form-c);">{e.totals ? f1(e.totals.formAvg) : '–'}</td>
+            <td class="num">{e.totals ? f1(e.totals.overall) : '–'}</td>
+            <td class="num faint">{e.updatedAt ? e.updatedAt.slice(0, 10) : '–'}</td>
           </tr>
         {/each}
       </tbody>
     </table>
   {/if}
   <p class="small faint" style="margin-top:1rem;">
-    These ratings live only in this browser's local storage. There's no account and no server —
-    export the JSON backup before clearing your browser data or switching machines.
+    These ratings live only in this browser's local storage. There's no account, and they're never uploaded,
+    so export the JSON backup before clearing your browser data or switching machines.
   </p>
 </div>

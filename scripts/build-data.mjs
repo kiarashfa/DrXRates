@@ -70,31 +70,33 @@ async function main() {
   log('— Matching rated films against TMDB…');
   const ratingByTmdbId = new Map();
   let matchedCount = 0;
-  await Promise.all(
-    rated.map(async (m) => {
-      const res = await matchMovie(m, { overrides, offline });
-      if (res.review) {
-        const bucket = res.status === 'unmatched' ? 'unmatched' : res.status === 'ambiguous' ? 'ambiguous' : 'loose';
-        review[bucket].push({ source: 'ratings', excelRow: m.excelRow, ...res.review });
+  // Match in parallel, then record in Excel order so "keeping the first" for
+  // duplicate rows is deterministic (not whichever search finished first).
+  const matches = await Promise.all(rated.map((m) => matchMovie(m, { overrides, offline })));
+  rated.forEach((m, i) => {
+    const res = matches[i];
+    if (res.review) {
+      const bucket = res.status === 'unmatched' ? 'unmatched' : res.status === 'ambiguous' ? 'ambiguous' : 'loose';
+      review[bucket].push({ source: 'ratings', excelRow: m.excelRow, ...res.review });
+    }
+    if (res.id != null) matchedCount++;
+    for (const id of res.ids ?? (res.id != null ? [res.id] : [])) {
+      if (ratingByTmdbId.has(id)) {
+        const first = ratingByTmdbId.get(id);
+        review.ambiguous.push({
+          source: 'ratings',
+          excelRow: m.excelRow,
+          title: m.title,
+          year: m.year,
+          chosen: { id, title: first.title, year: first.year },
+          reason: `two Excel rows resolve to the same TMDB movie (also row ${first.excelRow}, "${first.title}"); keeping the first`,
+          candidates: [],
+        });
+      } else {
+        ratingByTmdbId.set(id, m);
       }
-      if (res.id != null) {
-        matchedCount++;
-        if (ratingByTmdbId.has(res.id)) {
-          review.ambiguous.push({
-            source: 'ratings',
-            excelRow: m.excelRow,
-            title: m.title,
-            year: m.year,
-            chosen: { id: res.id },
-            reason: `two Excel rows resolve to the same TMDB movie (also row ${ratingByTmdbId.get(res.id).excelRow}); keeping the first`,
-            candidates: [],
-          });
-        } else {
-          ratingByTmdbId.set(res.id, m);
-        }
-      }
-    })
-  );
+    }
+  });
   log(`  matched ${matchedCount}/${rated.length} (${review.unmatched.length} unmatched, ${review.ambiguous.length} ambiguous, ${review.loose.length} loose — see data/review/)`);
 
   log('— Resolving collections…');
@@ -485,6 +487,8 @@ async function main() {
   log(`  ${directors.length} directors`);
 
   const movies = [...records.values()].sort((a, b) => a.title.localeCompare(b.title));
+  // Client-side catalog: only the fields the catalog browser and the
+  // your-ratings page read — it's fetched by visitors, so every byte counts.
   const catalog = movies.map((m) => ({
     id: m.id,
     slug: m.slug,
@@ -493,12 +497,9 @@ async function main() {
     poster: m.poster,
     directors: m.directors.slice(0, 2).map((d) => d.name),
     genres: m.genres.slice(0, 3),
-    runtime: m.runtime,
     tmdb: m.tmdbRating?.score ?? null,
     imdb: m.omdb?.imdb ?? null,
     my: m.myRating?.overall ?? null,
-    content: m.myRating?.contentAvg ?? null,
-    form: m.myRating?.formAvg ?? null,
   }));
 
   const meta = {
@@ -537,7 +538,7 @@ async function main() {
 
   const md = [];
   md.push(`# Match review — ${meta.generatedAt}`, '');
-  md.push(`Fix entries by adding overrides to \`data/overrides.json\` ("Title|Year": tmdbId or "skip"), then re-run \`npm run data\`.`, '');
+  md.push(`Fix entries by adding overrides to \`data/overrides.json\` ("Title|Year": tmdbId, [ids], or "skip"), then re-run \`npm run data\`.`, '');
   const section = (title, items, fmt) => {
     md.push(`## ${title} (${items.length})`, '');
     if (!items.length) md.push('_none_', '');

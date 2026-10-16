@@ -3,7 +3,7 @@
     "slug": "alfred-hitchcock",
     "type": "director",
     "title": "Alfred Hitchcock",
-    "description": "The master of suspense — the complete directed filmography, from the silent era to Family Plot.",
+    "description": "The master of suspense: the complete directed filmography, from the silent era to Family Plot.",
     "personId": 2636,
     "personName": "Alfred Hitchcock",
     "movieIds": [
@@ -102,7 +102,7 @@
     "slug": "andrei-tarkovsky",
     "type": "director",
     "title": "Andrei Tarkovsky",
-    "description": "Sculpting in time — seven features that treat cinema as prayer.",
+    "description": "Sculpting in time: seven features that treat cinema as prayer.",
     "personId": 8452,
     "personName": "Andrei Tarkovsky",
     "movieIds": [
@@ -200,7 +200,7 @@
     "slug": "transformers",
     "type": "franchise",
     "title": "Transformers",
-    "description": "Every Transformers movie — the complete franchise, for better or worse.",
+    "description": "Every Transformers movie: the complete franchise, for better or worse.",
     "movieIds": [
       1858,
       8373,

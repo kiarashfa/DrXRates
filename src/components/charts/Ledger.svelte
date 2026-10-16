@@ -39,7 +39,7 @@
       <rect x={TRACK_X} y={r.y + 6} width={(overlay[r.key] / 5) * TRACK_W} height="4" rx="2" style="fill: none; stroke: var(--content-c); stroke-width: 1;" />
     {/if}
     <text x={VAL_X} y={r.y + 4} style="fill: var(--ink); font-family: var(--font-mono); font-size: 12px;">
-      {primary ? f1(primary[r.key]) : '—'}{overlay ? ` · ${f1(overlay[r.key])}` : ''}
+      {primary ? f1(primary[r.key]) : '–'}{overlay ? ` · ${f1(overlay[r.key])}` : ''}
     </text>
   {/each}
 
@@ -57,14 +57,14 @@
       <rect x={TRACK_X} y={r.y + 6} width={(overlay[r.key] / 5) * TRACK_W} height="4" rx="2" style="fill: none; stroke: var(--form-c); stroke-width: 1;" />
     {/if}
     <text x={VAL_X} y={r.y + 4} style="fill: var(--ink); font-family: var(--font-mono); font-size: 12px;">
-      {primary ? f1(primary[r.key]) : '—'}{overlay ? ` · ${f1(overlay[r.key])}` : ''}
+      {primary ? f1(primary[r.key]) : '–'}{overlay ? ` · ${f1(overlay[r.key])}` : ''}
     </text>
   {/each}
 
   <line x1="12" y1={H - 36} x2="628" y2={H - 36} style="stroke: var(--border-strong);" />
   <text x="12" y={H - 12} style="fill: var(--ink-muted); font-family: var(--font-ui); font-size: 13px;">Overall</text>
   <text x="76" y={H - 10} style="fill: var(--ink); font-family: var(--font-numeral); font-size: 21px; font-weight: 600;">
-    {primaryTotals ? `${f1(primaryTotals.overall)} / 10` : '—'}
+    {primaryTotals ? `${f1(primaryTotals.overall)} / 10` : '–'}
   </text>
   {#if overlayTotals}
     <text x="200" y={H - 12} style="fill: var(--ink-muted); font-family: var(--font-ui); font-size: 13px;">your score: {f1(overlayTotals.overall)} / 10</text>

@@ -2,6 +2,12 @@ import meta from '../../data/generated/meta.json';
 
 export const SITE_TITLE = 'The Cinema Ledger';
 export const SITE_TAGLINE = 'A personal archive of film, rated in ten parts';
+export const SITE_AUTHOR = 'Kiarash Farajzadehahary';
+export const REPO_URL = 'https://github.com/kiarashfa/DrXRates';
+
+// Theme chrome colors — each is that theme's --bg token in global.css. Used for
+// <meta name="theme-color"> and the web manifest; keep in sync with the CSS.
+export const THEME_BG = { light: '#f4efe4', dark: '#0f0e0c', matrix: '#020906' };
 
 // TMDB image base comes from their /configuration endpoint at data-build time
 // (meta.imageBase) — this is the ONLY place URLs get assembled from it. The JSON

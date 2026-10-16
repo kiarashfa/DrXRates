@@ -48,7 +48,7 @@
 
   <circle cx={CX} cy={CY} r="34" style="fill: var(--bg-raised); stroke: var(--border-strong);" />
   <text x={CX} y={CY + 1} text-anchor="middle" style="fill: var(--ink); font-family: var(--font-numeral); font-size: 20px; font-weight: 600;">
-    {primaryTotals ? f1(primaryTotals.overall) : '—'}
+    {primaryTotals ? f1(primaryTotals.overall) : '–'}
   </text>
   <text x={CX} y={CY + 17} text-anchor="middle" style="fill: var(--ink-muted); font-family: var(--font-ui); font-size: 10.5px;">/ 10</text>
 

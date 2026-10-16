@@ -31,7 +31,7 @@ const portrait = tmdbImg(director.profile, 'w185') ?? director.portraitUrl ?? nu
 const bioParas = (director.bio ?? '').split(/\n+/).filter(Boolean).slice(0, 3);
 ---
 
-<Base title={director.name} description={`${director.name} — films, ratings, and average shot length.`}>
+<Base title={director.name} description={`${director.name}: films, ratings, and average shot length.`}>
   <section class="wrap" style="padding-top:3rem; display:flex; gap:2rem; align-items:flex-start; flex-wrap:wrap;">
     {portrait && <img src={portrait} alt={director.name} width="140" data-testid="director-portrait" style="border-radius:6px; border:1px solid var(--border); flex-shrink:0; max-height:210px; object-fit:cover;" />}
     <div style="flex:1; min-width:280px;">
@@ -39,18 +39,18 @@ const bioParas = (director.bio ?? '').split(/\n+/).filter(Boolean).slice(0, 3);
       <h1 style="font-size:clamp(2rem, 4.5vw, 3rem);">{director.name}</h1>
       {(director.born || director.died) && (
         <p class="muted small" style="margin-top:-0.3rem;">
-          {director.born?.slice(0, 4)}{director.died ? ` — ${director.died.slice(0, 4)}` : ''}
+          {director.born?.slice(0, 4)}{director.died ? `–${director.died.slice(0, 4)}` : ''}
         </p>
       )}
       <div class="panel-row" style="margin:1rem 0;" data-testid="stat-cards">
         <div class="panel" style="padding:0.8rem 1.2rem;" data-testid="stat-my">
           <div class="faint small">My average</div>
-          <div class="score-badge">{director.myAvg != null ? fmt1(director.myAvg) : '—'} <small>/ 10</small></div>
+          <div class="score-badge">{director.myAvg != null ? fmt1(director.myAvg) : '–'} <small>/ 10</small></div>
           <div class="faint small">{director.myCount} rated</div>
         </div>
         <div class="panel" style="padding:0.8rem 1.2rem;" data-testid="stat-asl">
           <div class="faint small">Average shot length</div>
-          <div class="score-badge">{director.aslAvg != null ? `${director.aslAvg}s` : '—'}</div>
+          <div class="score-badge">{director.aslAvg != null ? `${director.aslAvg}s` : '–'}</div>
           <div class="faint small">{director.aslCount} films measured</div>
         </div>
         {director.sourceAvgs?.tmdb && (
@@ -122,9 +122,9 @@ const bioParas = (director.bio ?? '').split(/\n+/).filter(Boolean).slice(0, 3);
               return (
                 <tr>
                   <td>{rec ? <a href={withBase(`/movie/${rec.slug}`)}>{f.title}</a> : f.title}</td>
-                  <td class="num">{f.year ?? '—'}</td>
+                  <td class="num">{f.year ?? '–'}</td>
                   <td class="num">{f.asl}s</td>
-                  <td class="num">{rec?.myRating ? fmt1(rec.myRating.overall) : '—'}</td>
+                  <td class="num">{rec?.myRating ? fmt1(rec.myRating.overall) : '–'}</td>
                 </tr>
               );
             })}

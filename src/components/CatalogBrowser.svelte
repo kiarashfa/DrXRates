@@ -24,11 +24,29 @@
     return arr;
   }
 
+  // The catalog JSON is large, so it's fetched only once the section comes
+  // near the viewport — it no longer competes with the shelves above it for
+  // first paint (it was the homepage's mobile LCP / blocking-time cost).
+  let root = $state(null);
   $effect(() => {
-    fetch(`${base}/data/catalog.json`)
-      .then((r) => r.json())
-      .then((d) => (catalog = shuffle(d)))
-      .catch(() => (catalog = []));
+    if (!root) return;
+    const load = () =>
+      fetch(`${base}/data/catalog.json`)
+        .then((r) => r.json())
+        .then((d) => (catalog = shuffle(d)))
+        .catch(() => (catalog = []));
+    if (!('IntersectionObserver' in window)) return void load();
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          io.disconnect();
+          load();
+        }
+      },
+      { rootMargin: '800px 0px' }
+    );
+    io.observe(root);
+    return () => io.disconnect();
   });
 
   const decades = $derived(
@@ -67,7 +85,7 @@
   });
 </script>
 
-<div data-testid="catalog">
+<div data-testid="catalog" bind:this={root}>
   <div style="display:flex; gap:0.7rem; flex-wrap:wrap; align-items:center; margin-bottom:1.2rem;">
     <input type="search" placeholder="Search the archive…" bind:value={q} style="flex:1; min-width:180px;" data-testid="catalog-search" />
     <select bind:value={rated} aria-label="Rated filter" data-testid="filter-rated">
@@ -95,7 +113,7 @@
   {:else}
     <p class="small faint" style="margin:0 0 1rem;" data-testid="catalog-count">
       {filtered.length} film{filtered.length === 1 ? '' : 's'}{#if SORTS[sort]?.ratingSort}
-        <span data-testid="nulls-note"> — films without a {SORTS[sort].ratingSort} are listed last</span>
+        <span data-testid="nulls-note"> (films without a {SORTS[sort].ratingSort} are listed last)</span>
       {/if}
     </p>
     <div class="poster-grid" data-testid="catalog-grid">

@@ -18,7 +18,7 @@ export function fetchStats() {
 
 function token() {
   const t = process.env.TMDB_TOKEN;
-  if (!t) throw new Error('TMDB_TOKEN missing — put it in .env (see .env.example)');
+  if (!t) throw new Error('TMDB_TOKEN missing: put TMDB_TOKEN (and TMDB_API_KEY, OMDB_API_KEY) in .env');
   return t;
 }
 

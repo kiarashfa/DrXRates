@@ -29,7 +29,7 @@ export function halfAverage(scores, keys) {
 // (A previous per-component copy stripped trailing zeros with a regex and
 // turned 10 into "1" and 0 into "" — never format scores with string surgery.)
 export function fmtScore(n) {
-  if (n == null || Number.isNaN(Number(n))) return '—';
+  if (n == null || Number.isNaN(Number(n))) return '–';
   return String(Math.round(n * 100) / 100);
 }
 

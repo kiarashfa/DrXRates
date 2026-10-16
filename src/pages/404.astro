@@ -1,0 +1,22 @@
+---
+// Built to dist/404.html, which GitHub Pages serves (with a real 404 status)
+// for any unknown URL under the site.
+import Base from '../layouts/Base.astro';
+import { withBase } from '../lib/util.js';
+---
+
+<Base title="Reel not found" description="This page isn't in the archive." noindex>
+  <section class="wrap" style="padding-top:4rem; padding-bottom:3rem; max-width:720px;">
+    <p class="faint small" style="letter-spacing:0.15em; text-transform:uppercase; margin:0;">Error 404</p>
+    <h1 style="font-size:clamp(2.1rem, 5vw, 3.2rem);">This reel isn't on the shelf.</h1>
+    <p class="muted">
+      The page you asked for doesn't exist. The link may be old, or the film may have moved.
+      Everything that is in the archive is a search away.
+    </p>
+    <div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:1.4rem;">
+      <a class="btn primary" style="text-decoration:none;" href={withBase('/#catalog')}>Search the archive</a>
+      <a class="btn" style="text-decoration:none;" href={withBase('/collections')}>Collections</a>
+      <a class="btn" style="text-decoration:none;" href={withBase('/directors')}>Directors</a>
+    </div>
+  </section>
+</Base>

@@ -1,6 +1,6 @@
 {
   "name": "cinema-archive",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -13,6 +13,7 @@
     "qa": "playwright test"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
     "@astrojs/svelte": "^9.0.1",
     "@fontsource-variable/eb-garamond": "^5.2.7",
     "@fontsource-variable/inter": "^5.2.8",

@@ -6,7 +6,7 @@
       "type": "director",
       "person": "Alfred Hitchcock",
       "title": "Alfred Hitchcock",
-      "description": "The master of suspense — the complete directed filmography, from the silent era to Family Plot."
+      "description": "The master of suspense: the complete directed filmography, from the silent era to Family Plot."
     },
     {
       "slug": "stanley-kubrick",
@@ -20,7 +20,7 @@
       "type": "director",
       "person": "Andrei Tarkovsky",
       "title": "Andrei Tarkovsky",
-      "description": "Sculpting in time — seven features that treat cinema as prayer."
+      "description": "Sculpting in time: seven features that treat cinema as prayer."
     },
     {
       "slug": "christopher-nolan",
@@ -48,7 +48,7 @@
       "type": "franchise",
       "tmdbCollectionSearch": "Transformers",
       "title": "Transformers",
-      "description": "Every Transformers movie — the complete franchise, for better or worse."
+      "description": "Every Transformers movie: the complete franchise, for better or worse."
     }
   ]
 }
