@@ -1,6 +1,8 @@
 <script>
   import { computeTotals, fmtScore } from '../../shared/rating-meta.mjs';
-  import { loadStore, exportRatings, importRatingsFile } from '../lib/visitor.js';
+  import { loadStore } from '../lib/visitor.js';
+  import { exportBackup, importBackupFile } from '../lib/backup.js';
+  import { loadArchive } from '../lib/archive.js';
 
   let entries = $state(null);
   let notice = $state('');
@@ -12,9 +14,8 @@
   let catalogById = $state(null);
   $effect(() => {
     refresh();
-    fetch(`${base}/data/catalog.json`)
-      .then((r) => r.json())
-      .then((d) => (catalogById = new Map(d.map((m) => [String(m.id), m]))))
+    loadArchive()
+      .then(({ list }) => (catalogById = new Map(list.map((m) => [String(m.id), m]))))
       .catch(() => (catalogById = new Map()));
   });
 
@@ -29,7 +30,7 @@
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const { imported, skipped } = await importRatingsFile(file);
+      const { imported = 0, skipped = 0 } = (await importBackupFile(file)).sections.ratings ?? {};
       refresh();
       notice = `Imported ${imported} rating${imported === 1 ? '' : 's'}${skipped ? ` (${skipped} skipped)` : ''}.`;
     } catch (err) {
@@ -42,7 +43,7 @@
 
 <div class="panel">
   <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap; margin-bottom:1rem;">
-    <button class="btn" onclick={exportRatings} data-testid="export-btn">Export my ratings</button>
+    <button class="btn" onclick={exportBackup} data-testid="export-btn">Export my ratings</button>
     <button class="btn" onclick={() => fileInput?.click()} data-testid="import-btn">Import ratings</button>
     <input type="file" accept=".json,application/json" style="display:none" bind:this={fileInput} onchange={onImportFile} />
     {#if notice}<span class="small" style="color:var(--accent);" data-testid="notice">{notice}</span>{/if}

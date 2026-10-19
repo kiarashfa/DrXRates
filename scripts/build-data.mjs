@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { mkdir, readFile, writeFile, copyFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { parseRatings, parseAsl } from './lib/excel.mjs';
 import { matchMovie, normalizeTitle } from './lib/match.mjs';
@@ -17,6 +17,8 @@ import {
 } from './lib/tmdb.mjs';
 import { omdbByImdbId, omdbLimitHit } from './lib/omdb.mjs';
 import { wikiSummary } from './lib/wiki.mjs';
+import { slugify, movieSlug } from '../shared/slug.mjs';
+import { filmCredits, buildPeople } from './lib/people.mjs';
 
 const offline = process.argv.includes('--excel-only');
 const OUT_DIR = path.resolve('data/generated');
@@ -29,16 +31,6 @@ const POPULAR_PAGES = 160;
 const VOTE_FLOOR = 100; // never take films below this many TMDB votes
 const TARGET_MOVIES = 20300; // small buffer over 20k for detail-fetch dropouts
 const FALLBACK_IMG_BASE = 'https://image.tmdb.org/t/p/';
-
-function slugify(s) {
-  const slug = String(s)
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-  return slug || 'film';
-}
 
 function round1(n) {
   return n == null ? null : Math.round(n * 10) / 10;
@@ -242,6 +234,7 @@ async function main() {
 
   log('• Fetching movie details (cached after first run)…');
   const records = new Map();
+  const creditsByMovie = new Map(); // movieId -> filmCredits(), read from the same cached details
   let fetched = 0;
   await Promise.all(
     [...wantedIds].map(async (id) => {
@@ -256,9 +249,10 @@ async function main() {
       const directors = (d.credits?.crew ?? [])
         .filter((cr) => cr.job === 'Director')
         .map((cr) => ({ id: cr.id, name: cr.name }));
+      creditsByMovie.set(id, filmCredits(d.credits));
       records.set(id, {
         id,
-        slug: `${slugify(d.title)}-${year ?? 'tba'}-${id}`,
+        slug: movieSlug(d.title, year, id),
         title: d.title,
         originalTitle: d.original_title !== d.title ? d.original_title : null,
         year,
@@ -269,7 +263,7 @@ async function main() {
         poster: d.poster_path,
         backdrop: d.backdrop_path,
         directors,
-        cast: (d.credits?.cast ?? []).slice(0, 12).map((c) => ({ name: c.name, character: c.character, profile: c.profile_path })),
+        cast: (d.credits?.cast ?? []).slice(0, 12).map((c) => ({ id: c.id, name: c.name, character: c.character, profile: c.profile_path })),
         imdbId: d.external_ids?.imdb_id ?? d.imdb_id ?? null,
         tmdbRating: d.vote_count ? { score: round1(d.vote_average), votes: d.vote_count } : null,
         omdb: null,
@@ -486,21 +480,13 @@ async function main() {
   directors.sort((a, b) => a.name.localeCompare(b.name));
   log(`  ${directors.length} directors`);
 
-  const movies = [...records.values()].sort((a, b) => a.title.localeCompare(b.title));
-  // Client-side catalog: only the fields the catalog browser and the
-  // your-ratings page read. It's fetched by visitors, so every byte counts.
-  const catalog = movies.map((m) => ({
-    id: m.id,
-    slug: m.slug,
-    title: m.title,
-    year: m.year,
-    poster: m.poster,
-    directors: m.directors.slice(0, 2).map((d) => d.name),
-    genres: m.genres.slice(0, 3),
-    tmdb: m.tmdbRating?.score ?? null,
-    imdb: m.omdb?.imdb ?? null,
-    my: m.myRating?.overall ?? null,
-  }));
+  // Id breaks title ties: records arrive in fetch-completion order, which
+  // varies between runs and would otherwise reshuffle same-title films.
+  const movies = [...records.values()].sort((a, b) => a.title.localeCompare(b.title) || a.id - b.id);
+  // The data the browser downloads is derived from these files at site build
+  // time (src/pages/data/*), so nothing here is copied into public/.
+  const { credits, people } = buildPeople(creditsByMovie);
+  log(`  credits for ${Object.keys(credits.films).length} films, ${Object.keys(people).length} people`);
 
   const meta = {
     generatedAt: new Date().toISOString(),
@@ -526,12 +512,11 @@ async function main() {
   await mkdir(OUT_DIR, { recursive: true });
   await mkdir(REVIEW_DIR, { recursive: true });
   await writeFile(path.join(OUT_DIR, 'movies.json'), JSON.stringify(movies), 'utf8');
-  await writeFile(path.join(OUT_DIR, 'catalog.json'), JSON.stringify(catalog), 'utf8');
+  await writeFile(path.join(OUT_DIR, 'credits.json'), JSON.stringify(credits), 'utf8');
+  await writeFile(path.join(OUT_DIR, 'people.json'), JSON.stringify(people), 'utf8');
   await writeFile(path.join(OUT_DIR, 'collections.json'), JSON.stringify(collections, null, 2), 'utf8');
   await writeFile(path.join(OUT_DIR, 'directors.json'), JSON.stringify(directors), 'utf8');
   await writeFile(path.join(OUT_DIR, 'meta.json'), JSON.stringify(meta, null, 2), 'utf8');
-  await mkdir(path.resolve('public/data'), { recursive: true });
-  await copyFile(path.join(OUT_DIR, 'catalog.json'), path.resolve('public/data/catalog.json'));
 
   const reviewJson = { generatedAt: meta.generatedAt, ...review, excelWarnings, aslSkipped };
   await writeFile(path.join(REVIEW_DIR, 'match-review.json'), JSON.stringify(reviewJson, null, 2), 'utf8');

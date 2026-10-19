@@ -33,7 +33,7 @@ const bioParas = (director.bio ?? '').split(/\n+/).filter(Boolean).slice(0, 3);
 
 <Base title={director.name} description={`${director.name}: films, ratings, and average shot length.`}>
   <section class="wrap" style="padding-top:3rem; display:flex; gap:2rem; align-items:flex-start; flex-wrap:wrap;">
-    {portrait && <img src={portrait} alt={director.name} width="140" data-testid="director-portrait" style="border-radius:6px; border:1px solid var(--border); flex-shrink:0; max-height:210px; object-fit:cover;" />}
+    {portrait && <img src={portrait} alt={director.name} width="140" height="210" data-testid="director-portrait" style="border-radius:6px; border:1px solid var(--border); flex-shrink:0; height:auto; max-height:210px; object-fit:cover;" />}
     <div style="flex:1; min-width:280px;">
       <p class="faint small" style="letter-spacing:0.15em; text-transform:uppercase; margin:0;">Hall of fame</p>
       <h1 style="font-size:clamp(2rem, 4.5vw, 3rem);">{director.name}</h1>

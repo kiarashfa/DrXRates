@@ -1,5 +1,6 @@
 // Visitor ratings live ONLY in the browser's localStorage; there is no backend.
 import { ALL_KEYS } from '../../shared/rating-meta.mjs';
+import { readJson, writeJson } from './store.js';
 
 const KEY = 'cinema.visitor.v1';
 
@@ -8,19 +9,15 @@ function emptyStore() {
 }
 
 export function loadStore() {
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return emptyStore();
-    const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed === 'object' && parsed.ratings && typeof parsed.ratings === 'object') {
-      return { version: 1, ratings: parsed.ratings };
-    }
-  } catch {}
+  const parsed = readJson(KEY);
+  if (parsed && typeof parsed === 'object' && parsed.ratings && typeof parsed.ratings === 'object') {
+    return { version: 1, ratings: parsed.ratings };
+  }
   return emptyStore();
 }
 
 function saveStore(store) {
-  localStorage.setItem(KEY, JSON.stringify(store));
+  writeJson(KEY, store);
 }
 
 export function getRating(movieId) {
@@ -51,33 +48,9 @@ export function validScores(scores) {
   });
 }
 
-export function exportRatings() {
-  const store = loadStore();
-  const blob = new Blob([JSON.stringify(store, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  const stamp = new Date().toISOString().slice(0, 10);
-  a.href = url;
-  a.download = `cinema-ledger-ratings-${stamp}.json`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
-
-// Merges an exported file back in. Returns { imported, skipped }.
-export async function importRatingsFile(file) {
-  const text = await file.text();
-  let parsed;
-  try {
-    parsed = JSON.parse(text);
-  } catch {
-    throw new Error('Not a valid JSON file.');
-  }
-  const incoming = parsed?.ratings;
-  if (!incoming || typeof incoming !== 'object') {
-    throw new Error('Not a Cinema Ledger export: missing a "ratings" object.');
-  }
+// Merges incoming ratings ({ [movieId]: { scores, title, updatedAt } }) into
+// the store; entries with invalid scores are skipped. Used by backup import.
+export function mergeRatings(incoming) {
   const store = loadStore();
   let imported = 0;
   let skipped = 0;

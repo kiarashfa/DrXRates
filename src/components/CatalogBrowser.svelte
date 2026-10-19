@@ -1,8 +1,15 @@
 <script>
   import { withBase, tmdbImg } from '../lib/util.js';
   import { fmtScore } from '../../shared/rating-meta.mjs';
+  import { loadArchive, loadHomeSample } from '../lib/archive.js';
+
+  // decades/genres/total come from the page at build time, so the filter
+  // menus and the count are right before the full archive has loaded.
+  let { decades = [], genres = [], total = 0 } = $props();
 
   let catalog = $state(null);
+  let full = $state(false); // false while showing the first-view sample
+  let loadError = $state('');
   let q = $state('');
   let rated = $state('all');
   let decade = $state('all');
@@ -24,17 +31,36 @@
     return arr;
   }
 
-  // The catalog JSON is large, so it's fetched only once the section comes
-  // near the viewport, so it no longer competes with the shelves above it for
-  // first paint (it was the homepage's mobile LCP / blocking-time cost).
+  // Two stages, both lazy. Near the viewport: a small fixed sample (~600
+  // films with card data) fills the first view. On the first search, filter,
+  // sort or "show more": the full archive files load and replace it, keeping
+  // the films already on screen first so nothing visibly reshuffles.
+  let fullLoad = null;
+  function loadFull() {
+    fullLoad ??= loadArchive({ scores: true, posters: true, rated: true })
+      .then(({ list }) => {
+        const shown = new Map((catalog ?? []).slice(0, visible).map((m, i) => [m.id, i]));
+        const first = list.filter((m) => shown.has(m.id)).sort((a, b) => shown.get(a.id) - shown.get(b.id));
+        const rest = shuffle(list.filter((m) => !shown.has(m.id)));
+        catalog = [...first, ...rest].map((m) => ({ ...m, directors: m.directors.slice(0, 2).map((d) => d.name) }));
+        full = true;
+      })
+      .catch((err) => {
+        fullLoad = null;
+        loadError = err.message;
+      });
+    return fullLoad;
+  }
+
   let root = $state(null);
   $effect(() => {
     if (!root) return;
     const load = () =>
-      fetch(`${base}/data/catalog.json`)
-        .then((r) => r.json())
-        .then((d) => (catalog = shuffle(d)))
-        .catch(() => (catalog = []));
+      loadHomeSample()
+        .then((d) => {
+          if (!full) catalog = shuffle(d);
+        })
+        .catch(() => loadFull());
     if (!('IntersectionObserver' in window)) return void load();
     const io = new IntersectionObserver(
       (entries) => {
@@ -49,11 +75,6 @@
     return () => io.disconnect();
   });
 
-  const decades = $derived(
-    catalog ? [...new Set(catalog.filter((m) => m.year).map((m) => Math.floor(m.year / 10) * 10))].sort((a, b) => b - a) : []
-  );
-  const genres = $derived(catalog ? [...new Set(catalog.flatMap((m) => m.genres))].sort() : []);
-
   import { RATING_SORTS } from '../lib/sorts.js';
 
   const SORTS = {
@@ -63,8 +84,14 @@
     ...RATING_SORTS,
   };
 
+  // Any search/filter/sort needs the full archive; the sample is only ever
+  // shown unfiltered, in its shuffled order.
+  const active = $derived(q.trim() !== '' || rated !== 'all' || decade !== 'all' || genre !== 'all' || sort !== 'shuffle');
+  const waiting = $derived(active && !full);
+
   const filtered = $derived.by(() => {
     if (!catalog) return [];
+    if (!full) return catalog;
     const needle = q.trim().toLowerCase();
     let list = catalog.filter((m) => {
       if (needle && !m.title.toLowerCase().includes(needle)) return false;
@@ -83,10 +110,28 @@
     q; rated; decade; genre; sort;
     visible = 120;
   });
+
+  $effect(() => {
+    if (active && !full) loadFull();
+  });
+
+  // Total for the count line and "show more": the archive size until the
+  // full data has loaded, then the filtered length.
+  const count = $derived(full ? filtered.length : total);
+
+  function showMore() {
+    if (full) visible += 120;
+    else loadFull().then(() => (visible += 120));
+  }
 </script>
 
 <div data-testid="catalog" bind:this={root}>
-  <div style="display:flex; gap:0.7rem; flex-wrap:wrap; align-items:center; margin-bottom:1.2rem;">
+  <!-- Pointing at or focusing the controls starts the full load early. -->
+  <div
+    style="display:flex; gap:0.7rem; flex-wrap:wrap; align-items:center; margin-bottom:1.2rem;"
+    onpointerenter={() => catalog && loadFull()}
+    onfocusin={() => catalog && loadFull()}
+  >
     <input type="search" placeholder="Search the archive…" bind:value={q} style="flex:1; min-width:180px;" data-testid="catalog-search" />
     <select bind:value={rated} aria-label="Rated filter" data-testid="filter-rated">
       <option value="all">All films</option>
@@ -108,11 +153,13 @@
     </select>
   </div>
 
-  {#if !catalog}
+  {#if loadError}
+    <p class="muted" data-testid="catalog-error">{loadError}</p>
+  {:else if !catalog || waiting}
     <p class="muted">Loading the archive…</p>
   {:else}
     <p class="small faint" style="margin:0 0 1rem;" data-testid="catalog-count">
-      {filtered.length} film{filtered.length === 1 ? '' : 's'}{#if SORTS[sort]?.ratingSort}
+      {count.toLocaleString()} film{count === 1 ? '' : 's'}{#if SORTS[sort]?.ratingSort}
         <span data-testid="nulls-note"> (films without a {SORTS[sort].ratingSort} are listed last)</span>
       {/if}
     </p>
@@ -132,9 +179,9 @@
         </a>
       {/each}
     </div>
-    {#if filtered.length > visible}
+    {#if count > visible}
       <div style="text-align:center; margin-top:1.6rem;">
-        <button class="btn" onclick={() => (visible += 120)}>Show more ({filtered.length - visible} remaining)</button>
+        <button class="btn" onclick={showMore}>Show more ({(count - visible).toLocaleString()} remaining)</button>
       </div>
     {/if}
   {/if}

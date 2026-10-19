@@ -42,7 +42,7 @@ const panelProps = {
     {backdrop && <div class="backdrop" style={`background-image:url('${backdrop}')`}></div>}
     <div class="backdrop-fade"></div>
     <div class="wrap hero-inner">
-      {poster && <img class="hero-poster" src={poster} alt={`${movie.title} poster`} width="200" />}
+      {poster && <img class="hero-poster" src={poster} alt={`${movie.title} poster`} width="200" height="300" />}
       <div>
         <h1>{movie.title}</h1>
         {movie.originalTitle && <p class="hero-meta" style="margin-top:-0.3rem;">{movie.originalTitle}</p>}
@@ -70,13 +70,16 @@ const panelProps = {
     </div>
   </section>
 
+  {/* Both islands render on the server (client:load, not client:only) so the
+      page arrives at full height; rendering them only in the browser pushed
+      everything below down after load. Visitor scores fill in on hydration. */}
   <div class="wrap" style="margin-top:2rem;">
-    <RatingsReport client:only="svelte" movie={reportProps} />
+    <RatingsReport client:load movie={reportProps} />
   </div>
 
   <div class="wrap movie-cols" style="margin-top:1.5rem;" data-testid="two-col">
     <div>
-      <RatingPanel client:only="svelte" movie={panelProps} />
+      <RatingPanel client:load movie={panelProps} />
     </div>
     <div class="panel-stack" data-testid="right-col">
       {movie.overview && (

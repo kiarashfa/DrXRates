@@ -1,0 +1,126 @@
+---
+// Site navigation for every page, from src/lib/nav.js. Wide screens get one
+// header row: text menus, a search button that grows into a field, and the
+// theme menu. Under 860px the same row keeps only the name, theme and About,
+// and the sections move to a bottom tab bar. src/lib/header.js wires it all
+// up and builds the phone sheets and the search panel on first use, so they
+// cost no markup on each of the ~21k pages.
+import ThemeMenu from './ThemeMenu.astro';
+import { NAV_ENTRIES, isCurrent } from '../lib/nav.js';
+import { withBase, SITE_TITLE } from '../lib/util.js';
+
+const path = Astro.url.pathname;
+const base = import.meta.env.BASE_URL;
+const icon = (name: string) => `${withBase('/icons.svg')}#i-${name}`;
+const current = (item: { href: string; also?: string }) => isCurrent(item, path, base);
+const groupCurrent = (g: { items: { href: string; also?: string }[] }) => g.items.some(current);
+
+// Phone tabs: every entry except About (an icon in the top bar), Search third.
+const tabs: any[] = NAV_ENTRIES.filter((n) => n.id !== 'about');
+tabs.splice(2, 0, { id: 'search', label: 'Search', icon: 'search' });
+const about = NAV_ENTRIES.find((n) => n.id === 'about');
+---
+
+<header class="site-header" data-header>
+  <div class="wrap header-row">
+    <a class="brand" href={withBase('/')} data-hs-logo>
+      {/* The site mark: favicon.svg used as a CSS mask, filled with the theme accent (same color the favicon switches to). */}
+      <span class="brand-mark" aria-hidden="true" style={`--mark: url('${withBase('/favicon.svg')}')`}></span>
+      {SITE_TITLE}
+    </a>
+    <nav class="site-nav" aria-label="Site" data-hs-fade>
+      <ul class="nav-list" role="list">
+        {NAV_ENTRIES.map((n: any) =>
+          n.items ? (
+            <li class="nav-group" data-menu>
+              <button
+                type="button"
+                class="nav-trigger"
+                aria-expanded="false"
+                aria-controls={`menu-${n.id}`}
+                data-current={groupCurrent(n) ? '' : undefined}
+                data-menu-trigger
+              >
+                {n.label}
+                <svg class="icon chev" aria-hidden="true"><use href={icon('chevron')} /></svg>
+              </button>
+              <div class="pop" id={`menu-${n.id}`} data-menu-pop>
+                <ul role="list">
+                  {n.items.map((i: any) => (
+                    <li>
+                      <a href={withBase(i.href)} aria-current={current(i) ? 'page' : undefined}>
+                        <svg class="icon" aria-hidden="true"><use href={icon(i.icon)} /></svg>
+                        {i.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+          ) : (
+            <li>
+              <a class="nav-link" href={withBase(n.href)} aria-current={current(n) ? 'page' : undefined}>{n.label}</a>
+            </li>
+          )
+        )}
+      </ul>
+    </nav>
+    <div class="header-tools">
+      <div class="hs" data-hs>
+        <div class="hs-field" data-hs-field>
+          <svg class="icon" aria-hidden="true"><use href={icon('search')} /></svg>
+          <input
+            type="search"
+            placeholder="Search films, directors, collections"
+            aria-label="Search the archive"
+            autocomplete="off"
+            spellcheck="false"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded="false"
+            aria-controls="search-results"
+            data-hs-input
+          />
+          <button class="hs-close" type="button" aria-label="Close search" data-hs-close>
+            <svg class="icon" aria-hidden="true"><use href={icon('close')} /></svg>
+          </button>
+        </div>
+        <button type="button" class="icon-btn" aria-label="Search" aria-expanded="false" title="Search (Ctrl K)" data-hs-button>
+          <svg class="icon" aria-hidden="true"><use href={icon('search')} /></svg>
+        </button>
+      </div>
+      <ThemeMenu id="theme-menu" />
+      {about && (
+        <a class="icon-btn about-btn" href={withBase(about.href)} aria-label={about.label} aria-current={current(about) ? 'page' : undefined}>
+          <svg class="icon" aria-hidden="true"><use href={icon(about.icon)} /></svg>
+        </a>
+      )}
+    </div>
+  </div>
+</header>
+
+<nav class="tabbar" aria-label="Site sections">
+  {tabs.map((t) =>
+    t.id === 'search' ? (
+      <button type="button" class="tab" aria-expanded="false" data-hs-phone>
+        <svg class="icon" aria-hidden="true"><use href={icon(t.icon)} /></svg>
+        {t.label}
+      </button>
+    ) : t.items ? (
+      <button type="button" class="tab" aria-expanded="false" aria-controls={`sheet-${t.id}`} data-current={groupCurrent(t) ? '' : undefined} data-sheet-trigger={t.id}>
+        <svg class="icon" aria-hidden="true"><use href={icon(t.icon)} /></svg>
+        {t.label}
+      </button>
+    ) : (
+      <a class="tab" href={withBase(t.href)} aria-current={current(t) ? 'page' : undefined}>
+        <svg class="icon" aria-hidden="true"><use href={icon(t.icon)} /></svg>
+        {t.label}
+      </a>
+    )
+  )}
+</nav>
+
+<script>
+  import { initHeader } from '../lib/header.js';
+  initHeader();
+</script>

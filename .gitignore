@@ -20,6 +20,7 @@ playwright-report/
 .claude/
 CLAUDE.md
 ARCHIVE.md
+handoff.md
 tests/
 playwright.config.mjs
 

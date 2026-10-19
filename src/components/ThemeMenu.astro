@@ -1,0 +1,35 @@
+---
+// Theme picker: an icon button (showing the current theme) and a small menu.
+// Behaviour lives in src/lib/header.js; the pre-paint script in Base.astro
+// applies the stored theme before this renders, and CSS picks the icon, so
+// nothing flashes.
+import { withBase } from '../lib/util.js';
+
+const { id } = Astro.props;
+const THEMES = [
+  { id: 'light', label: 'Light' },
+  { id: 'dark', label: 'Dark' },
+  { id: 'matrix', label: 'Matrix' },
+];
+const icon = (name: string) => `${withBase('/icons.svg')}#i-${name}`;
+---
+
+<div class="nav-group" data-menu>
+  <button type="button" class="icon-btn" aria-expanded="false" aria-controls={id} aria-label="Theme" title="Theme" data-menu-trigger>
+    {THEMES.map((t) => (
+      <svg class={`icon theme-icon theme-icon-${t.id}`} aria-hidden="true"><use href={icon(t.id)} /></svg>
+    ))}
+  </button>
+  <div class="pop pop-right" id={id} data-menu-pop>
+    <ul role="list">
+      {THEMES.map((t) => (
+        <li>
+          <button type="button" data-theme-option={t.id} aria-pressed="false">
+            <svg class="icon" aria-hidden="true"><use href={icon(t.id)} /></svg>
+            {t.label}
+          </button>
+        </li>
+      ))}
+    </ul>
+  </div>
+</div>

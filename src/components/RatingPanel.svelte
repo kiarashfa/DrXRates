@@ -1,6 +1,7 @@
 <script>
   import { CONTENT_KEYS, FORM_KEYS, computeTotals, fmtScore } from '../../shared/rating-meta.mjs';
-  import { getRating, setRating, removeRating, exportRatings, importRatingsFile } from '../lib/visitor.js';
+  import { getRating, setRating, removeRating } from '../lib/visitor.js';
+  import { exportBackup, importBackupFile } from '../lib/backup.js';
   import Ledger from './charts/Ledger.svelte';
   import Pentagons from './charts/Pentagons.svelte';
   import Reel from './charts/Reel.svelte';
@@ -59,7 +60,7 @@
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const { imported, skipped } = await importRatingsFile(file);
+      const { imported = 0, skipped = 0 } = (await importBackupFile(file)).sections.ratings ?? {};
       const saved = getRating(movie.id);
       visitorScores = saved?.scores ?? visitorScores;
       if (saved?.scores) draft = { ...saved.scores };
@@ -128,6 +129,8 @@
     <summary style="cursor:pointer; font-weight:600; font-size:0.92rem;" data-testid="rate-toggle">
       {visitorScores ? 'Edit your rating' : 'Rate it yourself'} <span class="faint small">(same ten-part system)</span>
     </summary>
+    <!-- Rendered only while open: it is server-rendered on every film page otherwise. -->
+    {#if formOpen}
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.2rem 2rem; margin-top:1rem;">
       {#each [{ label: 'Content', keys: CONTENT_KEYS, cls: 'content', avg: draftTotals?.contentAvg }, { label: 'Form', keys: FORM_KEYS, cls: 'form', avg: draftTotals?.formAvg }] as half}
         <div>
@@ -152,10 +155,11 @@
         <button class="btn" onclick={deleteVisitor}>Remove my rating</button>
       {/if}
     </div>
+    {/if}
   </details>
 
   <div style="border-top:1px solid var(--border); margin-top:1.2rem; padding-top:0.9rem; display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
-    <button class="btn" onclick={exportRatings} data-testid="export-btn">Export my ratings</button>
+    <button class="btn" onclick={exportBackup} data-testid="export-btn">Export my ratings</button>
     <button class="btn" onclick={() => fileInput?.click()} data-testid="import-btn">Import ratings</button>
     <input type="file" accept=".json,application/json" style="display:none" bind:this={fileInput} onchange={onImportFile} data-testid="import-input" />
     {#if notice}<span class="small" style="color:var(--accent);" data-testid="notice">{notice}</span>{/if}
