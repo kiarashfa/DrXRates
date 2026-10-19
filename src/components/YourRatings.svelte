@@ -30,9 +30,11 @@
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const { imported = 0, skipped = 0 } = (await importBackupFile(file)).sections.ratings ?? {};
+      const { ratings, watchlist } = (await importBackupFile(file)).sections;
       refresh();
-      notice = `Imported ${imported} rating${imported === 1 ? '' : 's'}${skipped ? ` (${skipped} skipped)` : ''}.`;
+      const part = (r, one, many) => (r?.imported || r?.skipped) && `${r.imported} ${r.imported === 1 ? one : many}${r.skipped ? ` (${r.skipped} skipped)` : ''}`;
+      const parts = [part(ratings, 'rating', 'ratings'), part(watchlist, 'watchlist film', 'watchlist films')].filter(Boolean);
+      notice = `Imported ${parts.join(' and ') || '0 ratings'}.`;
     } catch (err) {
       notice = `Import failed: ${err.message}`;
     }
@@ -43,8 +45,8 @@
 
 <div class="panel">
   <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap; margin-bottom:1rem;">
-    <button class="btn" onclick={exportBackup} data-testid="export-btn">Export my ratings</button>
-    <button class="btn" onclick={() => fileInput?.click()} data-testid="import-btn">Import ratings</button>
+    <button class="btn" onclick={exportBackup} data-testid="export-btn">Export my data</button>
+    <button class="btn" onclick={() => fileInput?.click()} data-testid="import-btn">Import data</button>
     <input type="file" accept=".json,application/json" style="display:none" bind:this={fileInput} onchange={onImportFile} />
     {#if notice}<span class="small" style="color:var(--accent);" data-testid="notice">{notice}</span>{/if}
   </div>
@@ -81,6 +83,6 @@
   {/if}
   <p class="small faint" style="margin-top:1rem;">
     These ratings live only in this browser's local storage. There's no account, and they're never uploaded,
-    so export the JSON backup before clearing your browser data or switching machines.
+    so export the JSON backup (it also holds your watchlist) before clearing your browser data or switching machines.
   </p>
 </div>

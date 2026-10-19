@@ -1,0 +1,14 @@
+---
+import Base from '../layouts/Base.astro';
+import Compare from '../components/Compare.svelte';
+---
+
+<Base title="Compare two films" description="Two films side by side: scores, Dr. X's ten criteria and the people they share.">
+  <section class="wrap page-intro">
+    <h1>Compare</h1>
+    <p class="muted">Two films side by side: scores, Dr. X's ten criteria and the people they share.</p>
+  </section>
+  <section class="wrap" style="margin-top:1.6rem; min-height:60vh;">
+    <Compare client:only="svelte" />
+  </section>
+</Base>

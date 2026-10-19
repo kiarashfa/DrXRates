@@ -5,6 +5,8 @@
 // src/lib/archive.js only.
 import { createHash } from 'node:crypto';
 import { movies, directors, collections } from './data.js';
+import credits from '../../data/generated/credits.json';
+import people from '../../data/generated/people.json';
 import { movieSlug } from '../../shared/slug.mjs';
 import { ALL_KEYS } from '../../shared/rating-meta.mjs';
 
@@ -30,6 +32,14 @@ const directorIds = [...directorById.keys()].sort((a, b) => a - b);
 const directorIndex = new Map(directorIds.map((id, i) => [id, i]));
 
 const col = (get) => rows.map((m) => get(m) ?? null);
+
+// Card rows: what a film card, Tonight or Compare shows for one film, as
+// arrays in CARD_KEYS order (directors as [id, name], at most two).
+const CARD_KEYS = ['id', 'title', 'year', 'directors', 'genres', 'runtime', 'tmdb', 'imdb', 'imdbVotes', 'rt', 'metacritic', 'poster'];
+const cardRow = (m) => [
+  m.id, m.title, m.year ?? null, m.directors.slice(0, 2).map((d) => [d.id, d.name]), m.genres, m.runtime ?? null,
+  m.tmdbRating?.score ?? null, m.omdb?.imdb ?? null, m.omdb?.imdbVotes ?? null, m.omdb?.rottenTomatoes ?? null, m.omdb?.metacritic ?? null, m.poster ?? null,
+];
 
 // Poster lookups for a handful of films (search results, cards) come from
 // small shards keyed by id % POSTER_SHARDS instead of the full posters file.
@@ -75,6 +85,13 @@ const files = {
     keys: ALL_KEYS.map((k) => k.key),
     byId: Object.fromEntries(rows.filter((m) => m.myRating).map((m) => [m.id, ALL_KEYS.map((k) => m.myRating.scores[k.key])])),
   }),
+  // Dr. X's films as card rows minus the poster (posters are high-entropy and
+  // only the picked film needs one): Tonight's default pool, ~50KB gzipped
+  // instead of the whole archive.
+  'rated-films': () => ({
+    keys: CARD_KEYS.slice(0, -1),
+    rows: rows.filter((m) => m.myRating).map((m) => cardRow(m).slice(0, -1)),
+  }),
   // Search's non-film entries: directors with a page and collections.
   'search-extra': () => ({
     directors: directors.map((d) => ({ slug: d.slug, name: d.name, photo: d.profile ?? d.portraitUrl ?? null, rated: d.myCount })),
@@ -101,4 +118,37 @@ export const CLIENT_FILES = files;
 // One poster shard: { [id]: poster } for films with id % POSTER_SHARDS === shard.
 export function posterShard(shard) {
   return Object.fromEntries(rows.filter((m) => m.id % POSTER_SHARDS === shard && m.poster).map((m) => [m.id, m.poster]));
+}
+
+// Credits for a few films (compare, later the graph): /data/credits/<n>.json
+// holds { roles: { [code]: label }, films: { [filmId]: { [code]: [personId, …] } } }
+// for films with id % CREDIT_SHARDS === n (~23KB gzipped each). Names and
+// portraits come separately from the people shards, so a lookup of a few
+// people costs a few KB.
+export const CREDIT_SHARDS = 64;
+export const PEOPLE_SHARDS = 512;
+
+export function creditShard(shard) {
+  const films = {};
+  for (const [id, roles] of Object.entries(credits.films)) if (Number(id) % CREDIT_SHARDS === shard) films[id] = roles;
+  return { roles: credits.roles, films };
+}
+
+// One people shard: { [personId]: [name, profile path or null] } for people
+// with id % PEOPLE_SHARDS === shard.
+let peopleBuckets = null;
+export function peopleShard(shard) {
+  if (!peopleBuckets) {
+    peopleBuckets = Array.from({ length: PEOPLE_SHARDS }, () => ({}));
+    for (const [id, entry] of Object.entries(people)) peopleBuckets[Number(id) % PEOPLE_SHARDS][id] = entry;
+  }
+  return peopleBuckets[shard];
+}
+
+// Card shards: /data/cards/<n>.json holds { keys, rows } (card rows with the
+// poster) for films with id % CARD_SHARDS === n (~14KB gzipped each), so a
+// watchlist or a comparison loads only the films it shows.
+export const CARD_SHARDS = 128;
+export function cardShard(shard) {
+  return { keys: CARD_KEYS, rows: rows.filter((m) => m.id % CARD_SHARDS === shard).map(cardRow) };
 }

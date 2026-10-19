@@ -14,10 +14,22 @@ export const NAV = [
     ],
   },
   {
+    id: 'play',
+    label: 'Play',
+    icon: 'dice',
+    items: [
+      { label: 'Tonight', href: '/tonight', icon: 'dice', desc: 'Let the ledger pick a film for tonight' },
+      { label: 'Compare', href: '/compare', icon: 'compare', desc: 'Two films side by side' },
+    ],
+  },
+  {
     id: 'yours',
     label: 'Yours',
     icon: 'star',
-    items: [{ label: 'Your ratings', href: '/your-ratings', icon: 'star', desc: 'Your scores, kept in this browser' }],
+    items: [
+      { label: 'Your ratings', href: '/your-ratings', icon: 'star', desc: 'Your scores, kept in this browser' },
+      { label: 'Watchlist', href: '/watchlist', icon: 'bookmark', desc: 'Films you mean to see' },
+    ],
   },
   { id: 'about', label: 'About', href: '/about', icon: 'info', desc: 'The ten-part system and the data' },
 ];

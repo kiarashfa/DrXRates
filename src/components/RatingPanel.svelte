@@ -60,11 +60,12 @@
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const { imported = 0, skipped = 0 } = (await importBackupFile(file)).sections.ratings ?? {};
+      const { ratings, watchlist } = (await importBackupFile(file)).sections;
       const saved = getRating(movie.id);
       visitorScores = saved?.scores ?? visitorScores;
       if (saved?.scores) draft = { ...saved.scores };
-      notice = `Imported ${imported} rating${imported === 1 ? '' : 's'}${skipped ? ` (${skipped} skipped)` : ''}.`;
+      const part = (r, one, many) => (r?.imported || r?.skipped) && `${r.imported} ${r.imported === 1 ? one : many}${r.skipped ? ` (${r.skipped} skipped)` : ''}`;
+      notice = `Imported ${[part(ratings, 'rating', 'ratings'), part(watchlist, 'watchlist film', 'watchlist films')].filter(Boolean).join(' and ') || '0 ratings'}.`;
       window.dispatchEvent(new CustomEvent('cinema:visitor-changed', { detail: null }));
     } catch (err) {
       notice = `Import failed: ${err.message}`;
@@ -159,8 +160,8 @@
   </details>
 
   <div style="border-top:1px solid var(--border); margin-top:1.2rem; padding-top:0.9rem; display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
-    <button class="btn" onclick={exportBackup} data-testid="export-btn">Export my ratings</button>
-    <button class="btn" onclick={() => fileInput?.click()} data-testid="import-btn">Import ratings</button>
+    <button class="btn" onclick={exportBackup} data-testid="export-btn">Export my data</button>
+    <button class="btn" onclick={() => fileInput?.click()} data-testid="import-btn">Import data</button>
     <input type="file" accept=".json,application/json" style="display:none" bind:this={fileInput} onchange={onImportFile} data-testid="import-input" />
     {#if notice}<span class="small" style="color:var(--accent);" data-testid="notice">{notice}</span>{/if}
     <p class="small faint" style="flex-basis:100%; margin:0.3rem 0 0;">

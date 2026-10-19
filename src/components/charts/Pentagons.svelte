@@ -1,11 +1,14 @@
 <script>
   import { CONTENT_KEYS, FORM_KEYS, computeTotals, fmtScore } from '../../../shared/rating-meta.mjs';
 
-  let { mine = null, visitor = null } = $props();
+  // Two films side by side: pass pair = { a, b } labels (e.g. "A", "B"); mine is
+  // then film A (solid) and visitor film B (dashed), and both totals show.
+  let { mine = null, visitor = null, pair = null, legend = 'solid: my score · dashed: yours' } = $props();
 
   const primary = $derived(mine ?? visitor);
   const overlay = $derived(mine && visitor ? visitor : null);
   const primaryTotals = $derived(primary ? computeTotals(primary) : null);
+  const overlayTotals = $derived(overlay ? computeTotals(overlay) : null);
 
   const R = 88;
   const CY = 150;
@@ -34,7 +37,7 @@
 </script>
 
 <svg viewBox="0 0 660 320" width="100%" role="img" aria-label="Rating breakdown as two radar pentagons, content and form">
-  {#each [{ cx: C1, keys: CONTENT_KEYS, color: 'var(--content-c)', label: 'Content', avg: primaryTotals?.contentAvg }, { cx: C2, keys: FORM_KEYS, color: 'var(--form-c)', label: 'Form', avg: primaryTotals?.formAvg }] as p}
+  {#each [{ cx: C1, keys: CONTENT_KEYS, color: 'var(--content-c)', label: 'Content', avg: primaryTotals?.contentAvg, avg2: overlayTotals?.contentAvg }, { cx: C2, keys: FORM_KEYS, color: 'var(--form-c)', label: 'Form', avg: primaryTotals?.formAvg, avg2: overlayTotals?.formAvg }] as p}
     {#each [1, 0.6, 0.2] as frac}
       <polygon points={ring(p.cx, CY, frac)} style={`fill: none; stroke: var(--border); stroke-width: ${frac === 1 ? 1.2 : 0.7};`} />
     {/each}
@@ -61,14 +64,20 @@
       <polygon points={shape(p.cx, CY, p.keys, overlay)} style={`fill: none; stroke: ${p.color}; stroke-width: 1.4; stroke-dasharray: 4 3;`} />
     {/if}
     <text x={p.cx} y="290" text-anchor="middle" style="fill: var(--ink); font-family: var(--font-ui); font-size: 13px; font-weight: 600;">
-      {p.label}{p.avg != null ? ` · ${f1(p.avg)}` : ''}
+      {#if pair && overlay}{p.label} · {pair.a} {f1(p.avg)} · {pair.b} {f1(p.avg2)}{:else}{p.label}{p.avg != null ? ` · ${f1(p.avg)}` : ''}{/if}
     </text>
   {/each}
-  <text x="305" y="150" text-anchor="middle" style="fill: var(--ink); font-family: var(--font-numeral); font-size: 26px; font-weight: 600;">
-    {primaryTotals ? f1(primaryTotals.overall) : '–'}
-  </text>
-  <text x="305" y="170" text-anchor="middle" style="fill: var(--ink-muted); font-family: var(--font-ui); font-size: 12px;">/ 10</text>
-  {#if overlay}
-    <text x="305" y="308" text-anchor="middle" style="fill: var(--ink-muted); font-family: var(--font-ui); font-size: 11.5px;">solid: my score · dashed: yours</text>
+  {#if pair && overlay}
+    <text x="305" y="140" text-anchor="middle" style="fill: var(--ink); font-family: var(--font-numeral); font-size: 24px; font-weight: 600;">{f1(primaryTotals?.overall)}</text>
+    <text x="305" y="165" text-anchor="middle" style="fill: var(--ink-muted); font-family: var(--font-numeral); font-size: 18px; font-weight: 600;">{f1(overlayTotals?.overall)}</text>
+    <text x="305" y="185" text-anchor="middle" style="fill: var(--ink-faint); font-family: var(--font-ui); font-size: 11px;">{pair.a} · {pair.b} / 10</text>
+  {:else}
+    <text x="305" y="150" text-anchor="middle" style="fill: var(--ink); font-family: var(--font-numeral); font-size: 26px; font-weight: 600;">
+      {primaryTotals ? f1(primaryTotals.overall) : '–'}
+    </text>
+    <text x="305" y="170" text-anchor="middle" style="fill: var(--ink-muted); font-family: var(--font-ui); font-size: 12px;">/ 10</text>
+  {/if}
+  {#if overlay && legend}
+    <text x="305" y="308" text-anchor="middle" style="fill: var(--ink-muted); font-family: var(--font-ui); font-size: 11.5px;">{legend}</text>
   {/if}
 </svg>

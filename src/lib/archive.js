@@ -150,6 +150,66 @@ export async function loadPosters(ids) {
   return new Map(ids.map((id) => [id, byShard.get(id % POSTER_SHARDS)[id] ?? null]));
 }
 
+// Film objects from card rows (rated-films, card shards): the same fields as
+// loadArchive with scores, rated and (from shards) posters, minus pop.
+function cardFilm(keys, row, rated) {
+  const m = Object.fromEntries(keys.map((k, i) => [k, row[i]]));
+  m.slug = movieSlug(m.title, m.year, m.id);
+  m.directors = m.directors.map(([id, name]) => ({ id, name }));
+  m.myRating = rated.get(m.id) ?? null;
+  m.my = m.myRating?.overall ?? null;
+  return m;
+}
+
+// Dr. X's rated films as film objects (no posters; see loadPosters).
+export async function loadRatedFilms() {
+  const [file, rated] = await Promise.all([loadFile('rated-films'), loadRated()]);
+  return file.rows.map((row) => cardFilm(file.keys, row, rated));
+}
+
+// A few films by id from the card shards, posters included. Resolves to
+// Map(id → film object or null).
+const CARD_SHARDS = 128; // = CARD_SHARDS in client-data.js
+export async function loadFilms(ids) {
+  const shards = [...new Set(ids.map((id) => id % CARD_SHARDS))];
+  const [files, rated] = await Promise.all([Promise.all(shards.map((s) => loadFile(`cards/${s}`))), loadRated()]);
+  const wanted = new Set(ids);
+  const found = new Map();
+  for (const file of files) {
+    const idCol = file.keys.indexOf('id');
+    for (const row of file.rows) if (wanted.has(row[idCol])) found.set(row[idCol], cardFilm(file.keys, row, rated));
+  }
+  return new Map(ids.map((id) => [id, found.get(id) ?? null]));
+}
+
+// Credits for a few films from the credit shards. Resolves to
+// { roles: { [code]: label }, byId: Map(id → { [code]: [personId, …] } or null) }.
+const CREDIT_SHARDS = 64; // = CREDIT_SHARDS in client-data.js
+export async function loadCredits(ids) {
+  const shards = [...new Set(ids.map((id) => id % CREDIT_SHARDS))];
+  const files = await Promise.all(shards.map((s) => loadFile(`credits/${s}`)));
+  const byShard = new Map(shards.map((s, i) => [s, files[i]]));
+  return {
+    roles: files[0]?.roles ?? {},
+    byId: new Map(ids.map((id) => [id, byShard.get(id % CREDIT_SHARDS).films[id] ?? null])),
+  };
+}
+
+// Names and portraits for a few people. Resolves to
+// Map(personId → { name, profile } or null).
+const PEOPLE_SHARDS = 512; // = PEOPLE_SHARDS in client-data.js
+export async function loadPeople(ids) {
+  const shards = [...new Set(ids.map((id) => id % PEOPLE_SHARDS))];
+  const maps = await Promise.all(shards.map((s) => loadFile(`people/${s}`).catch(() => ({}))));
+  const byShard = new Map(shards.map((s, i) => [s, maps[i]]));
+  return new Map(
+    ids.map((id) => {
+      const e = byShard.get(id % PEOPLE_SHARDS)[id];
+      return [id, e ? { name: e[0], profile: e[1] ?? null } : null];
+    })
+  );
+}
+
 // Search's directors-with-pages and collections (see client-data.js).
 export function loadSearchExtra() {
   return loadFile('search-extra');

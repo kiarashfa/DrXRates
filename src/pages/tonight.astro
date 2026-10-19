@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+import Tonight from '../components/Tonight.svelte';
+import { movies } from '../lib/data.js';
+import { VOTE_FLOOR } from '../lib/tonight.js';
+
+// Menus, bounds and source sizes are known at build time.
+const genres = [...new Set(movies.flatMap((m) => m.genres))].sort();
+// A few announced films carry future years; the slider stops a year ahead.
+const years = movies.map((m) => m.year).filter(Boolean);
+const yearMax = Math.min(Math.max(...years), new Date().getFullYear() + 1);
+const counts = {
+  drx: movies.filter((m) => m.myRating).length,
+  archive: movies.filter((m) => m.omdb?.imdbVotes >= VOTE_FLOOR).length,
+};
+---
+
+<Base title="What to watch tonight" description="Set a few limits and let the ledger pick a film: from Dr. X's rated films, the whole archive or your watchlist.">
+  <section class="wrap page-intro">
+    <h1>What to watch tonight</h1>
+    <p class="muted">Set a few limits and let the ledger pick. Higher scores come up more often, and nothing repeats until you've seen every match.</p>
+  </section>
+  <section class="wrap" style="margin-top:1.6rem; min-height:60vh;">
+    <Tonight client:only="svelte" {genres} yearMin={Math.min(...years)} {yearMax} {counts} />
+  </section>
+</Base>

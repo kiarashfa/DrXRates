@@ -1,0 +1,14 @@
+---
+import Base from '../layouts/Base.astro';
+import Watchlist from '../components/Watchlist.svelte';
+---
+
+<Base title="Watchlist" description="Films you mean to see, kept in this browser.">
+  <section class="wrap page-intro">
+    <h1>Watchlist</h1>
+    <p class="muted">Films you mean to see, kept in this browser. Add them from any film page or card.</p>
+  </section>
+  <section class="wrap" style="margin-top:1.6rem; min-height:60vh;">
+    <Watchlist client:only="svelte" />
+  </section>
+</Base>

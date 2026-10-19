@@ -1,0 +1,97 @@
+---
+// Film of the day banner. The page embeds a short schedule; the server
+// renders the build date's entry and an inline script swaps in the visitor's
+// local date before first paint (the box has fixed heights, so a swap never
+// moves the page). If the schedule has run out, the banner hides.
+import { movies } from '../lib/data.js';
+import { filmOfDaySchedule } from '../lib/film-of-day.js';
+import { withBase, tmdbImg, fmtRuntime, fmt1 } from '../lib/util.js';
+
+const schedule = filmOfDaySchedule(movies, new Date(), 45);
+const today = new Date().toISOString().slice(0, 10);
+const first = schedule.find((d) => d.date === today) ?? schedule[0];
+const entries = schedule.map((d) => ({
+  date: d.date,
+  href: withBase(`/movie/${d.slug}`),
+  title: d.title,
+  meta: [d.year, d.directors.join(', '), fmtRuntime(d.runtime)].filter(Boolean).join(' · '),
+  my: fmt1(d.my),
+  img: tmdbImg(d.backdrop, 'w780'),
+  img2: tmdbImg(d.backdrop, 'w1280'),
+  overview: d.overview ?? '',
+}));
+const e = entries.find((x) => x.date === first?.date);
+const kicker = (iso) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+---
+
+{e && (
+  <section class="wrap" style="margin-top:2.2rem;">
+    <div class="fod" id="fod" data-testid="film-of-day" data-date={e.date}>
+      <a class="fod-img" href={e.href} tabindex="-1" aria-hidden="true">
+        <img data-f="img" src={e.img} srcset={`${e.img} 780w, ${e.img2} 1280w`} sizes="(max-width: 720px) 100vw, 600px" alt="" width="780" height="439" fetchpriority="high" />
+      </a>
+      <div class="fod-text">
+        <span class="fod-kicker">Film of the day · <span data-f="day">{kicker(e.date)}</span></span>
+        <h2 class="fod-title"><a data-f="link" href={e.href}><span data-f="title">{e.title}</span></a></h2>
+        <div class="fod-meta">Dr. X <b data-f="my">{e.my}</b> · <span data-f="meta">{e.meta}</span></div>
+        <p class="fod-ov" data-f="overview">{e.overview}</p>
+        <div class="fod-acts">
+          <a class="btn" data-f="open" href={e.href}>Open film</a>
+          <a class="btn fod-ghost" href={withBase('/tonight')}>
+            <svg class="icon" aria-hidden="true"><use href={`${withBase('/icons.svg')}#i-dice`}></use></svg>Pick something else
+          </a>
+        </div>
+      </div>
+    </div>
+    <script is:inline type="application/json" id="fod-data" set:html={JSON.stringify(entries).replace(/</g, '\\u003c')}></script>
+    <script is:inline>
+      (function () {
+        var box = document.getElementById('fod');
+        var d = new Date();
+        var iso = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        if (box.dataset.date === iso) return;
+        var list = JSON.parse(document.getElementById('fod-data').textContent);
+        var e = list.find(function (x) { return x.date === iso; });
+        if (!e) { box.parentNode.hidden = true; return; }
+        var f = function (n) { return box.querySelector('[data-f="' + n + '"]'); };
+        f('img').src = e.img;
+        f('img').srcset = e.img + ' 780w, ' + e.img2 + ' 1280w';
+        f('link').href = f('open').href = box.querySelector('.fod-img').href = e.href;
+        f('title').textContent = e.title;
+        f('meta').textContent = e.meta;
+        f('my').textContent = e.my;
+        f('overview').textContent = e.overview;
+        f('day').textContent = new Date(iso + 'T12:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+        box.dataset.date = iso;
+      })();
+    </script>
+  </section>
+)}
+
+<style>
+  /* Fixed heights everywhere so swapping the entry never shifts the page. */
+  .fod { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); height: 260px; border-radius: 8px; overflow: hidden;
+    border: 1px solid var(--border); background: var(--hero-bg); }
+  .fod-img { display: block; background: var(--bg-raised); overflow: hidden; }
+  .fod-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s var(--ease-out); }
+  .fod:hover .fod-img img { transform: scale(1.03); }
+  .fod-text { padding: 1.3rem 1.6rem; display: flex; flex-direction: column; justify-content: center; min-width: 0; color: var(--hero-ink); }
+  .fod-kicker { font: 600 0.7rem/1 var(--font-ui); letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); }
+  .fod-title { font-size: 1.9rem; margin: 0.45rem 0 0.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fod-title a { text-decoration: none; }
+  .fod-title a:hover { color: var(--accent); }
+  .fod-meta { font-size: 0.84rem; color: var(--hero-ink-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fod-meta b { color: var(--accent); font-family: var(--font-mono); font-weight: 600; }
+  .fod-ov { font-size: 0.86rem; line-height: 1.5; color: var(--hero-ink-muted); margin: 0.6rem 0 0; height: 4.5em;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .fod-acts { display: flex; gap: 0.6rem; margin-top: 0.9rem; flex-wrap: nowrap; }
+  .fod-acts .btn { display: inline-flex; align-items: center; gap: 0.45em; text-decoration: none; white-space: nowrap; }
+  .fod-acts .icon { width: 15px; height: 15px; }
+  .fod-ghost { background: transparent; }
+  @media (prefers-reduced-motion: reduce) { .fod-img img { transition: none; } }
+  @media (max-width: 720px) {
+    .fod { grid-template-columns: 1fr; grid-template-rows: 160px auto; height: 420px; }
+    .fod-text { padding: 1rem 1.1rem; justify-content: flex-start; }
+    .fod-title { font-size: 1.5rem; }
+  }
+</style>

@@ -5,11 +5,16 @@
 // shape minus the header, so they import unchanged; older site code reads
 // only `ratings` from newer files.
 import { loadStore, mergeRatings } from './visitor.js';
+import { watchlistItems, mergeWatchlist } from './watchlist.js';
 
 const SECTIONS = {
   ratings: {
     read: () => loadStore().ratings,
     merge: (value) => mergeRatings(value),
+  },
+  watchlist: {
+    read: () => watchlistItems(),
+    merge: (value) => mergeWatchlist(value),
   },
 };
 

@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import RatingPanel from '../../components/RatingPanel.svelte';
 import RatingsReport from '../../components/RatingsReport.svelte';
+import FilmActions from '../../components/FilmActions.svelte';
 import { movies, directors as allDirectors, directorPageFor } from '../../lib/data.js';
 import { withBase, tmdbImg, fmtRuntime, fmt1 } from '../../lib/util.js';
 
@@ -65,6 +66,7 @@ const panelProps = {
           ) : (
             <span class="status-badge">Not yet rated</span>
           )}
+          <FilmActions client:load id={movie.id} title={movie.title} />
         </div>
       </div>
     </div>
