@@ -18,8 +18,8 @@ playwright-report/
 
 # --- Local-only ---
 .claude/
-handoff.md
-HANDOFF.md
+CLAUDE.md
+ARCHIVE.md
 tests/
 playwright.config.mjs
 
