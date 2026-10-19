@@ -9,6 +9,7 @@ export const NAV = [
     label: 'Explore',
     icon: 'explore',
     items: [
+      { label: 'Insights', href: '/insights', icon: 'chart', desc: "Dr. X's ratings in numbers" },
       { label: 'Collections', href: '/collections', also: '/collection/', icon: 'shelf', desc: 'Filmographies and franchises' },
       { label: 'Directors', href: '/directors', also: '/director/', icon: 'chair', desc: 'Shot length, director by director' },
     ],
@@ -30,6 +31,7 @@ export const NAV = [
     items: [
       { label: 'Your ratings', href: '/your-ratings', icon: 'star', desc: 'Your scores, kept in this browser' },
       { label: 'Watchlist', href: '/watchlist', icon: 'bookmark', desc: 'Films you mean to see' },
+      { label: 'Taste match', href: '/your-ratings#taste-match', icon: 'match', desc: "Your scores against Dr. X's" },
     ],
   },
   { id: 'about', label: 'About', href: '/about', icon: 'info', desc: 'The ten-part system and the data' },
@@ -45,7 +47,8 @@ export const NAV_LINKS = NAV.flatMap((n) => n.items ?? [n]);
 // its detail pages (`also`, e.g. /collection/<slug> under Collections).
 export function isCurrent(item, path, base) {
   const clean = item.href.split('#')[0];
-  if (clean === '/' || !clean) return false;
+  // An anchor into a page (Taste match on Your ratings) never marks the page itself.
+  if (clean === '/' || !clean || item.href.includes('#')) return false;
   const root = base.replace(/\/$/, '');
   const p = path.replace(/\/$/, '');
   const target = root + clean;

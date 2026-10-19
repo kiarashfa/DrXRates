@@ -2,7 +2,7 @@
 
 **The Cinema Ledger** is a personal film archive and rating system. Every film I watch is scored out of ten: five points of **content** (originality, character, continuity, suspense, meaning) and five of **form** (acting, cinematography, sound, directing, production design).
 
-Browse and search 20,000+ films, 1,300+ of them rated, with curated collections, director pages with average-shot-length data, and scores from TMDB, IMDb, Rotten Tomatoes and Metacritic. Search any film, director or collection from any page (Ctrl K). Rate any film yourself with the same ten-part system, keep a watchlist, let the site pick a film for tonight, compare any two films side by side, and run knockout brackets (or replay Dr. X's Cup); your ratings, watchlist and brackets stay in your browser. No sign-up, no accounts, no ads.
+Browse and search 20,000+ films, 1,300+ of them rated, with curated collections, director pages with average-shot-length data, and scores from TMDB, IMDb, Rotten Tomatoes and Metacritic. Search any film, director or collection from any page (Ctrl K). Rate any film yourself with the same ten-part system, keep a watchlist, let the site pick a film for tonight, compare any two films side by side, run knockout brackets (or replay Dr. X's Cup), and see how your taste matches Dr. X's. Insights sets Dr. X's ratings against IMDb and the critics, content against form, and shot length across decades. Your ratings, watchlist and brackets stay in your browser. No sign-up, no accounts, no ads.
 
 ---
 

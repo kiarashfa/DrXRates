@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import { meta } from '../lib/data.js';
 import { CONTENT_KEYS, FORM_KEYS } from '../../shared/rating-meta.mjs';
-import { REPO_URL } from '../lib/util.js';
+import { REPO_URL, withBase } from '../lib/util.js';
 import PayPalMark from '../assets/paypal.svg';
 import CoffeeMark from '../assets/buy-me-a-coffee.svg';
 
@@ -36,6 +36,7 @@ const archiveLine = `Archive generated ${meta.generatedAt.slice(0, 10)}: ${c.mov
     <p class="muted small" style="margin-top:1rem;">
       Each half is scored 0–5 per criterion and averaged; the two averages add up to the score out of ten.
       Visitors can rate any film with the exact same system; see the scorecard on any film page.
+      How the scores spread, and how they compare with IMDb and the critics, is on the <a href={withBase('/insights')} style="color:var(--accent);">Insights</a> page.
     </p>
 
     <h2 style="margin-top:2.4rem;">Your ratings stay with you</h2>

@@ -1,0 +1,268 @@
+---
+import Base from '../layouts/Base.astro';
+import CrowdScatter from '../components/charts/CrowdScatter.svelte';
+import CfGrid from '../components/charts/CfGrid.svelte';
+import Columns from '../components/charts/Columns.svelte';
+import HBars from '../components/charts/HBars.svelte';
+import Dumbbells from '../components/charts/Dumbbells.svelte';
+import { movies, directorPageFor } from '../lib/data.js';
+import { computeInsights, THIN_GROUP, MIN_FILMS } from '../lib/insights.js';
+import { ALL_KEYS, CONTENT_KEYS, fmtScore } from '../../shared/rating-meta.mjs';
+import { withBase } from '../lib/util.js';
+import credits from '../../data/generated/credits.json';
+import people from '../../data/generated/people.json';
+
+// Everything here is computed at build time; the page ships no data and no
+// island (charts are server-rendered SVG, hover text comes from <title>).
+const I = computeInsights({ movies, credits, people, directorPageFor });
+const n = (v: number) => v.toLocaleString('en');
+const href = (slug: string | null) => (slug ? withBase(`/movie/${slug}`) : undefined);
+const crowdRows = (list: any[]) =>
+  list.map((f) => ({ href: href(f.slug), title: f.title, year: f.year, poster: f.poster, drx: f.x, other: f.imdb }));
+const contentSide = new Set(CONTENT_KEYS.map((k) => k.key));
+const decadeRows = I.breakdown.decades.map((d) => ({ label: `${d.decade}s`, value: d.mean, n: d.n }));
+const aslDecadeRows = I.asl.decades.map((d) => ({ label: `${d.decade}s`, value: d.median, n: d.n }));
+const histRows = I.breakdown.dist.map(([bin, count]: [number, number]) => ({
+  label: String(bin), value: count, tick: Number.isInteger(bin), tip: `${fmtScore(bin)} to ${fmtScore(bin + 0.4)}: ${count} films`,
+}));
+// The decades with the longest and shortest median shot, among groups big enough to read.
+const aslSolid = I.asl.decades.filter((d) => d.n >= THIN_GROUP);
+const aslHigh = aslSolid.reduce((a, b) => (b.median > a.median ? b : a));
+const aslLow = aslSolid.reduce((a, b) => (b.median < a.median ? b : a));
+const busiest = I.breakdown.decades.reduce((a, b) => (b.n > a.n ? b : a));
+
+const SECTIONS = [
+  { id: 'crowd', title: 'Dr. X vs the crowd' },
+  { id: 'content-form', title: 'Content vs form' },
+  { id: 'breakdowns', title: 'Breakdowns' },
+  { id: 'asl', title: 'ASL across decades' },
+  { id: 'crew', title: 'Crew and the criteria' },
+];
+---
+
+<Base title="Insights" description={`What ${n(I.n)} ratings show about Dr. X's taste: against IMDb and the critics, content against form, shot length across decades, and the crew behind each criterion.`}>
+  <section class="wrap page-intro">
+    <h1>Insights</h1>
+    <p class="muted">
+      What {n(I.n)} ratings show about Dr. X's taste, set against IMDb, Metacritic and Rotten Tomatoes. The numbers are
+      recomputed from the ledger every time the site is rebuilt.
+    </p>
+  </section>
+
+  <div class="wrap ins">
+    <nav class="ins-index" aria-label="Sections" data-testid="insights-index">
+      {SECTIONS.map((s, i) => <a href={`#${s.id}`}><span class="no">0{i + 1}</span>{s.title}</a>)}
+    </nav>
+
+    <div class="ins-main">
+      <section id="crowd" class="ins-sec" data-testid="insights-crowd">
+        <span class="kicker">01</span>
+        <h2>Dr. X vs the crowd</h2>
+        <p class="lede muted">
+          On the {n(I.crowd.n)} rated films with {n(I.crowd.floor)}+ IMDb votes, Dr. X's median is {fmtScore(I.crowd.medianX)};
+          IMDb's is {fmtScore(I.crowd.medianImdb)}. The order largely agrees (correlation {fmtScore(I.crowd.r)}), so the lists
+          below compare positions, not raw points: a film in Dr. X's top tenth and IMDb's bottom third counts as a wide gap.
+          The line marks equal standing on both scales.
+        </p>
+        <div class="chart-box"><CrowdScatter crowd={I.crowd} /></div>
+        <div class="two">
+          <div>
+            <h3 class="h-sub">Rated higher than the crowd</h3>
+            <Dumbbells rows={crowdRows(I.crowd.higher)} />
+          </div>
+          <div>
+            <h3 class="h-sub">Rated lower than the crowd</h3>
+            <Dumbbells rows={crowdRows(I.crowd.lower)} />
+          </div>
+        </div>
+        <p class="small faint foot">
+          Metacritic, {n(I.crowd.metacritic.n)} films: correlation {fmtScore(I.crowd.metacritic.r)}. Rotten Tomatoes is the share
+          of positive reviews, not a score, so it is never converted to /10; correlation {fmtScore(I.crowd.rottenTomatoes.r)} over
+          {' '}{n(I.crowd.rottenTomatoes.n)} films.
+        </p>
+      </section>
+
+      <section id="content-form" class="ins-sec" data-testid="insights-content-form">
+        <span class="kicker">02</span>
+        <h2>Content vs form</h2>
+        <p class="lede muted">
+          Each score is content (five criteria) plus form (five criteria), each out of 5. Form scores higher on
+          {' '}{n(I.cf.formAhead)} of {n(I.n)} films, content on {n(I.cf.contentAhead)}; {n(I.cf.even)} are even. Medians: content
+          {' '}{fmtScore(I.cf.medianContent)}, form {fmtScore(I.cf.medianForm)}. Circle size is the number of films at that point.
+        </p>
+        <div class="chart-box"><CfGrid cf={I.cf} n={I.n} /></div>
+        <h3 class="h-sub">Average per criterion</h3>
+        <div class="chart-box">
+          <HBars max={5} label="Dr. X's average per criterion" rows={ALL_KEYS.map((k) => ({ label: k.short, value: I.cf.criteria[k.key], side: contentSide.has(k.key) ? 'content' : 'form' }))} />
+        </div>
+        <div class="two">
+          {[['Content far ahead', I.cf.contentLed], ['Form far ahead', I.cf.formLed]].map(([title, list]: any) => (
+            <div>
+              <h3 class="h-sub">{title}</h3>
+              <ol class="plain">
+                {list.map((f: any) => (
+                  <li>
+                    <span><a href={href(f.slug)}>{f.title}</a> <span class="faint">{f.year}</span></span>
+                    <span class="pills"><span class="pill content" title="Content">{fmtScore(f.c)}</span><span class="pill form" title="Form">{fmtScore(f.f)}</span></span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="breakdowns" class="ins-sec" data-testid="insights-breakdowns">
+        <span class="kicker">03</span>
+        <h2>Breakdowns</h2>
+        <p class="lede muted">
+          All {n(I.n)} rated films. Median {fmtScore(I.median)}, mean {fmtScore(I.mean)}; the most rated decade is the
+          {' '}{busiest.decade}s ({n(busiest.n)} films). Decades and genres show the mean score. Decades with fewer than
+          {' '}{THIN_GROUP} films are greyed, genres with fewer are left out, and directors need {MIN_FILMS} rated films.
+        </p>
+        <h3 class="h-sub">Score distribution</h3>
+        <div class="chart-box">
+          <div class="wide-only"><Columns rows={histRows} values={false} label="Number of films per half point of Dr. X's score" /></div>
+          <div class="narrow-only"><Columns rows={histRows} values={false} W={360} H={200} label="Number of films per half point of Dr. X's score" /></div>
+        </div>
+        <h3 class="h-sub">By decade</h3>
+        <div class="chart-box">
+          <div class="wide-only"><Columns rows={decadeRows} max={10} thin={THIN_GROUP} label="Dr. X's mean score by decade" /></div>
+          <div class="narrow-only"><HBars rows={decadeRows} max={10} thin={THIN_GROUP} label="Dr. X's mean score by decade" /></div>
+        </div>
+        <div class="two">
+          <div>
+            <h3 class="h-sub">By genre</h3>
+            <HBars max={10} label="Mean score by genre" rows={I.breakdown.genres.map((g) => ({ label: g.name, value: g.mean, n: g.n }))} />
+          </div>
+          <div>
+            <h3 class="h-sub">Directors, {MIN_FILMS}+ films</h3>
+            <HBars max={10} label="Mean score by director" rows={I.breakdown.directors.map((d) => ({ label: d.name, value: d.mean, n: d.n, href: d.page ? withBase(`/director/${d.page}`) : undefined }))} />
+          </div>
+        </div>
+      </section>
+
+      <section id="asl" class="ins-sec" data-testid="insights-asl">
+        <span class="kicker">04</span>
+        <h2>ASL across decades</h2>
+        <p class="lede muted">
+          Average shot length (ASL) is the running time divided by the number of shots, in seconds. It is measured for
+          {' '}{n(I.asl.n)} films, rated or not. The longest median is the {aslHigh.decade}s' at {fmtScore(aslHigh.median)} seconds;
+          the shortest, the {aslLow.decade}s' at {fmtScore(aslLow.median)}. Decades with fewer than {THIN_GROUP} films are greyed.
+          Director by director, see <a href={withBase('/directors')}>the directors' wing</a>.
+        </p>
+        <div class="chart-box">
+          <div class="wide-only"><Columns rows={aslDecadeRows} thin={THIN_GROUP} unit="s" label="Median average shot length by decade, in seconds" /></div>
+          <div class="narrow-only"><HBars rows={aslDecadeRows} max={Math.max(...aslDecadeRows.map((r) => r.value))} thin={THIN_GROUP} unit="s" label="Median average shot length by decade, in seconds" /></div>
+        </div>
+        <div class="two">
+          <div>
+            <h3 class="h-sub">By genre (median)</h3>
+            <HBars unit="s" max={Math.max(...I.asl.genres.map((g) => g.median))} label="Median average shot length by genre" rows={I.asl.genres.map((g) => ({ label: g.name, value: g.median, n: g.n }))} />
+          </div>
+          <div>
+            <h3 class="h-sub">Longest average shots</h3>
+            <ol class="plain">
+              {I.asl.longest.map((f) => (
+                <li><span><a href={href(f.slug)}>{f.title}</a> <span class="faint">{f.year}</span></span><span class="mono">{fmtScore(f.asl)}s</span></li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section id="crew" class="ins-sec" data-testid="insights-crew">
+        <span class="kicker">05</span>
+        <h2>Crew and the criteria</h2>
+        <p class="lede muted">
+          People with {MIN_FILMS} or more films among Dr. X's ratings, set against the criterion closest to their job: writers
+          against the content average, the other roles against one form criterion. Averages are out of 5; the middle column
+          is the number of films.
+        </p>
+        <div class="crews">
+          {I.crew.map((c) => (
+            <div class="crew">
+              <h3><i class={`sw ${c.side}`}></i>{c.label}</h3>
+              <p class="small faint">against {c.against} · {n(c.people)} with {MIN_FILMS}+ films</p>
+              <table>
+                <tbody>
+                  {c.rows.map((r) => <tr><td>{r.name}</td><td class="num faint">{r.n}</td><td class="num">{fmtScore(r.mean)}</td></tr>)}
+                </tbody>
+              </table>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  </div>
+</Base>
+
+<script>
+  // Marks the section in view in the index (progressive: links work without it).
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('.ins-index a')];
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        for (const a of links) a.classList.toggle('on', a.hash === `#${e.target.id}`);
+        const on = links.find((a) => a.hash === `#${e.target.id}`);
+        // Phones: keep the active chip visible in the scrolling strip.
+        if (on && on.parentElement && on.parentElement.scrollWidth > on.parentElement.clientWidth) {
+          on.parentElement.scrollTo({ left: on.offsetLeft - 16, behavior: 'smooth' });
+        }
+      }
+    },
+    { rootMargin: '-25% 0px -65% 0px' }
+  );
+  document.querySelectorAll('.ins-sec').forEach((s) => io.observe(s));
+</script>
+
+<style>
+  .ins { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 2.6rem; align-items: start; margin-top: 2rem; }
+  .ins-index { position: sticky; top: calc(var(--header-h) + 1.5rem); font-size: 0.88rem; border-left: 1px solid var(--border); }
+  .ins-index a { display: block; padding: 0.32rem 0 0.32rem 0.9rem; margin-left: -1px; border-left: 2px solid transparent; color: var(--ink-muted); text-decoration: none; }
+  .ins-index a:hover { color: var(--ink); }
+  .ins-index a:global(.on) { color: var(--ink); border-left-color: var(--accent); }
+  .no { font-family: var(--font-mono); font-size: 0.72rem; color: var(--ink-faint); margin-right: 0.55em; }
+  .ins-sec { padding: 2.4rem 0 0.6rem; border-top: 1px solid var(--border); scroll-margin-top: calc(var(--header-h) + 1rem); }
+  .ins-sec:first-child { border-top: 0; padding-top: 0.2rem; }
+  .ins-sec h2 { font-size: clamp(1.6rem, 3vw, 2rem); }
+  .kicker { font: 600 0.72rem/1 var(--font-mono); letter-spacing: 0.12em; color: var(--accent); }
+  .lede { max-width: 660px; }
+  .lede a { color: var(--accent); }
+  .h-sub { font: 600 0.74rem/1.3 var(--font-ui); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-muted); margin: 1.6rem 0 0.7rem; }
+  .chart-box { max-width: 700px; margin-top: 1.2rem; }
+  .h-sub + .chart-box { margin-top: 0; }
+  .two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 2rem; }
+  .foot { margin-top: 1.2rem; max-width: 660px; }
+  .narrow-only { display: none; }
+  ol.plain { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.3rem; font-size: 0.9rem; }
+  ol.plain li { display: flex; justify-content: space-between; gap: 0.8rem; align-items: baseline; border-bottom: 1px dotted var(--border-strong); padding-bottom: 0.3rem; }
+  ol.plain a { font-family: var(--font-display); font-size: 1.02rem; color: var(--ink); text-decoration: none; }
+  ol.plain a:hover { color: var(--accent); }
+  .pills { display: inline-flex; gap: 0.3rem; flex-shrink: 0; }
+  .crews { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.6rem 2rem; margin-top: 1.2rem; }
+  .crew h3 { font: 600 0.95rem var(--font-ui); margin: 0; display: flex; align-items: center; gap: 0.45em; }
+  .crew p { margin: 0.1rem 0 0.4rem; }
+  .sw { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+  .sw.content { background: var(--content-c); }
+  .sw.form { background: var(--form-c); }
+  .crew table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+  .crew td { padding: 0.24rem 0; border-bottom: 1px dotted var(--border-strong); }
+  .crew td.num { text-align: right; width: 2.6rem; font-family: var(--font-mono); font-size: 0.8rem; }
+  @media (max-width: 860px) {
+    .ins { grid-template-columns: minmax(0, 1fr); gap: 0; margin-top: 1.2rem; }
+    .ins-index { top: 0; z-index: 5; display: flex; gap: 0.2rem; overflow-x: auto; scrollbar-width: none; border: 0; border-bottom: 1px solid var(--border); background: var(--bg); padding: 0.5rem 0; margin: 0 -1.5rem; padding-inline: 1.5rem; }
+    .ins-index a { white-space: nowrap; border: 0; border-bottom: 2px solid transparent; margin: 0; padding: 0.25rem 0.6rem; }
+    .ins-index a:global(.on) { border-bottom-color: var(--accent); }
+    .no { display: none; }
+    .ins-sec { scroll-margin-top: 3.4rem; }
+    .ins-sec:first-child { padding-top: 1.6rem; }
+  }
+  @media (max-width: 640px) {
+    .ins-index { margin: 0 -1rem; padding-inline: 1rem; }
+    .two { grid-template-columns: minmax(0, 1fr); }
+    .wide-only { display: none; }
+    .narrow-only { display: block; }
+  }
+</style>
