@@ -1,0 +1,2067 @@
+{
+  "format": 1,
+  "slug": "the-imdb-128",
+  "title": "The IMDb 128",
+  "description": "The 128 highest-rated films on IMDb that Dr. X has rated, seeded by IMDb score. One champion.",
+  "date": "2026-10-19",
+  "size": 128,
+  "seeding": "seeded",
+  "rankBy": "imdb",
+  "pool": "Dr. X's films · by IMDb",
+  "entrants": [
+    {
+      "id": 278,
+      "title": "The Shawshank Redemption",
+      "year": 1994,
+      "seed": 1,
+      "directors": [
+        "Frank Darabont"
+      ],
+      "poster": "/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg",
+      "my": 9,
+      "imdb": 9.3,
+      "tmdb": 8.7,
+      "rt": 89,
+      "metacritic": 82
+    },
+    {
+      "id": 3175,
+      "title": "Barry Lyndon",
+      "year": 1975,
+      "seed": 128,
+      "directors": [
+        "Stanley Kubrick"
+      ],
+      "poster": "/A0byHUHMwZ7dtBQtfZ44QIgDbjo.jpg",
+      "my": 8.2,
+      "imdb": 8.1,
+      "tmdb": 8,
+      "rt": 78,
+      "metacritic": 89
+    },
+    {
+      "id": 475557,
+      "title": "Joker",
+      "year": 2019,
+      "seed": 64,
+      "directors": [
+        "Todd Phillips"
+      ],
+      "poster": "/udDclJoHjfjb8Ekgsd4FDteOkCU.jpg",
+      "my": 8,
+      "imdb": 8.3,
+      "tmdb": 8.1,
+      "rt": 68,
+      "metacritic": 59
+    },
+    {
+      "id": 38,
+      "title": "Eternal Sunshine of the Spotless Mind",
+      "year": 2004,
+      "seed": 65,
+      "directors": [
+        "Michel Gondry"
+      ],
+      "poster": "/5MwkWH9tYHv3mV9OdYTMR5qreIz.jpg",
+      "my": 5.6,
+      "imdb": 8.3,
+      "tmdb": 8.1,
+      "rt": 93,
+      "metacritic": 89
+    },
+    {
+      "id": 105,
+      "title": "Back to the Future",
+      "year": 1985,
+      "seed": 32,
+      "directors": [
+        "Robert Zemeckis"
+      ],
+      "poster": "/vN5B5WgYscRGcQpVhHl6p9DDTP0.jpg",
+      "my": 7.2,
+      "imdb": 8.5,
+      "tmdb": 8.3,
+      "rt": 93,
+      "metacritic": 88
+    },
+    {
+      "id": 745,
+      "title": "The Sixth Sense",
+      "year": 1999,
+      "seed": 97,
+      "directors": [
+        "M. Night Shyamalan"
+      ],
+      "poster": "/vOyfUXNFSnaTk7Vk5AjpsKTUWsu.jpg",
+      "my": 5.8,
+      "imdb": 8.2,
+      "tmdb": 8,
+      "rt": 86,
+      "metacritic": 64
+    },
+    {
+      "id": 101,
+      "title": "Léon: The Professional",
+      "year": 1994,
+      "seed": 33,
+      "directors": [
+        "Luc Besson"
+      ],
+      "poster": "/bxB2q91nKYp8JNzqE7t7TWBVupB.jpg",
+      "my": 8.2,
+      "imdb": 8.5,
+      "tmdb": 8.3,
+      "rt": 76,
+      "metacritic": 64
+    },
+    {
+      "id": 329,
+      "title": "Jurassic Park",
+      "year": 1993,
+      "seed": 96,
+      "directors": [
+        "Steven Spielberg"
+      ],
+      "poster": "/1468Tv8LF207WCJXDolm8l7hVo4.jpg",
+      "my": 7.2,
+      "imdb": 8.2,
+      "tmdb": 8,
+      "rt": 91,
+      "metacritic": 68
+    },
+    {
+      "id": 157336,
+      "title": "Interstellar",
+      "year": 2014,
+      "seed": 16,
+      "directors": [
+        "Christopher Nolan"
+      ],
+      "poster": "/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg",
+      "my": 9,
+      "imdb": 8.7,
+      "tmdb": 8.5,
+      "rt": 73,
+      "metacritic": 74
+    },
+    {
+      "id": 272,
+      "title": "Batman Begins",
+      "year": 2005,
+      "seed": 113,
+      "directors": [
+        "Christopher Nolan"
+      ],
+      "poster": "/sPX89Td70IDDjVr85jdSBb4rWGr.jpg",
+      "my": 6.8,
+      "imdb": 8.2,
+      "tmdb": 7.7,
+      "rt": 85,
+      "metacritic": 70
+    },
+    {
+      "id": 299536,
+      "title": "Avengers: Infinity War",
+      "year": 2018,
+      "seed": 49,
+      "directors": [
+        "Joe Russo",
+        "Anthony Russo"
+      ],
+      "poster": "/7WsyChQLEftFiDOVTGkv3hFpyyt.jpg",
+      "my": 7.2,
+      "imdb": 8.4,
+      "tmdb": 8.2,
+      "rt": 85,
+      "metacritic": 68
+    },
+    {
+      "id": 60243,
+      "title": "A Separation",
+      "year": 2011,
+      "seed": 80,
+      "directors": [
+        "Asghar Farhadi"
+      ],
+      "poster": "/xQadpnoLokxzN3hRpCPbBGpxsiz.jpg",
+      "my": 8.4,
+      "imdb": 8.3,
+      "tmdb": 7.9,
+      "rt": 99,
+      "metacritic": 95
+    },
+    {
+      "id": 769,
+      "title": "GoodFellas",
+      "year": 1990,
+      "seed": 17,
+      "directors": [
+        "Martin Scorsese"
+      ],
+      "poster": "/9OkCLM73MIU2CrKZbqiT8Ln1wY2.jpg",
+      "my": 8.8,
+      "imdb": 8.7,
+      "tmdb": 8.5,
+      "rt": 93,
+      "metacritic": 92
+    },
+    {
+      "id": 2118,
+      "title": "L.A. Confidential",
+      "year": 1997,
+      "seed": 112,
+      "directors": [
+        "Curtis Hanson"
+      ],
+      "poster": "/lWCgf5sD5FpMljjpkRhcC8pXcch.jpg",
+      "my": 7.8,
+      "imdb": 8.2,
+      "tmdb": 7.8,
+      "rt": 99,
+      "metacritic": 91
+    },
+    {
+      "id": 77,
+      "title": "Memento",
+      "year": 2000,
+      "seed": 48,
+      "directors": [
+        "Christopher Nolan"
+      ],
+      "poster": "/fKTPH2WvH8nHTXeBYBVhawtRqtR.jpg",
+      "my": 9.2,
+      "imdb": 8.4,
+      "tmdb": 8.2,
+      "rt": 94,
+      "metacritic": 83
+    },
+    {
+      "id": 11324,
+      "title": "Shutter Island",
+      "year": 2010,
+      "seed": 81,
+      "directors": [
+        "Martin Scorsese"
+      ],
+      "poster": "/nrmXQ0zcZUL8jFLrakWc90IR8z9.jpg",
+      "my": 9.6,
+      "imdb": 8.2,
+      "tmdb": 8.2,
+      "rt": 69,
+      "metacritic": 63
+    },
+    {
+      "id": 120,
+      "title": "The Lord of the Rings: The Fellowship of the Ring",
+      "year": 2001,
+      "seed": 8,
+      "directors": [
+        "Peter Jackson"
+      ],
+      "poster": "/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg",
+      "my": 8,
+      "imdb": 8.9,
+      "tmdb": 8.4,
+      "rt": 91,
+      "metacritic": 92
+    },
+    {
+      "id": 120467,
+      "title": "The Grand Budapest Hotel",
+      "year": 2014,
+      "seed": 121,
+      "directors": [
+        "Wes Anderson"
+      ],
+      "poster": "/zOVCqKUzjFKqa1eDMcOzvXwthY4.jpg",
+      "my": 8.4,
+      "imdb": 8.1,
+      "tmdb": 8,
+      "rt": 92,
+      "metacritic": 88
+    },
+    {
+      "id": 311,
+      "title": "Once Upon a Time in America",
+      "year": 1984,
+      "seed": 57,
+      "directors": [
+        "Sergio Leone"
+      ],
+      "poster": "/i0enkzsL5dPeneWnjl1fCWm6L7k.jpg",
+      "my": 8.4,
+      "imdb": 8.3,
+      "tmdb": 8.4,
+      "rt": 86,
+      "metacritic": 75
+    },
+    {
+      "id": 14,
+      "title": "American Beauty",
+      "year": 1999,
+      "seed": 72,
+      "directors": [
+        "Sam Mendes"
+      ],
+      "poster": "/wby9315QzVKdW9BonAefg8jGTTb.jpg",
+      "my": 7,
+      "imdb": 8.3,
+      "tmdb": 8,
+      "rt": 87,
+      "metacritic": 84
+    },
+    {
+      "id": 857,
+      "title": "Saving Private Ryan",
+      "year": 1998,
+      "seed": 25,
+      "directors": [
+        "Steven Spielberg"
+      ],
+      "poster": "/uqx37cS8cpHg8U35f9U5IBlrCV3.jpg",
+      "my": 8.2,
+      "imdb": 8.6,
+      "tmdb": 8.2,
+      "rt": 94,
+      "metacritic": 91
+    },
+    {
+      "id": 1955,
+      "title": "The Elephant Man",
+      "year": 1980,
+      "seed": 104,
+      "directors": [
+        "David Lynch"
+      ],
+      "poster": "/u0wpPYjuSt8DIe1Y3Vapnh8jcKE.jpg",
+      "my": 8,
+      "imdb": 8.2,
+      "tmdb": 8,
+      "rt": 91,
+      "metacritic": 78
+    },
+    {
+      "id": 1124,
+      "title": "The Prestige",
+      "year": 2006,
+      "seed": 40,
+      "directors": [
+        "Christopher Nolan"
+      ],
+      "poster": "/Ag2B2KHKQPukjH7WutmgnnSNurZ.jpg",
+      "my": 8.2,
+      "imdb": 8.5,
+      "tmdb": 8.2,
+      "rt": 77,
+      "metacritic": 66
+    },
+    {
+      "id": 7345,
+      "title": "There Will Be Blood",
+      "year": 2007,
+      "seed": 89,
+      "directors": [
+        "Paul Thomas Anderson"
+      ],
+      "poster": "/fa0RDkAlCec0STeMNAhPaF89q6U.jpg",
+      "my": 7.8,
+      "imdb": 8.2,
+      "tmdb": 8.1,
+      "rt": 91,
+      "metacritic": 93
+    },
+    {
+      "id": 13,
+      "title": "Forrest Gump",
+      "year": 1994,
+      "seed": 9,
+      "directors": [
+        "Robert Zemeckis"
+      ],
+      "poster": "/Cw4hIUIAmSYfK9QfaUW5igp9La.jpg",
+      "my": 8.4,
+      "imdb": 8.8,
+      "tmdb": 8.5,
+      "rt": 75,
+      "metacritic": 82
+    },
+    {
+      "id": 640,
+      "title": "Catch Me If You Can",
+      "year": 2002,
+      "seed": 120,
+      "directors": [
+        "Steven Spielberg"
+      ],
+      "poster": "/ctjEj2xM32OvBXCq8zAdK3ZrsAj.jpg",
+      "my": 6.4,
+      "imdb": 8.1,
+      "tmdb": 8,
+      "rt": 96,
+      "metacritic": 75
+    },
+    {
+      "id": 49026,
+      "title": "The Dark Knight Rises",
+      "year": 2012,
+      "seed": 56,
+      "directors": [
+        "Christopher Nolan"
+      ],
+      "poster": "/hr0L2aueqlP2BYUblTTjmtn0hw4.jpg",
+      "my": 5.6,
+      "imdb": 8.4,
+      "tmdb": 7.8,
+      "rt": 87,
+      "metacritic": 78
+    },
+    {
+      "id": 641,
+      "title": "Requiem for a Dream",
+      "year": 2000,
+      "seed": 73,
+      "directors": [
+        "Darren Aronofsky"
+      ],
+      "poster": "/9BTwsLaMVHOGFlmsSlx5QYCaXb.jpg",
+      "my": 8.8,
+      "imdb": 8.3,
+      "tmdb": 8,
+      "rt": 80,
+      "metacritic": 71
+    },
+    {
+      "id": 1585,
+      "title": "It's a Wonderful Life",
+      "year": 1946,
+      "seed": 24,
+      "directors": [
+        "Frank Capra"
+      ],
+      "poster": "/bSqt9rhDZx1Q7UZ86dBPKdNomp2.jpg",
+      "my": 9.2,
+      "imdb": 8.6,
+      "tmdb": 8.3,
+      "rt": 94,
+      "metacritic": 89
+    },
+    {
+      "id": 25376,
+      "title": "The Secret in Their Eyes",
+      "year": 2009,
+      "seed": 105,
+      "directors": [
+        "Juan José Campanella"
+      ],
+      "poster": "/r3FctmAMk2tbrwxuWdpeLrZLwIz.jpg",
+      "my": 7.8,
+      "imdb": 8.2,
+      "tmdb": 8,
+      "rt": 89,
+      "metacritic": 80
+    },
+    {
+      "id": 1422,
+      "title": "The Departed",
+      "year": 2006,
+      "seed": 41,
+      "directors": [
+        "Martin Scorsese"
+      ],
+      "poster": "/nT97ifVT2J1yMQmeq20Qblg61T.jpg",
+      "my": 8,
+      "imdb": 8.5,
+      "tmdb": 8.2,
+      "rt": 91,
+      "metacritic": 85
+    },
+    {
+      "id": 600,
+      "title": "Full Metal Jacket",
+      "year": 1987,
+      "seed": 88,
+      "directors": [
+        "Stanley Kubrick"
+      ],
+      "poster": "/kMKyx1k8hWWscYFnPbnxxN4Eqo4.jpg",
+      "my": 7.8,
+      "imdb": 8.2,
+      "tmdb": 8.1,
+      "rt": 90,
+      "metacritic": 78
+    },
+    {
+      "id": 424,
+      "title": "Schindler's List",
+      "year": 1993,
+      "seed": 4,
+      "directors": [
+        "Steven Spielberg"
+      ],
+      "poster": "/sF1U4EUQS8YHUYjNl3pMGNIQyr0.jpg",
+      "my": 7.6,
+      "imdb": 9,
+      "tmdb": 8.6,
+      "rt": 98,
+      "metacritic": 95
+    },
+    {
+      "id": 11778,
+      "title": "The Deer Hunter",
+      "year": 1978,
+      "seed": 125,
+      "directors": [
+        "Michael Cimino"
+      ],
+      "poster": "/bbGtogDZOg09bm42KIpCXUXICkh.jpg",
+      "my": 6.6,
+      "imdb": 8.1,
+      "tmdb": 8,
+      "rt": 86,
+      "metacritic": 90
+    },
+    {
+      "id": 284,
+      "title": "The Apartment",
+      "year": 1960,
+      "seed": 61,
+      "directors": [
+        "Billy Wilder"
+      ],
+      "poster": "/hhSRt1KKfRT0yEhEtRW3qp31JFU.jpg",
+      "my": 9,
+      "imdb": 8.3,
+      "tmdb": 8.2,
+      "rt": 93,
+      "metacritic": 94
+    },
+    {
+      "id": 935,
+      "title": "Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb",
+      "year": 1964,
+      "seed": 68,
+      "directors": [
+        "Stanley Kubrick"
+      ],
+      "poster": "/6x7MzQ6BOMlRzam1StcmPO9v61g.jpg",
+      "my": 9,
+      "imdb": 8.3,
+      "tmdb": 8.1,
+      "rt": 98,
+      "metacritic": 97
+    },
+    {
+      "id": 423,
+      "title": "The Pianist",
+      "year": 2002,
+      "seed": 29,
+      "directors": [
+        "Roman Polanski"
+      ],
+      "poster": "/2hFvxCCWrTmCYwfy7yum0GKRi3Y.jpg",
+      "my": 8.8,
+      "imdb": 8.5,
+      "tmdb": 8.4,
+      "rt": 95,
+      "metacritic": 85
+    },
+    {
+      "id": 524,
+      "title": "Casino",
+      "year": 1995,
+      "seed": 100,
+      "directors": [
+        "Martin Scorsese"
+      ],
+      "poster": "/gziIkUSnYuj9ChCi8qOu2ZunpSC.jpg",
+      "my": 7.6,
+      "imdb": 8.2,
+      "tmdb": 8,
+      "rt": 79,
+      "metacritic": 73
+    },
+    {
+      "id": 567,
+      "title": "Rear Window",
+      "year": 1954,
+      "seed": 36,
+      "directors": [
+        "Alfred Hitchcock"
+      ],
+      "poster": "/ILVF0eJxHMddjxeQhswFtpMtqx.jpg",
+      "my": 10,
+      "imdb": 8.5,
+      "tmdb": 8.3,
+      "rt": 99,
+      "metacritic": 100
+    },
+    {
+      "id": 11878,
+      "title": "Yojimbo",
+      "year": 1961,
+      "seed": 93,
+      "directors": [
+        "Akira Kurosawa"
+      ],
+      "poster": "/tN7kYPjRhDolpui9sc9Eq9n5b2O.jpg",
+      "my": 8.2,
+      "imdb": 8.2,
+      "tmdb": 8.1,
+      "rt": 96,
+      "metacritic": 93
+    },
+    {
+      "id": 550,
+      "title": "Fight Club",
+      "year": 1999,
+      "seed": 13,
+      "directors": [
+        "David Fincher"
+      ],
+      "poster": "/jSziioSwPVrOy9Yow3XhWIBDjq1.jpg",
+      "my": 6.2,
+      "imdb": 8.8,
+      "tmdb": 8.4,
+      "rt": 81,
+      "metacritic": 67
+    },
+    {
+      "id": 359940,
+      "title": "Three Billboards Outside Ebbing, Missouri",
+      "year": 2017,
+      "seed": 116,
+      "directors": [
+        "Martin McDonagh"
+      ],
+      "poster": "/bRYLt8fV82tdVoDppSFTZIcJiLN.jpg",
+      "my": 7.8,
+      "imdb": 8.1,
+      "tmdb": 8.1,
+      "rt": 90,
+      "metacritic": 88
+    },
+    {
+      "id": 16672,
+      "title": "Woman in the Dunes",
+      "year": 1964,
+      "seed": 52,
+      "directors": [
+        "Hiroshi Teshigahara"
+      ],
+      "poster": "/xiBr3bIT2xpbuIKo5bLK7ebP4O1.jpg",
+      "my": 7.8,
+      "imdb": 8.4,
+      "tmdb": 8.2,
+      "rt": 100,
+      "metacritic": null
+    },
+    {
+      "id": 197,
+      "title": "Braveheart",
+      "year": 1995,
+      "seed": 77,
+      "directors": [
+        "Mel Gibson"
+      ],
+      "poster": "/or1gBugydmjToAEq7OZY0owwFk.jpg",
+      "my": 9.4,
+      "imdb": 8.3,
+      "tmdb": 7.9,
+      "rt": 74,
+      "metacritic": 68
+    },
+    {
+      "id": 807,
+      "title": "Se7en",
+      "year": 1995,
+      "seed": 20,
+      "directors": [
+        "David Fincher"
+      ],
+      "poster": "/191nKfP0ehp3uIvWqgPbFmI4lv9.jpg",
+      "my": 8.2,
+      "imdb": 8.6,
+      "tmdb": 8.4,
+      "rt": 84,
+      "metacritic": 65
+    },
+    {
+      "id": 613,
+      "title": "Downfall",
+      "year": 2004,
+      "seed": 109,
+      "directors": [
+        "Oliver Hirschbiegel"
+      ],
+      "poster": "/cP1ElGjBhbZAAqmueXjHDKlSwiP.jpg",
+      "my": 4.2,
+      "imdb": 8.2,
+      "tmdb": 7.9,
+      "rt": 90,
+      "metacritic": 82
+    },
+    {
+      "id": 975,
+      "title": "Paths of Glory",
+      "year": 1957,
+      "seed": 45,
+      "directors": [
+        "Stanley Kubrick"
+      ],
+      "poster": "/p7OHwomA8UOhe3EhckF2IetBTh9.jpg",
+      "my": 8.4,
+      "imdb": 8.4,
+      "tmdb": 8.3,
+      "rt": 96,
+      "metacritic": 90
+    },
+    {
+      "id": 361743,
+      "title": "Top Gun: Maverick",
+      "year": 2022,
+      "seed": 84,
+      "directors": [
+        "Joseph Kosinski"
+      ],
+      "poster": "/n0YuM4f5lvGAP6MAW2kBIzugXnc.jpg",
+      "my": 6,
+      "imdb": 8.2,
+      "tmdb": 8.2,
+      "rt": 96,
+      "metacritic": 78
+    },
+    {
+      "id": 240,
+      "title": "The Godfather Part II",
+      "year": 1974,
+      "seed": 5,
+      "directors": [
+        "Francis Ford Coppola"
+      ],
+      "poster": "/hek3koDUyRQk7FIhPXsa6mT2Zc3.jpg",
+      "my": 9,
+      "imdb": 9,
+      "tmdb": 8.6,
+      "rt": 96,
+      "metacritic": 90
+    },
+    {
+      "id": 359724,
+      "title": "Ford v Ferrari",
+      "year": 2019,
+      "seed": 124,
+      "directors": [
+        "James Mangold"
+      ],
+      "poster": "/dR1Ju50iudrOh3YgfwkAU1g2HZe.jpg",
+      "my": 7.2,
+      "imdb": 8.1,
+      "tmdb": 8,
+      "rt": 92,
+      "metacritic": 81
+    },
+    {
+      "id": 670,
+      "title": "Oldboy",
+      "year": 2003,
+      "seed": 60,
+      "directors": [
+        "Park Chan-wook"
+      ],
+      "poster": "/pWDtjs568ZfOTMbURQBYuT4Qxka.jpg",
+      "my": 7,
+      "imdb": 8.3,
+      "tmdb": 8.2,
+      "rt": 82,
+      "metacritic": 78
+    },
+    {
+      "id": 103663,
+      "title": "The Hunt",
+      "year": 2012,
+      "seed": 69,
+      "directors": [
+        "Thomas Vinterberg"
+      ],
+      "poster": "/jkixsXzRh28q3PCqFoWcf7unghT.jpg",
+      "my": 7.8,
+      "imdb": 8.3,
+      "tmdb": 8.1,
+      "rt": 92,
+      "metacritic": 77
+    },
+    {
+      "id": 244786,
+      "title": "Whiplash",
+      "year": 2014,
+      "seed": 28,
+      "directors": [
+        "Damien Chazelle"
+      ],
+      "poster": "/7fn624j5lj3xTme2SgiLCeuedmO.jpg",
+      "my": 8.4,
+      "imdb": 8.5,
+      "tmdb": 8.4,
+      "rt": 94,
+      "metacritic": 89
+    },
+    {
+      "id": 15,
+      "title": "Citizen Kane",
+      "year": 1941,
+      "seed": 101,
+      "directors": [
+        "Orson Welles"
+      ],
+      "poster": "/sav0jxhqiH0bPr2vZFU0Kjt2nZL.jpg",
+      "my": 8.6,
+      "imdb": 8.2,
+      "tmdb": 8,
+      "rt": 99,
+      "metacritic": 100
+    },
+    {
+      "id": 335,
+      "title": "Once Upon a Time in the West",
+      "year": 1968,
+      "seed": 37,
+      "directors": [
+        "Sergio Leone"
+      ],
+      "poster": "/qbYgqOczabWNn2XKwgMtVrntD6P.jpg",
+      "my": 8.6,
+      "imdb": 8.5,
+      "tmdb": 8.3,
+      "rt": 96,
+      "metacritic": 82
+    },
+    {
+      "id": 600354,
+      "title": "The Father",
+      "year": 2020,
+      "seed": 92,
+      "directors": [
+        "Florian Zeller"
+      ],
+      "poster": "/pr3bEQ517uMb5loLvjFQi8uLAsp.jpg",
+      "my": 6.4,
+      "imdb": 8.2,
+      "tmdb": 8.1,
+      "rt": 98,
+      "metacritic": 88
+    },
+    {
+      "id": 27205,
+      "title": "Inception",
+      "year": 2010,
+      "seed": 12,
+      "directors": [
+        "Christopher Nolan"
+      ],
+      "poster": "/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg",
+      "my": 10,
+      "imdb": 8.8,
+      "tmdb": 8.4,
+      "rt": 87,
+      "metacritic": 74
+    },
+    {
+      "id": 11423,
+      "title": "Memories of Murder",
+      "year": 2003,
+      "seed": 117,
+      "directors": [
+        "Bong Joon Ho"
+      ],
+      "poster": "/jcgUjx1QcupGzjntTVlnQ15lHqy.jpg",
+      "my": 6.8,
+      "imdb": 8.1,
+      "tmdb": 8.1,
+      "rt": null,
+      "metacritic": 82
+    },
+    {
+      "id": 693134,
+      "title": "Dune: Part Two",
+      "year": 2024,
+      "seed": 53,
+      "directors": [
+        "Denis Villeneuve"
+      ],
+      "poster": "/heM4XKC0jA8fTSNe8F7oUkcJV7Z.jpg",
+      "my": 7.8,
+      "imdb": 8.4,
+      "tmdb": 8.1,
+      "rt": 92,
+      "metacritic": 79
+    },
+    {
+      "id": 821,
+      "title": "Judgment at Nuremberg",
+      "year": 1961,
+      "seed": 76,
+      "directors": [
+        "Stanley Kramer"
+      ],
+      "poster": "/b6vYatvui1EXeFYfpDX4rcbueuP.jpg",
+      "my": 7,
+      "imdb": 8.3,
+      "tmdb": 8,
+      "rt": 93,
+      "metacritic": 60
+    },
+    {
+      "id": 598,
+      "title": "City of God",
+      "year": 2002,
+      "seed": 21,
+      "directors": [
+        "Fernando Meirelles"
+      ],
+      "poster": "/k7eYdWvhYQyRQoU2TB2A2Xu2TfD.jpg",
+      "my": 7.2,
+      "imdb": 8.6,
+      "tmdb": 8.4,
+      "rt": 91,
+      "metacritic": 79
+    },
+    {
+      "id": 33,
+      "title": "Unforgiven",
+      "year": 1992,
+      "seed": 108,
+      "directors": [
+        "Clint Eastwood"
+      ],
+      "poster": "/54roTwbX9fltg85zjsmrooXAs12.jpg",
+      "my": 8.2,
+      "imdb": 8.2,
+      "tmdb": 7.9,
+      "rt": 96,
+      "metacritic": 85
+    },
+    {
+      "id": 28,
+      "title": "Apocalypse Now",
+      "year": 1979,
+      "seed": 44,
+      "directors": [
+        "Francis Ford Coppola"
+      ],
+      "poster": "/gQB8Y5RCMkv2zwzFHbUJX3kAhvA.jpg",
+      "my": 8.2,
+      "imdb": 8.4,
+      "tmdb": 8.3,
+      "rt": 91,
+      "metacritic": 94
+    },
+    {
+      "id": 490132,
+      "title": "Green Book",
+      "year": 2018,
+      "seed": 85,
+      "directors": [
+        "Peter Farrelly"
+      ],
+      "poster": "/7BsvSuDQuoqhWmU2fL7W2GOcZHU.jpg",
+      "my": 8,
+      "imdb": 8.2,
+      "tmdb": 8.2,
+      "rt": 77,
+      "metacritic": 69
+    },
+    {
+      "id": 238,
+      "title": "The Godfather",
+      "year": 1972,
+      "seed": 2,
+      "directors": [
+        "Francis Ford Coppola"
+      ],
+      "poster": "/3bhkrj58Vtu7enYsRolD1fZdja1.jpg",
+      "my": 10,
+      "imdb": 9.2,
+      "tmdb": 8.7,
+      "rt": 97,
+      "metacritic": 100
+    },
+    {
+      "id": 521,
+      "title": "Dial M for Murder",
+      "year": 1954,
+      "seed": 127,
+      "directors": [
+        "Alfred Hitchcock"
+      ],
+      "poster": "/2gDCAgl2iBQNuJuk6p2xtuS1ewg.jpg",
+      "my": 9.4,
+      "imdb": 8.1,
+      "tmdb": 8,
+      "rt": 90,
+      "metacritic": 75
+    },
+    {
+      "id": 3780,
+      "title": "Red Beard",
+      "year": 1965,
+      "seed": 63,
+      "directors": [
+        "Akira Kurosawa"
+      ],
+      "poster": "/iYNH3Re0JSypoYaWvZtERUnNaJL.jpg",
+      "my": 8.8,
+      "imdb": 8.3,
+      "tmdb": 8.2,
+      "rt": 73,
+      "metacritic": 90
+    },
+    {
+      "id": 500,
+      "title": "Reservoir Dogs",
+      "year": 1992,
+      "seed": 66,
+      "directors": [
+        "Quentin Tarantino"
+      ],
+      "poster": "/xi8Iu6qyTfyZVDVy60raIOYJJmk.jpg",
+      "my": 8.6,
+      "imdb": 8.3,
+      "tmdb": 8.1,
+      "rt": 90,
+      "metacritic": 81
+    },
+    {
+      "id": 11216,
+      "title": "Cinema Paradiso",
+      "year": 1988,
+      "seed": 31,
+      "directors": [
+        "Giuseppe Tornatore"
+      ],
+      "poster": "/gCI2AeMV4IHSewhJkzsur5MEp6R.jpg",
+      "my": 9.2,
+      "imdb": 8.5,
+      "tmdb": 8.4,
+      "rt": 90,
+      "metacritic": 80
+    },
+    {
+      "id": 872585,
+      "title": "Oppenheimer",
+      "year": 2023,
+      "seed": 98,
+      "directors": [
+        "Christopher Nolan"
+      ],
+      "poster": "/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
+      "my": 7.4,
+      "imdb": 8.2,
+      "tmdb": 8,
+      "rt": 93,
+      "metacritic": 90
+    },
+    {
+      "id": 73,
+      "title": "American History X",
+      "year": 1998,
+      "seed": 34,
+      "directors": [
+        "Tony Kaye"
+      ],
+      "poster": "/x2drgoXYZ8484lqyDj7L1CEVR4T.jpg",
+      "my": 7.4,
+      "imdb": 8.5,
+      "tmdb": 8.3,
+      "rt": 84,
+      "metacritic": 62
+    },
+    {
+      "id": 24,
+      "title": "Kill Bill: Vol. 1",
+      "year": 2003,
+      "seed": 95,
+      "directors": [
+        "Quentin Tarantino"
+      ],
+      "poster": "/v7TaX8kXMXs5yFFGR41guUDNcnB.jpg",
+      "my": 7.4,
+      "imdb": 8.2,
+      "tmdb": 8,
+      "rt": 85,
+      "metacritic": 69
+    },
+    {
+      "id": 414419,
+      "title": "Kill Bill: The Whole Bloody Affair",
+      "year": 2011,
+      "seed": 15,
+      "directors": [
+        "Quentin Tarantino"
+      ],
+      "poster": "/nSOJfWJCdVFZQwXQA7RXn7FIIiY.jpg",
+      "my": 7.6,
+      "imdb": 8.8,
+      "tmdb": 8.1,
+      "rt": 100,
+      "metacritic": 95
+    },
+    {
+      "id": 207,
+      "title": "Dead Poets Society",
+      "year": 1989,
+      "seed": 114,
+      "directors": [
+        "Peter Weir"
+      ],
+      "poster": "/erzbMlcNHOdx24AXOcn2ZKA7R1q.jpg",
+      "my": 7.2,
+      "imdb": 8.1,
+      "tmdb": 8.3,
+      "rt": 85,
+      "metacritic": 79
+    },
+    {
+      "id": 694,
+      "title": "The Shining",
+      "year": 1980,
+      "seed": 50,
+      "directors": [
+        "Stanley Kubrick"
+      ],
+      "poster": "/uAR0AWqhQL1hQa69UDEbb2rE5Wx.jpg",
+      "my": 7.6,
+      "imdb": 8.4,
+      "tmdb": 8.2,
+      "rt": 84,
+      "metacritic": 68
+    },
+    {
+      "id": 949,
+      "title": "Heat",
+      "year": 1995,
+      "seed": 79,
+      "directors": [
+        "Michael Mann"
+      ],
+      "poster": "/e09dLw1Ljtccd2P4NsuUvVtS5du.jpg",
+      "my": 8.4,
+      "imdb": 8.3,
+      "tmdb": 7.9,
+      "rt": 84,
+      "metacritic": 76
+    },
+    {
+      "id": 603,
+      "title": "The Matrix",
+      "year": 1999,
+      "seed": 18,
+      "directors": [
+        "Lana Wachowski",
+        "Lilly Wachowski"
+      ],
+      "poster": "/dXNAPwY7VrqMAo51EKhhCJfaGb5.jpg",
+      "my": 10,
+      "imdb": 8.7,
+      "tmdb": 8.3,
+      "rt": 83,
+      "metacritic": 73
+    },
+    {
+      "id": 1417,
+      "title": "Pan's Labyrinth",
+      "year": 2006,
+      "seed": 111,
+      "directors": [
+        "Guillermo del Toro"
+      ],
+      "poster": "/z7xXihu5wHuSMWymq5VAulPVuvg.jpg",
+      "my": 7.8,
+      "imdb": 8.2,
+      "tmdb": 7.8,
+      "rt": 95,
+      "metacritic": 98
+    },
+    {
+      "id": 299534,
+      "title": "Avengers: Endgame",
+      "year": 2019,
+      "seed": 47,
+      "directors": [
+        "Anthony Russo",
+        "Joe Russo"
+      ],
+      "poster": "/ulzhLuWrPK07P1YkdWQLZnQh1JL.jpg",
+      "my": 7,
+      "imdb": 8.4,
+      "tmdb": 8.2,
+      "rt": 94,
+      "metacritic": 78
+    },
+    {
+      "id": 37165,
+      "title": "The Truman Show",
+      "year": 1998,
+      "seed": 82,
+      "directors": [
+        "Peter Weir"
+      ],
+      "poster": "/vuza0WqY239yBXOadKlGwJsZJFE.jpg",
+      "my": 9.2,
+      "imdb": 8.2,
+      "tmdb": 8.2,
+      "rt": 94,
+      "metacritic": 90
+    },
+    {
+      "id": 122,
+      "title": "The Lord of the Rings: The Return of the King",
+      "year": 2003,
+      "seed": 7,
+      "directors": [
+        "Peter Jackson"
+      ],
+      "poster": "/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg",
+      "my": 8,
+      "imdb": 9,
+      "tmdb": 8.5,
+      "rt": 94,
+      "metacritic": 94
+    },
+    {
+      "id": 13223,
+      "title": "Gran Torino",
+      "year": 2008,
+      "seed": 122,
+      "directors": [
+        "Clint Eastwood"
+      ],
+      "poster": "/zUybYvxWdAJy5hhYovsXtHSWI1l.jpg",
+      "my": 7.8,
+      "imdb": 8.1,
+      "tmdb": 8,
+      "rt": 81,
+      "metacritic": 73
+    },
+    {
+      "id": 3782,
+      "title": "Ikiru",
+      "year": 1952,
+      "seed": 58,
+      "directors": [
+        "Akira Kurosawa"
+      ],
+      "poster": "/dgNTS4EQDDVfkzJI5msKuHu2Ei3.jpg",
+      "my": 8.4,
+      "imdb": 8.3,
+      "tmdb": 8.3,
+      "rt": 98,
+      "metacritic": 92
+    },
+    {
+      "id": 133919,
+      "title": "Scenes from a Marriage",
+      "year": 1974,
+      "seed": 71,
+      "directors": [
+        "Ingmar Bergman"
+      ],
+      "poster": "/ArKEdvJesIktFX8OAhcdKAOLl6I.jpg",
+      "my": 6.2,
+      "imdb": 8.3,
+      "tmdb": 8.1,
+      "rt": null,
+      "metacritic": null
+    },
+    {
+      "id": 280,
+      "title": "Terminator 2: Judgment Day",
+      "year": 1991,
+      "seed": 26,
+      "directors": [
+        "James Cameron"
+      ],
+      "poster": "/jFTVD4XoWQTcg7wdyJKa8PEds5q.jpg",
+      "my": 9.4,
+      "imdb": 8.6,
+      "tmdb": 8.2,
+      "rt": 90,
+      "metacritic": 75
+    },
+    {
+      "id": 938,
+      "title": "For a Few Dollars More",
+      "year": 1965,
+      "seed": 103,
+      "directors": [
+        "Sergio Leone"
+      ],
+      "poster": "/ooqASvA7qxlTVKL3KwOzBwy57Dh.jpg",
+      "my": 7.6,
+      "imdb": 8.2,
+      "tmdb": 8,
+      "rt": 92,
+      "metacritic": 74
+    },
+    {
+      "id": 98,
+      "title": "Gladiator",
+      "year": 2000,
+      "seed": 39,
+      "directors": [
+        "Ridley Scott"
+      ],
+      "poster": "/wN2xWp1eIwCKOD0BHTcErTBv1Uq.jpg",
+      "my": 9,
+      "imdb": 8.5,
+      "tmdb": 8.2,
+      "rt": 80,
+      "metacritic": 67
+    },
+    {
+      "id": 1091,
+      "title": "The Thing",
+      "year": 1982,
+      "seed": 90,
+      "directors": [
+        "John Carpenter"
+      ],
+      "poster": "/tzGY49kseSE9QAKk47uuDGwnSCu.jpg",
+      "my": 7.8,
+      "imdb": 8.2,
+      "tmdb": 8.1,
+      "rt": 85,
+      "metacritic": 57
+    },
+    {
+      "id": 680,
+      "title": "Pulp Fiction",
+      "year": 1994,
+      "seed": 10,
+      "directors": [
+        "Quentin Tarantino"
+      ],
+      "poster": "/vQWk5YBFWF4bZaofAbv0tShwBvQ.jpg",
+      "my": 9,
+      "imdb": 8.8,
+      "tmdb": 8.5,
+      "rt": 92,
+      "metacritic": 95
+    },
+    {
+      "id": 614,
+      "title": "Wild Strawberries",
+      "year": 1957,
+      "seed": 119,
+      "directors": [
+        "Ingmar Bergman"
+      ],
+      "poster": "/iyTD2QnySNMPUPE3IedZQipSWfz.jpg",
+      "my": 8.6,
+      "imdb": 8.1,
+      "tmdb": 8.1,
+      "rt": 94,
+      "metacritic": 88
+    },
+    {
+      "id": 582,
+      "title": "The Lives of Others",
+      "year": 2006,
+      "seed": 55,
+      "directors": [
+        "Florian Henckel von Donnersmarck"
+      ],
+      "poster": "/cVUDMnskSc01rdbyH0tLATTJUdP.jpg",
+      "my": 8.8,
+      "imdb": 8.4,
+      "tmdb": 8,
+      "rt": 92,
+      "metacritic": 89
+    },
+    {
+      "id": 213,
+      "title": "North by Northwest",
+      "year": 1959,
+      "seed": 74,
+      "directors": [
+        "Alfred Hitchcock"
+      ],
+      "poster": "/kNOFPQrel9YFCVzI0DF8FnCEpCw.jpg",
+      "my": 7.8,
+      "imdb": 8.3,
+      "tmdb": 8,
+      "rt": 97,
+      "metacritic": 98
+    },
+    {
+      "id": 346,
+      "title": "Seven Samurai",
+      "year": 1954,
+      "seed": 23,
+      "directors": [
+        "Akira Kurosawa"
+      ],
+      "poster": "/lOMGc8bnSwQhS4XyE1S99uH8NXf.jpg",
+      "my": 9.4,
+      "imdb": 8.6,
+      "tmdb": 8.4,
+      "rt": 100,
+      "metacritic": 98
+    },
+    {
+      "id": 11645,
+      "title": "Ran",
+      "year": 1985,
+      "seed": 106,
+      "directors": [
+        "Akira Kurosawa"
+      ],
+      "poster": "/dGgiXMWDcS5aJTBEFu7bmaQPNox.jpg",
+      "my": 9,
+      "imdb": 8.2,
+      "tmdb": 8,
+      "rt": 96,
+      "metacritic": 97
+    },
+    {
+      "id": 629,
+      "title": "The Usual Suspects",
+      "year": 1995,
+      "seed": 42,
+      "directors": [
+        "Bryan Singer"
+      ],
+      "poster": "/99X2SgyFunJFXGAYnDv3sb9pnUD.jpg",
+      "my": 8,
+      "imdb": 8.5,
+      "tmdb": 8.2,
+      "rt": 87,
+      "metacritic": 76
+    },
+    {
+      "id": 146233,
+      "title": "Prisoners",
+      "year": 2013,
+      "seed": 87,
+      "directors": [
+        "Denis Villeneuve"
+      ],
+      "poster": "/jsS3a3ep2KyBVmmiwaz3LvK49b1.jpg",
+      "my": 6.8,
+      "imdb": 8.2,
+      "tmdb": 8.1,
+      "rt": 81,
+      "metacritic": 70
+    },
+    {
+      "id": 155,
+      "title": "The Dark Knight",
+      "year": 2008,
+      "seed": 3,
+      "directors": [
+        "Christopher Nolan"
+      ],
+      "poster": "/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
+      "my": 8.8,
+      "imdb": 9.1,
+      "tmdb": 8.5,
+      "rt": 94,
+      "metacritic": 85
+    },
+    {
+      "id": 76,
+      "title": "Before Sunrise",
+      "year": 1995,
+      "seed": 126,
+      "directors": [
+        "Richard Linklater"
+      ],
+      "poster": "/kf1Jb1c2JAOqjuzA3H4oDM263uB.jpg",
+      "my": 8.8,
+      "imdb": 8.1,
+      "tmdb": 8,
+      "rt": 100,
+      "metacritic": 79
+    },
+    {
+      "id": 25237,
+      "title": "Come and See",
+      "year": 1985,
+      "seed": 62,
+      "directors": [
+        "Elem Klimov"
+      ],
+      "poster": "/qNbMsKVzigERgJUbwf8pKyZogpb.jpg",
+      "my": 7.4,
+      "imdb": 8.3,
+      "tmdb": 8.2,
+      "rt": 90,
+      "metacritic": null
+    },
+    {
+      "id": 62,
+      "title": "2001: A Space Odyssey",
+      "year": 1968,
+      "seed": 67,
+      "directors": [
+        "Stanley Kubrick"
+      ],
+      "poster": "/ve72VxNqjGM69Uky4WTo2bK6rfq.jpg",
+      "my": 9.2,
+      "imdb": 8.3,
+      "tmdb": 8.1,
+      "rt": 90,
+      "metacritic": 84
+    },
+    {
+      "id": 539,
+      "title": "Psycho",
+      "year": 1960,
+      "seed": 30,
+      "directors": [
+        "Alfred Hitchcock"
+      ],
+      "poster": "/yz4QVqPx3h1hD1DfqqQkCq3rmxW.jpg",
+      "my": 9,
+      "imdb": 8.5,
+      "tmdb": 8.4,
+      "rt": 97,
+      "metacritic": 97
+    },
+    {
+      "id": 530915,
+      "title": "1917",
+      "year": 2019,
+      "seed": 99,
+      "directors": [
+        "Sam Mendes"
+      ],
+      "poster": "/iZf0KyrE25z1sage4SYFLCCrMi9.jpg",
+      "my": 9,
+      "imdb": 8.2,
+      "tmdb": 8,
+      "rt": 88,
+      "metacritic": 78
+    },
+    {
+      "id": 77338,
+      "title": "The Intouchables",
+      "year": 2011,
+      "seed": 35,
+      "directors": [
+        "Olivier Nakache",
+        "Éric Toledano"
+      ],
+      "poster": "/1QU7HKgsQbGpzsJbJK4pAVQV9F5.jpg",
+      "my": 9.4,
+      "imdb": 8.5,
+      "tmdb": 8.3,
+      "rt": 75,
+      "metacritic": 57
+    },
+    {
+      "id": 106646,
+      "title": "The Wolf of Wall Street",
+      "year": 2013,
+      "seed": 94,
+      "directors": [
+        "Martin Scorsese"
+      ],
+      "poster": "/kW9LmvYHAaS9iA0tHmZVq8hQYoq.jpg",
+      "my": 7.4,
+      "imdb": 8.2,
+      "tmdb": 8,
+      "rt": 79,
+      "metacritic": 75
+    },
+    {
+      "id": 121,
+      "title": "The Lord of the Rings: The Two Towers",
+      "year": 2002,
+      "seed": 14,
+      "directors": [
+        "Peter Jackson"
+      ],
+      "poster": "/5VTN0pR8gcqV3EPUHHfMGnJYN9L.jpg",
+      "my": 7.6,
+      "imdb": 8.8,
+      "tmdb": 8.4,
+      "rt": 95,
+      "metacritic": 87
+    },
+    {
+      "id": 324786,
+      "title": "Hacksaw Ridge",
+      "year": 2016,
+      "seed": 115,
+      "directors": [
+        "Mel Gibson"
+      ],
+      "poster": "/fnOMP6mjmOmZwmlC1n0K7ivrzt1.jpg",
+      "my": 6.8,
+      "imdb": 8.1,
+      "tmdb": 8.2,
+      "rt": 84,
+      "metacritic": 71
+    },
+    {
+      "id": 37257,
+      "title": "Witness for the Prosecution",
+      "year": 1957,
+      "seed": 51,
+      "directors": [
+        "Billy Wilder"
+      ],
+      "poster": "/bCj4EfuehAlgBwVd3diyWyhuuau.jpg",
+      "my": 8.2,
+      "imdb": 8.4,
+      "tmdb": 8.2,
+      "rt": 100,
+      "metacritic": 76
+    },
+    {
+      "id": 194,
+      "title": "Amélie",
+      "year": 2001,
+      "seed": 78,
+      "directors": [
+        "Jean-Pierre Jeunet"
+      ],
+      "poster": "/nSxDa3M9aMvGVLoItzWTepQ5h5d.jpg",
+      "my": 4.4,
+      "imdb": 8.3,
+      "tmdb": 7.9,
+      "rt": 90,
+      "metacritic": 70
+    },
+    {
+      "id": 497,
+      "title": "The Green Mile",
+      "year": 1999,
+      "seed": 19,
+      "directors": [
+        "Frank Darabont"
+      ],
+      "poster": "/8VG8fDNiy50H4FedGwdSVUPoaJe.jpg",
+      "my": 9.6,
+      "imdb": 8.6,
+      "tmdb": 8.5,
+      "rt": 78,
+      "metacritic": 61
+    },
+    {
+      "id": 562,
+      "title": "Die Hard",
+      "year": 1988,
+      "seed": 110,
+      "directors": [
+        "John McTiernan"
+      ],
+      "poster": "/7Bjd8kfmDSOzpmhySpEhkUyK2oH.jpg",
+      "my": 6.4,
+      "imdb": 8.2,
+      "tmdb": 7.8,
+      "rt": 94,
+      "metacritic": 72
+    },
+    {
+      "id": 16869,
+      "title": "Inglourious Basterds",
+      "year": 2009,
+      "seed": 46,
+      "directors": [
+        "Quentin Tarantino"
+      ],
+      "poster": "/aupnPtagH9JVBuMrGEanf4iqXEQ.jpg",
+      "my": 8.4,
+      "imdb": 8.4,
+      "tmdb": 8.2,
+      "rt": 89,
+      "metacritic": 69
+    },
+    {
+      "id": 185,
+      "title": "A Clockwork Orange",
+      "year": 1971,
+      "seed": 83,
+      "directors": [
+        "Stanley Kubrick"
+      ],
+      "poster": "/4sHeTAp65WrSSuc05nRBKddhBxO.jpg",
+      "my": 8,
+      "imdb": 8.2,
+      "tmdb": 8.2,
+      "rt": 86,
+      "metacritic": 77
+    },
+    {
+      "id": 389,
+      "title": "12 Angry Men",
+      "year": 1957,
+      "seed": 6,
+      "directors": [
+        "Sidney Lumet"
+      ],
+      "poster": "/zhG3vKWyDRaZYoaww1UVAi29T9h.jpg",
+      "my": 8,
+      "imdb": 9,
+      "tmdb": 8.6,
+      "rt": 100,
+      "metacritic": 97
+    },
+    {
+      "id": 70,
+      "title": "Million Dollar Baby",
+      "year": 2004,
+      "seed": 123,
+      "directors": [
+        "Clint Eastwood"
+      ],
+      "poster": "/jcfEqKdWF1zeyvECPqp3mkWLct2.jpg",
+      "my": 8.8,
+      "imdb": 8.1,
+      "tmdb": 8,
+      "rt": 90,
+      "metacritic": 86
+    },
+    {
+      "id": 111,
+      "title": "Scarface",
+      "year": 1983,
+      "seed": 59,
+      "directors": [
+        "Brian De Palma"
+      ],
+      "poster": "/iQ5ztdjvteGeboxtmRdXEChJOHh.jpg",
+      "my": 7.4,
+      "imdb": 8.3,
+      "tmdb": 8.2,
+      "rt": 77,
+      "metacritic": 65
+    },
+    {
+      "id": 46738,
+      "title": "Incendies",
+      "year": 2010,
+      "seed": 70,
+      "directors": [
+        "Denis Villeneuve"
+      ],
+      "poster": "/yH6DAQVgbyj72S66gN4WWVoTjuf.jpg",
+      "my": 6.2,
+      "imdb": 8.3,
+      "tmdb": 8.1,
+      "rt": 91,
+      "metacritic": 80
+    },
+    {
+      "id": 496243,
+      "title": "Parasite",
+      "year": 2019,
+      "seed": 27,
+      "directors": [
+        "Bong Joon Ho"
+      ],
+      "poster": "/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg",
+      "my": 7.4,
+      "imdb": 8.5,
+      "tmdb": 8.5,
+      "rt": 99,
+      "metacritic": 97
+    },
+    {
+      "id": 595,
+      "title": "To Kill a Mockingbird",
+      "year": 1962,
+      "seed": 102,
+      "directors": [
+        "Robert Mulligan"
+      ],
+      "poster": "/gZycFUMLx2110dzK3nBNai7gfpM.jpg",
+      "my": 7.6,
+      "imdb": 8.2,
+      "tmdb": 8,
+      "rt": 93,
+      "metacritic": 88
+    },
+    {
+      "id": 68718,
+      "title": "Django Unchained",
+      "year": 2012,
+      "seed": 38,
+      "directors": [
+        "Quentin Tarantino"
+      ],
+      "poster": "/7oWY8VDWW7thTzWh3OKYRkWUlD5.jpg",
+      "my": 7.4,
+      "imdb": 8.5,
+      "tmdb": 8.2,
+      "rt": 87,
+      "metacritic": 81
+    },
+    {
+      "id": 426,
+      "title": "Vertigo",
+      "year": 1958,
+      "seed": 91,
+      "directors": [
+        "Alfred Hitchcock"
+      ],
+      "poster": "/15uOEfqBNTVtDUT7hGBVCka0rZz.jpg",
+      "my": 10,
+      "imdb": 8.2,
+      "tmdb": 8.1,
+      "rt": 93,
+      "metacritic": 100
+    },
+    {
+      "id": 429,
+      "title": "The Good, the Bad and the Ugly",
+      "year": 1966,
+      "seed": 11,
+      "directors": [
+        "Sergio Leone"
+      ],
+      "poster": "/bX2xnavhMYjWDoZp1VM6VnU1xwe.jpg",
+      "my": 9.2,
+      "imdb": 8.8,
+      "tmdb": 8.5,
+      "rt": 97,
+      "metacritic": 90
+    },
+    {
+      "id": 490,
+      "title": "The Seventh Seal",
+      "year": 1957,
+      "seed": 118,
+      "directors": [
+        "Ingmar Bergman"
+      ],
+      "poster": "/wcZ21zrOsy0b52AfAF50XpTiv75.jpg",
+      "my": 7.2,
+      "imdb": 8.1,
+      "tmdb": 8.1,
+      "rt": 93,
+      "metacritic": 88
+    },
+    {
+      "id": 279,
+      "title": "Amadeus",
+      "year": 1984,
+      "seed": 54,
+      "directors": [
+        "Miloš Forman"
+      ],
+      "poster": "/gQRfiyfGvr1az0quaYyMram3Aqt.jpg",
+      "my": 8.6,
+      "imdb": 8.4,
+      "tmdb": 8,
+      "rt": 90,
+      "metacritic": 87
+    },
+    {
+      "id": 947,
+      "title": "Lawrence of Arabia",
+      "year": 1962,
+      "seed": 75,
+      "directors": [
+        "David Lean"
+      ],
+      "poster": "/AiAm0EtDvyGqNpVoieRw4u65vD1.jpg",
+      "my": 8.6,
+      "imdb": 8.3,
+      "tmdb": 8,
+      "rt": 93,
+      "metacritic": 100
+    },
+    {
+      "id": 637,
+      "title": "Life Is Beautiful",
+      "year": 1997,
+      "seed": 22,
+      "directors": [
+        "Roberto Benigni"
+      ],
+      "poster": "/6tEJnof1DKWPnl5lzkjf0FVv7oB.jpg",
+      "my": 6.6,
+      "imdb": 8.6,
+      "tmdb": 8.4,
+      "rt": 80,
+      "metacritic": 58
+    },
+    {
+      "id": 6977,
+      "title": "No Country for Old Men",
+      "year": 2007,
+      "seed": 107,
+      "directors": [
+        "Joel Coen",
+        "Ethan Coen"
+      ],
+      "poster": "/uB7RDZby43Wvu8SKGHHTwGyTDBX.jpg",
+      "my": 7.8,
+      "imdb": 8.2,
+      "tmdb": 7.9,
+      "rt": 93,
+      "metacritic": 92
+    },
+    {
+      "id": 12493,
+      "title": "High and Low",
+      "year": 1963,
+      "seed": 43,
+      "directors": [
+        "Akira Kurosawa"
+      ],
+      "poster": "/tgNjemQPG96uIezpiUiXFcer5ga.jpg",
+      "my": 8,
+      "imdb": 8.4,
+      "tmdb": 8.4,
+      "rt": 97,
+      "metacritic": 90
+    },
+    {
+      "id": 103,
+      "title": "Taxi Driver",
+      "year": 1976,
+      "seed": 86,
+      "directors": [
+        "Martin Scorsese"
+      ],
+      "poster": "/ekstpH614fwDX8DUln1a2Opz0N8.jpg",
+      "my": 9,
+      "imdb": 8.2,
+      "tmdb": 8.1,
+      "rt": 89,
+      "metacritic": 94
+    }
+  ],
+  "picks": [
+    278,
+    475557,
+    105,
+    101,
+    157336,
+    60243,
+    769,
+    77,
+    120,
+    311,
+    857,
+    7345,
+    13,
+    641,
+    1585,
+    1422,
+    424,
+    935,
+    423,
+    567,
+    550,
+    197,
+    807,
+    361743,
+    240,
+    103663,
+    244786,
+    335,
+    27205,
+    693134,
+    33,
+    28,
+    238,
+    500,
+    11216,
+    24,
+    414419,
+    694,
+    603,
+    37165,
+    122,
+    3782,
+    280,
+    98,
+    680,
+    582,
+    346,
+    629,
+    155,
+    62,
+    530915,
+    77338,
+    121,
+    37257,
+    497,
+    16869,
+    70,
+    111,
+    496243,
+    426,
+    429,
+    279,
+    6977,
+    103,
+    278,
+    101,
+    157336,
+    77,
+    120,
+    857,
+    641,
+    1422,
+    935,
+    567,
+    197,
+    807,
+    240,
+    244786,
+    27205,
+    28,
+    238,
+    24,
+    414419,
+    603,
+    122,
+    280,
+    680,
+    346,
+    62,
+    77338,
+    121,
+    497,
+    70,
+    426,
+    279,
+    103,
+    278,
+    77,
+    120,
+    641,
+    567,
+    197,
+    240,
+    27205,
+    238,
+    603,
+    280,
+    680,
+    62,
+    121,
+    426,
+    279,
+    77,
+    120,
+    567,
+    27205,
+    603,
+    280,
+    62,
+    426,
+    77,
+    27205,
+    603,
+    426,
+    27205,
+    603,
+    603
+  ]
+}

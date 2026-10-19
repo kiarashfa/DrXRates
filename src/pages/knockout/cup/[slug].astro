@@ -1,0 +1,23 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Cup from '../../../components/Cup.svelte';
+import { CUPS } from '../../../lib/cups.js';
+import { movieById } from '../../../lib/data.js';
+import { tmdbImg } from '../../../lib/util.js';
+
+export function getStaticPaths() {
+  return CUPS.map((cup) => ({ params: { slug: cup.slug }, props: { cup } }));
+}
+
+const { cup } = Astro.props;
+// Link preview: the top seed's backdrop (never the champion: no spoilers).
+const top = cup.entrants.find((e) => e.seed === 1);
+const m = movieById.get(top.id);
+const image = (m?.backdrop && tmdbImg(m.backdrop, 'w1280')) || tmdbImg(top.poster, 'w500') || undefined;
+---
+
+<Base title={`Dr. X's Cup: ${cup.title}`} description={cup.description || `A ${cup.size}-film knockout bracket played by Dr. X. Replay it and see how often you agree.`} {image} imageAlt={`Dr. X's Cup: ${cup.title}`}>
+  <section class="wrap page-intro">
+    <Cup client:load {cup} />
+  </section>
+</Base>

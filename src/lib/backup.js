@@ -6,6 +6,7 @@
 // only `ratings` from newer files.
 import { loadStore, mergeRatings } from './visitor.js';
 import { watchlistItems, mergeWatchlist } from './watchlist.js';
+import { knockoutStore, mergeKnockout } from './knockout-store.js';
 
 const SECTIONS = {
   ratings: {
@@ -15,6 +16,10 @@ const SECTIONS = {
   watchlist: {
     read: () => watchlistItems(),
     merge: (value) => mergeWatchlist(value),
+  },
+  knockout: {
+    read: () => knockoutStore(),
+    merge: (value) => mergeKnockout(value),
   },
 };
 

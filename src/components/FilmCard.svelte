@@ -2,12 +2,14 @@
   // The shared film card: poster tile (2:3, Dr. X's score tagged when rated),
   // title, year · director, and a dotted ledger of scores. `rows` picks the
   // ledger rows (none: no ledger), `blind` hides every number, `watch` adds
-  // the watchlist bookmark on the poster.
+  // the watchlist bookmark on the poster. With `onpick` the card is a button
+  // (Knockout matchups) instead of a link, and a film without a slug (gone
+  // from the archive) is not linked; `overlay` renders over the poster.
   import { fmtScore } from '../../shared/rating-meta.mjs';
   import { tmdbImg, withBase } from '../lib/util.js';
   import { inWatchlist, toggleWatchlist, onWatchlistChange } from '../lib/watchlist.js';
 
-  let { film, rows = ['my', 'imdb', 'tmdb', 'rt', 'metacritic'], blind = false, watch = false, onwatch = null } = $props();
+  let { film, rows = ['my', 'imdb', 'tmdb', 'rt', 'metacritic'], blind = false, watch = false, onwatch = null, onpick = null, overlay = null, ...rest } = $props();
 
   const LABEL = { my: 'Dr. X', imdb: 'IMDb', tmdb: 'TMDB', rt: 'Rotten Tomatoes', metacritic: 'Metacritic' };
   const value = (key) => (key === 'rt' ? (film[key] == null ? '–' : `${film[key]}%`) : fmtScore(film[key]));
@@ -31,7 +33,15 @@
   const icon = (name) => `${withBase('/icons.svg')}#i-${name}`;
 </script>
 
-<a class="film-card" href={withBase(`/movie/${film.slug}`)} data-testid="film-card">
+<svelte:element
+  this={onpick ? 'button' : film.slug ? 'a' : 'div'}
+  class="film-card"
+  href={onpick || !film.slug ? undefined : withBase(`/movie/${film.slug}`)}
+  type={onpick ? 'button' : undefined}
+  onclick={onpick}
+  data-testid="film-card"
+  {...rest}
+>
   <div class="fc-poster">
     {#if img}
       <img src={img} alt={`${film.title} poster`} loading="lazy" width="342" height="513" />
@@ -39,6 +49,7 @@
       <div class="no-poster">{film.title}</div>
     {/if}
     {#if film.my != null && !blind}<span class="rating-tag">{fmtScore(film.my)}</span>{/if}
+    {@render overlay?.()}
     {#if watch}
       <button
         class="fc-watch"
@@ -66,4 +77,4 @@
       {/if}
     </div>
   {/if}
-</a>
+</svelte:element>

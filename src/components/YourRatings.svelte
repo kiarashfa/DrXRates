@@ -30,10 +30,10 @@
     const file = e.target.files?.[0];
     if (!file) return;
     try {
-      const { ratings, watchlist } = (await importBackupFile(file)).sections;
+      const { ratings, watchlist, knockout } = (await importBackupFile(file)).sections;
       refresh();
       const part = (r, one, many) => (r?.imported || r?.skipped) && `${r.imported} ${r.imported === 1 ? one : many}${r.skipped ? ` (${r.skipped} skipped)` : ''}`;
-      const parts = [part(ratings, 'rating', 'ratings'), part(watchlist, 'watchlist film', 'watchlist films')].filter(Boolean);
+      const parts = [part(ratings, 'rating', 'ratings'), part(watchlist, 'watchlist film', 'watchlist films'), part(knockout, 'Knockout bracket', 'Knockout brackets')].filter(Boolean);
       notice = `Imported ${parts.join(' and ') || '0 ratings'}.`;
     } catch (err) {
       notice = `Import failed: ${err.message}`;
