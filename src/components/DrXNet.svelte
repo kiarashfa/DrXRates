@@ -466,7 +466,7 @@
       <label class="tog {linkClass(r)}"><input type="checkbox" checked={links.includes(r)} onchange={() => toggleLink(r)} /><span>{label}</span></label>
     {/each}
   </div>
-  <p class="fine">Within the Cinema Ledger: the top 12 billed actors and the directors of each film; writers and crew (photography, music, editing, design) when switched on.</p>
+  <p class="fine">Within the Cinema Ledger: the top 12 billed actors of each film; directors, writers and crew (photography, music, editing, design) when switched on.</p>
 
   {#if chain}
     <div class="result" data-testid="net-chain">
@@ -496,7 +496,7 @@
       </ol>
     </div>
   {:else if noPath}
-    <p class="result none">No connection between <b>{info(from).label}</b> and <b>{info(focus).label}</b> through the chosen links. Try adding writers or crew{universe === 'rated' ? ', or the whole archive' : ''}.</p>
+    <p class="result none">No connection between <b>{info(from).label}</b> and <b>{info(focus).label}</b> through the chosen links. Try adding directors, writers or crew{universe === 'rated' ? ', or the whole archive' : ''}.</p>
   {:else if active && from === focus}
     <p class="result none"><b>{info(from).label}</b> is already in the centre. Pick another start, or centre something else.</p>
   {/if}

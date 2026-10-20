@@ -8,9 +8,9 @@ import { normalize } from './search.js';
 export const ROLES = ['d', 'a', 'w', 'c', 'm', 'e', 'p'];
 // Order of the role groups around a film in the centre.
 export const GROUP_ORDER = ['d', 'w', 'a', 'c', 'm', 'e', 'p'];
-// Default links for six degrees: cast and directors (crew is opt-in, since
-// composers and editors would otherwise shortcut most paths).
-export const DEFAULT_LINKS = ['a', 'd'];
+// Default links for six degrees: cast only (directors and crew are opt-in,
+// since prolific directors, composers and editors would shortcut most paths).
+export const DEFAULT_LINKS = ['a'];
 
 export const filmKey = (id) => `f${id}`;
 export const personKey = (id) => `p${id}`;
@@ -172,8 +172,10 @@ export function egoPerson(g, personId, { cap1 = 36, cap2 = 18 } = {}) {
 export const ego = (g, key, opts) => (isFilm(key) ? egoFilm(g, keyId(key), opts) : egoPerson(g, keyId(key), opts));
 
 // Six degrees: breadth-first search from `from` to `to` through credits whose
-// role is in `links`. Returns [[key, role of the link into it], …] starting
-// with [from, null], or null when there is no connection. Neighbours are
+// role is in `links`; a person at either end links through any of their own
+// credits (a director is reachable with cast-only links). Returns
+// [[key, role of the link into it], …] starting with [from, null], or null
+// when there is no connection. Neighbours are
 // visited best known first, so among equally short paths the familiar wins.
 export function findPath(g, from, to, links = DEFAULT_LINKS) {
   if (!hasNode(g, from) || !hasNode(g, to)) return null;
@@ -197,7 +199,7 @@ export function findPath(g, from, to, links = DEFAULT_LINKS) {
       if (n < nF) {
         const c = g.credits[n] ?? [];
         const nb = [];
-        for (let r = 0; r < c.length; r++) if (ok[r]) for (const j of c[r] ?? []) nb.push([j, r]);
+        for (let r = 0; r < c.length; r++) for (const j of c[r] ?? []) if (ok[r] || nF + j === goal) nb.push([j, r]);
         nb.sort((a, b) => byFame(a[0], b[0]));
         for (const [j, r] of nb) {
           const m = nF + j;
@@ -209,7 +211,7 @@ export function findPath(g, from, to, links = DEFAULT_LINKS) {
       } else {
         const pf = g.pFilms[n - nF];
         for (let k = 0; k < pf.length; k += 2) {
-          if (!ok[pf[k + 1]]) continue;
+          if (!ok[pf[k + 1]] && n !== start) continue;
           const m = pf[k];
           if (prev[m] !== -1) continue;
           prev[m] = n; via[m] = pf[k + 1];
