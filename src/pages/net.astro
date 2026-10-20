@@ -1,0 +1,34 @@
+---
+import Base from '../layouts/Base.astro';
+import DrXNet from '../components/DrXNet.svelte';
+import { movies, directors } from '../lib/data.js';
+import people from '../../data/generated/people.json';
+
+// The first centre: Dr. X's top film (highest overall; ties go to the film
+// with the most IMDb votes). Six degrees starts from Kevin Bacon.
+const ratedFilms = movies.filter((m) => m.myRating);
+const top = [...ratedFilms].sort(
+  (a, b) => b.myRating.overall - a.myRating.overall || (b.omdb?.imdbVotes ?? 0) - (a.omdb?.imdbVotes ?? 0) || a.id - b.id
+)[0];
+const start = { key: `f${top.id}`, label: top.title, year: top.year, img: top.poster ?? null };
+const BACON = 4724; // TMDB person id
+const bacon = { key: `p${BACON}`, label: people[BACON]?.[0] ?? 'Kevin Bacon', img: people[BACON]?.[1] ?? null };
+const directorPages = Object.fromEntries(directors.filter((d) => d.tmdbPersonId).map((d) => [d.tmdbPersonId, d.slug]));
+const n = (v: number) => v.toLocaleString('en');
+---
+
+<Base
+  title="Dr. X Net"
+  description={`The ${n(ratedFilms.length)} films Dr. X has rated, joined by the people who made them. Bring any film or person to the centre, or connect two of them in six degrees.`}
+>
+  <section class="wrap page-intro">
+    <h1>Dr. X Net</h1>
+    <p class="muted">
+      The {n(ratedFilms.length)} films Dr. X has rated, joined by the people who made them. Click a poster or a face to bring it to
+      the centre; connect any two in six degrees below.
+    </p>
+  </section>
+  <section class="wrap" style="margin-top:1.6rem;">
+    <DrXNet client:load {start} {bacon} {directorPages} />
+  </section>
+</Base>

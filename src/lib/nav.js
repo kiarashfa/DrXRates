@@ -9,6 +9,7 @@ export const NAV = [
     label: 'Explore',
     icon: 'explore',
     items: [
+      { label: 'Dr. X Net', href: '/net', icon: 'net', desc: 'Films and the people who made them, connected' },
       { label: 'Insights', href: '/insights', icon: 'chart', desc: "Dr. X's ratings in numbers" },
       { label: 'Collections', href: '/collections', also: '/collection/', icon: 'shelf', desc: 'Filmographies and franchises' },
       { label: 'Directors', href: '/directors', also: '/director/', icon: 'chair', desc: 'Shot length, director by director' },

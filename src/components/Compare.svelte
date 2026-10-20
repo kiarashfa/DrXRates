@@ -303,7 +303,7 @@
                 <div class="cp-person" data-testid="shared-person">
                   {#if p.profile}<img src={tmdbImg(p.profile, 'w185')} alt="" width="46" height="46" loading="lazy" />{:else}<span class="cp-ph">{initials(p.name)}</span>{/if}
                   <div>
-                    <div class="cp-pn">{p.name}</div>
+                    <a class="cp-pn" href={withBase(`/net?focus=p${p.id}`)}>{p.name}</a>
                     <div class="cp-pr">
                       {roleText(p.roles.a) === roleText(p.roles.b) ? `${roleText(p.roles.a)} in both` : `${roleText(p.roles.a)} in A · ${roleText(p.roles.b)} in B`}
                     </div>
@@ -312,6 +312,7 @@
               {/each}
             </div>
           {/if}
+          <p class="small cp-net"><a href={withBase(`/net?from=f${A.id}&to=f${B.id}`)}>Connect them in Dr. X Net</a></p>
         </div>
       </div>
     {:else if A || B}
@@ -390,7 +391,10 @@
   .cp-person { display: grid; grid-template-columns: 46px minmax(0, 1fr); gap: 0.7rem; align-items: center; }
   .cp-person img, .cp-ph { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); background: var(--bg-raised); }
   .cp-ph { display: flex; align-items: center; justify-content: center; font: 600 0.9rem var(--font-display); color: var(--ink-faint); }
-  .cp-pn { font-family: var(--font-display); font-size: 1.05rem; line-height: 1.15; }
+  .cp-pn { display: block; font-family: var(--font-display); font-size: 1.05rem; line-height: 1.15; color: var(--ink); text-decoration: none; }
+  .cp-pn:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  .cp-net { margin: 0.9rem 0 0; }
+  .cp-net a { color: var(--accent); }
   .cp-pr { font-size: 0.75rem; color: var(--ink-faint); }
 
   @media (max-width: 760px) {

@@ -210,9 +210,55 @@ export async function loadPeople(ids) {
   );
 }
 
+// Dr. X Net (see client-data.js), decoded for src/lib/net.js's buildNet:
+// { films: { id, title, year, pop, imdb?, poster? }, people: { id, name }, credits }.
+const undelta = (arr) => {
+  let v = 0;
+  return arr.map((d) => (v += d));
+};
+let netPending = null;
+export function loadNet() {
+  netPending ??= loadFile('net')
+    .then((f) => ({ rev: f.rev, films: { ...f.films, id: undelta(f.films.id) }, people: { id: undelta(f.people.id), name: f.people.name }, credits: f.credits }))
+    .catch((err) => {
+      netPending = null;
+      throw err;
+    });
+  return netPending;
+}
+
+// Faces for loadNet's people: Map(personId → profile path). Resolves to an
+// empty map if they can't be matched to the graph (a deploy mid-load).
+export async function loadNetFaces() {
+  const net = await loadNet();
+  let faces = await loadFile('net-faces');
+  if (faces.rev !== net.rev) faces = await fetchFile('net-faces', true);
+  if (faces.rev !== net.rev) return new Map();
+  return new Map(net.people.id.map((id, i) => [id, faces.profile[i]]));
+}
+
+// The whole archive's graph: films from the films file (same rows and rev),
+// people in two or more films. ~1.15MB gzipped plus the films file.
+export async function loadNetArchive() {
+  const [, file] = await loadAligned(['films', 'net-archive']);
+  const { list } = await loadArchive();
+  return {
+    rev: file.rev,
+    films: { id: list.map((m) => m.id), title: list.map((m) => m.title), year: list.map((m) => m.year), pop: list.map((m) => m.pop) },
+    people: { id: undelta(file.people.id), name: file.people.name },
+    credits: file.credits,
+  };
+}
+
 // Search's directors-with-pages and collections (see client-data.js).
 export function loadSearchExtra() {
   return loadFile('search-extra');
+}
+
+// Search's people (Dr. X Net): [{ id, name, rated }] (faces: loadPeople).
+export async function loadSearchPeople() {
+  const { people } = await loadFile('search-people');
+  return people.map(([id, name, rated]) => ({ id, name, rated }));
 }
 
 // The homepage catalog's first view (see client-data.js), as film objects

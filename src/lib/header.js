@@ -306,9 +306,13 @@ function initSearch({ menus, sheets }) {
   function getEngine() {
     if (!engine) {
       engine = Promise.all([import('./archive.js'), import('./search.js')]).then(async ([archive, s]) => {
-        const [{ list }, extra] = await Promise.all([archive.loadArchive({ rated: true, originalTitles: true }), archive.loadSearchExtra()]);
-        const index = s.buildIndex(list, extra, NAV_LINKS);
-        return { run: (q) => s.search(index, q), posters: archive.loadPosters, minQuery: s.MIN_QUERY };
+        const [{ list }, extra, people] = await Promise.all([
+          archive.loadArchive({ rated: true, originalTitles: true }),
+          archive.loadSearchExtra(),
+          archive.loadSearchPeople().catch(() => []),
+        ]);
+        const index = s.buildIndex(list, extra, NAV_LINKS, people);
+        return { run: (q) => s.search(index, q), posters: archive.loadPosters, faces: archive.loadPeople, minQuery: s.MIN_QUERY };
       });
       engine.catch(() => {
         engine = null;
@@ -373,7 +377,7 @@ function initSearch({ menus, sheets }) {
 
   function renderIdle() {
     finish(
-      `<p class="sr-status">Search ${meta.counts.movies.toLocaleString('en-US')} films by title, original title or year, plus directors and collections.</p>` +
+      `<p class="sr-status">Search ${meta.counts.movies.toLocaleString('en-US')} films by title, original title or year, plus directors, people and collections.</p>` +
         `<div class="sr-group" role="group" aria-label="Pages"><h3 class="sr-h" aria-hidden="true">Jump to</h3>` +
         `<div class="sr-chips">${NAV_LINKS.map((p) => placeHtml({ ...p, kind: 'Page' })).join('')}</div></div>`,
       ''
@@ -388,7 +392,7 @@ function initSearch({ menus, sheets }) {
     if (!e || mine !== ticket) return;
     const r = e.run(query);
     if (!r) return finish(`<p class="sr-status">Keep typing: at least ${e.minQuery} letters.</p>`, '');
-    if (!r.films.length && !r.directors.length && !r.places.length) {
+    if (!r.films.length && !r.directors.length && !r.people.length && !r.places.length) {
       return finish(`<p class="sr-status">Nothing in the archive matches “${esc(query.trim())}”.</p>`, 'No results');
     }
     let html = '';
@@ -423,17 +427,50 @@ function initSearch({ menus, sheets }) {
           .join('') +
         `</div></div>`;
     }
+    if (r.people.length) {
+      html +=
+        `<div class="sr-group" role="group" aria-label="People"><h3 class="sr-h" aria-hidden="true">People <span class="sr-note">in Dr. X Net</span></h3><div class="sr-faces">` +
+        r.people
+          .map((p) => {
+            const initials = p.name.split(/\s+/).map((w) => w[0]).slice(0, 2).join('');
+            return (
+              `<a class="sr-face" role="option" aria-selected="false" href="${withBase(`/net?focus=p${p.id}`)}">` +
+              `<span class="sr-initial" aria-hidden="true" data-face-id="${p.id}">${esc(initials)}</span>` +
+              `<span><span class="sr-t">${esc(p.name)}</span><span class="sr-m">In ${p.rated} of Dr. X's films</span></span></a>`
+            );
+          })
+          .join('') +
+        `</div></div>`;
+    }
     if (r.places.length) {
       html += `<div class="sr-group" role="group" aria-label="Collections and pages"><h3 class="sr-h" aria-hidden="true">Collections and pages</h3><div class="sr-chips">${r.places.map(placeHtml).join('')}</div></div>`;
     }
     const parts = [
       r.filmCount && `${r.filmCount} film${r.filmCount === 1 ? '' : 's'}`,
       r.directors.length && `${r.directors.length} director${r.directors.length === 1 ? '' : 's'}`,
+      r.people.length && `${r.people.length} ${r.people.length === 1 ? 'person' : 'people'}`,
       r.places.length && `${r.places.length} page${r.places.length === 1 ? '' : 's'}`,
     ].filter(Boolean);
     finish(html, parts.join(', '));
 
-    // Posters come from small shards, after the results are already on screen.
+    // People's faces and films' posters come from small shards, after the
+    // results are already on screen.
+    if (r.people.length) {
+      e.faces(r.people.map((p) => p.id))
+        .then((faces) => {
+          if (mine !== ticket) return;
+          for (const el of results.querySelectorAll('[data-face-id]')) {
+            const photo = tmdbImg(faces.get(Number(el.dataset.faceId))?.profile, 'w185');
+            if (!photo) continue;
+            const img = document.createElement('img');
+            img.alt = '';
+            img.decoding = 'async';
+            img.src = photo;
+            el.replaceWith(img);
+          }
+        })
+        .catch(() => {});
+    }
     const ids = r.films.map((f) => f.id);
     if (!ids.length) return;
     const posters = await e.posters(ids).catch(() => new Map());

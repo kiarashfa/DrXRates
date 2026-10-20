@@ -32,6 +32,32 @@ const directorIds = [...directorById.keys()].sort((a, b) => a - b);
 const directorIndex = new Map(directorIds.map((id, i) => [id, i]));
 
 const col = (get) => rows.map((m) => get(m) ?? null);
+const popRank = (m) => (m.tmdbRating?.votes ? Math.round(10 * Math.log10(m.tmdbRating.votes)) : 0);
+const delta = (ids) => ids.map((v, i) => (i ? v - ids[i - 1] : v));
+
+// Dr. X Net graphs: the people credited on `films` (only those with at least
+// `minFilms` of them) and, per film, per-role lists of indices into that
+// people list, in NET_ROLES order (trailing empty roles dropped).
+const NET_ROLES = ['d', 'a', 'w', 'c', 'm', 'e', 'p']; // = ROLES in src/lib/net.js
+function netGraph(films, minFilms) {
+  const count = new Map();
+  for (const m of films) {
+    const c = credits.films[m.id] ?? {};
+    for (const p of new Set(NET_ROLES.flatMap((r) => c[r] ?? []))) count.set(p, (count.get(p) ?? 0) + 1);
+  }
+  const ids = [...count.keys()].filter((p) => count.get(p) >= minFilms).sort((a, b) => a - b);
+  const index = new Map(ids.map((p, i) => [p, i]));
+  const filmCredits = films.map((m) => {
+    const c = credits.films[m.id] ?? {};
+    const out = NET_ROLES.map((r) => (c[r] ?? []).filter((p) => index.has(p)).map((p) => index.get(p)));
+    while (out.length && !out.at(-1).length) out.pop();
+    return out;
+  });
+  const netRev = createHash('sha1').update(ids.join(',')).digest('hex').slice(0, 10);
+  return { ids, credits: filmCredits, rev: netRev };
+}
+let ratedNet = null;
+const ratedGraph = () => (ratedNet ??= netGraph(rows.filter((m) => m.myRating), 1));
 
 // Card rows: what a film card, Tonight or Compare shows for one film, as
 // arrays in CARD_KEYS order (directors as [id, name], at most two).
@@ -97,6 +123,57 @@ const files = {
     directors: directors.map((d) => ({ slug: d.slug, name: d.name, photo: d.profile ?? d.portraitUrl ?? null, rated: d.myCount })),
     collections: collections.map((c) => ({ slug: c.slug, title: c.title })),
   }),
+  // Dr. X Net over Dr. X's films: the films (ids delta-encoded; pop as in
+  // films), everyone credited on them and each film's credits. Faces are in
+  // net-faces (same people order and rev), loaded after the graph shows.
+  net: () => {
+    const films = rows.filter((m) => m.myRating);
+    const g = ratedGraph();
+    return {
+      rev: g.rev,
+      roles: NET_ROLES,
+      films: {
+        id: delta(films.map((m) => m.id)),
+        title: films.map((m) => m.title),
+        year: films.map((m) => m.year ?? null),
+        pop: films.map(popRank),
+        imdb: films.map((m) => m.omdb?.imdb ?? null),
+        poster: films.map((m) => m.poster ?? null),
+      },
+      people: { id: delta(g.ids), name: g.ids.map((p) => people[p]?.[0] ?? '') },
+      credits: g.credits,
+    };
+  },
+  'net-faces': () => {
+    const g = ratedGraph();
+    return { rev: g.rev, profile: g.ids.map((p) => people[p]?.[1] ?? null) };
+  },
+  // Search's people: everyone in two or more of Dr. X's films, except
+  // directors with a page (search lists those already). Results open them in
+  // Dr. X Net. Rows are [id, name, films]; faces come from the people shards
+  // for the few results shown.
+  'search-people': () => {
+    const withPage = new Set(directors.map((d) => d.tmdbPersonId).filter(Boolean));
+    const films = rows.filter((m) => m.myRating);
+    const count = new Map();
+    for (const m of films) {
+      const c = credits.films[m.id] ?? {};
+      for (const p of new Set(NET_ROLES.flatMap((r) => c[r] ?? []))) count.set(p, (count.get(p) ?? 0) + 1);
+    }
+    return {
+      people: [...count]
+        .filter(([p, n]) => n >= 2 && !withPage.has(p) && people[p])
+        .sort((a, b) => b[1] - a[1] || a[0] - b[0])
+        .map(([p, n]) => [p, people[p][0], n]),
+    };
+  },
+  // Dr. X Net over the whole archive: only people in two or more films (the
+  // rest can't link anywhere; a centred film's full credits come from the
+  // credit shards). Films are the rows of `films` (same rev).
+  'net-archive': () => {
+    const g = netGraph(rows, 2);
+    return { rev, roles: NET_ROLES, people: { id: delta(g.ids), name: g.ids.map((p) => people[p]?.[0] ?? '') }, credits: g.credits };
+  },
   // The homepage catalog's first view: a fixed, evenly spread ~1/35 of the
   // archive with everything a card shows, so the page doesn't need the full
   // archive files until a visitor searches, filters, sorts or pages.

@@ -37,11 +37,12 @@ function tier(p, q, year) {
 
 // films: archive film objects ({ id, title, year, originalTitle, pop, my, … });
 // extra: { directors: [{ slug, name, photo, rated }], collections: [{ slug, title }] };
-// pages: [{ label, href }].
-export function buildIndex(films, extra, pages) {
+// pages: [{ label, href }]; people: [{ id, name, rated }] (Dr. X Net).
+export function buildIndex(films, extra, pages, people = []) {
   return {
     films: films.map((f) => ({ f, title: prepText(f.title), orig: f.originalTitle ? prepText(f.originalTitle) : null })),
     directors: (extra?.directors ?? []).map((d) => ({ d, name: prepText(d.name) })),
+    people: people.map((p) => ({ p, name: prepText(p.name) })),
     places: [
       ...(extra?.collections ?? []).map((c) => ({ kind: 'Collection', label: c.title, href: `/collection/${c.slug}`, text: prepText(c.title) })),
       ...pages.map((p) => ({ kind: 'Page', label: p.label, href: p.href, text: prepText(p.label) })),
@@ -51,9 +52,9 @@ export function buildIndex(films, extra, pages) {
 
 export const MIN_QUERY = 2;
 
-// Returns { films, directors, places } (each best first), or null when the
-// query is too short to search.
-export function search(index, query, { films: nFilms = 12, directors: nDirectors = 6, places: nPlaces = 6 } = {}) {
+// Returns { films, directors, people, places } (each best first), or null
+// when the query is too short to search.
+export function search(index, query, { films: nFilms = 12, directors: nDirectors = 6, people: nPeople = 6, places: nPlaces = 6 } = {}) {
   const q = prepText(query);
   if (q.t.length < MIN_QUERY) return null;
 
@@ -72,6 +73,11 @@ export function search(index, query, { films: nFilms = 12, directors: nDirectors
     .filter((e) => e.t !== Infinity)
     .sort((a, b) => a.t - b.t || (b.d.rated ?? 0) - (a.d.rated ?? 0) || a.d.name.localeCompare(b.d.name));
 
+  const people = (index.people ?? [])
+    .map((e) => ({ p: e.p, t: tier(e.name, q, null) }))
+    .filter((e) => e.t !== Infinity)
+    .sort((a, b) => a.t - b.t || b.p.rated - a.p.rated || a.p.name.localeCompare(b.p.name));
+
   const places = index.places
     .map((p) => ({ p, t: tier(p.text, q, null) }))
     .filter((e) => e.t !== Infinity)
@@ -81,6 +87,7 @@ export function search(index, query, { films: nFilms = 12, directors: nDirectors
     films: films.slice(0, nFilms).map((e) => e.f),
     filmCount: films.length,
     directors: directors.slice(0, nDirectors).map((e) => e.d),
+    people: people.slice(0, nPeople).map((e) => e.p),
     places: places.slice(0, nPlaces).map((e) => e.p),
   };
 }
