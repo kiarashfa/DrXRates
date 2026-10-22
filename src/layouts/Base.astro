@@ -92,7 +92,9 @@ const copyrightYears = thisYear > COPYRIGHT_START_YEAR ? `${COPYRIGHT_START_YEAR
           window.dataLayer = window.dataLayer || [];
           window.gtag = function () { dataLayer.push(arguments); };
           gtag('js', new Date());
-          gtag('config', gaId);
+          // A Dropbox sign-in returns with ?code=&state= on the URL: count the page without them.
+          var q = new URLSearchParams(location.search);
+          gtag('config', gaId, q.has('code') && q.has('state') ? { page_location: location.origin + location.pathname } : {});
         }
       </script>
     )}

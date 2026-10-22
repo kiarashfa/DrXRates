@@ -118,8 +118,8 @@
     </div>
   {/if}
   <p class="small faint" style="margin-top:1rem;">
-    These ratings live only in this browser's local storage. There's no account, and they're never uploaded,
-    so export the JSON backup (it also holds your watchlist) before clearing your browser data or switching machines.
+    These ratings live only in this browser's local storage. There's no account, and they're never sent to this site,
+    so export the JSON backup (it also holds your watchlist) or connect a cloud save on <a href={`${base}/user`} style="color:var(--accent);">your profile</a> before clearing your browser data or switching machines.
   </p>
 </div>
 </div>

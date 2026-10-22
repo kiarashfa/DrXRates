@@ -1,8 +1,10 @@
 ---
 // Site navigation for every page, from src/lib/nav.js. Wide screens get one
-// header row: text menus, a search button that grows into a field, and the
-// theme menu. Under 860px the same row keeps only the name, theme and About,
-// and the sections move to a bottom tab bar. src/lib/header.js wires it all
+// header row: text menus, a search button that grows into a field, the theme
+// menu and, after a divider, the profile circle with the visitor's own pages.
+// Under 860px the same row keeps only the name, theme and About, and the
+// sections move to a bottom tab bar (the profile group's tab shows the
+// picture). src/lib/header.js wires it all
 // up and builds the phone sheets and the search panel on first use, so they
 // cost no markup on each of the ~21k pages.
 import ThemeMenu from './ThemeMenu.astro';
@@ -19,6 +21,12 @@ const groupCurrent = (g: { items: { href: string; also?: string }[] }) => g.item
 const tabs: any[] = NAV_ENTRIES.filter((n) => n.id !== 'about');
 tabs.splice(2, 0, { id: 'search', label: 'Search', icon: 'search' });
 const about = NAV_ENTRIES.find((n) => n.id === 'about');
+const mine: any = NAV_ENTRIES.find((n: any) => n.profile);
+// The inline script at the end puts the visitor's picture (or monogram) and
+// name into every [data-avatar] and [data-profile-name], straight from
+// storage, so the header never flashes the placeholder. src/lib/profile.js
+// calls window.__paintAvatars again after changes, header.js after building
+// the phone sheet.
 ---
 
 <header class="site-header" data-header>
@@ -30,7 +38,7 @@ const about = NAV_ENTRIES.find((n) => n.id === 'about');
     </a>
     <nav class="site-nav" aria-label="Site" data-hs-fade>
       <ul class="nav-list" role="list">
-        {NAV_ENTRIES.map((n: any) =>
+        {NAV_ENTRIES.filter((n: any) => !n.profile).map((n: any) =>
           n.items ? (
             <li class="nav-group" data-menu>
               <button
@@ -90,6 +98,42 @@ const about = NAV_ENTRIES.find((n) => n.id === 'about');
         </button>
       </div>
       <ThemeMenu id="theme-menu" />
+      {mine && (
+        <>
+          <span class="tools-sep" aria-hidden="true"></span>
+          <div class="nav-group profile-menu" data-menu>
+            <button
+              type="button"
+              class="avatar-btn"
+              aria-expanded="false"
+              aria-controls={`menu-${mine.id}`}
+              aria-label={mine.label}
+              title={mine.label}
+              data-current={groupCurrent(mine) ? '' : undefined}
+              data-menu-trigger
+            >
+              <span class="avatar" data-avatar><svg class="avatar-icon" aria-hidden="true"><use href={icon('user')} /></svg></span>
+            </button>
+            <div class="pop pop-right pop-profile" id={`menu-${mine.id}`} data-menu-pop>
+              <a class="pop-who" href={withBase(mine.items[0].href)}>
+                <span class="avatar avatar-md" data-avatar><svg class="avatar-icon" aria-hidden="true"><use href={icon('user')} /></svg></span>
+                <span><span class="pop-who-n" data-profile-name="Your corner">Your corner</span><span class="pop-who-s">View your profile</span></span>
+              </a>
+              <ul role="list">
+                {mine.items.map((i: any) => (
+                  <li>
+                    <a href={withBase(i.href)} aria-current={current(i) ? 'page' : undefined}>
+                      <svg class="icon" aria-hidden="true"><use href={icon(i.icon)} /></svg>
+                      {i.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <div class="pop-save" data-cloud-line hidden></div>
+            </div>
+          </div>
+        </>
+      )}
       {about && (
         <a class="icon-btn about-btn" href={withBase(about.href)} aria-label={about.label} aria-current={current(about) ? 'page' : undefined}>
           <svg class="icon" aria-hidden="true"><use href={icon(about.icon)} /></svg>
@@ -108,7 +152,11 @@ const about = NAV_ENTRIES.find((n) => n.id === 'about');
       </button>
     ) : t.items ? (
       <button type="button" class="tab" aria-expanded="false" aria-controls={`sheet-${t.id}`} data-current={groupCurrent(t) ? '' : undefined} data-sheet-trigger={t.id}>
-        <svg class="icon" aria-hidden="true"><use href={icon(t.icon)} /></svg>
+        {t.profile ? (
+          <span class="avatar avatar-tab" data-avatar><svg class="avatar-icon" aria-hidden="true"><use href={icon(t.icon)} /></svg></span>
+        ) : (
+          <svg class="icon" aria-hidden="true"><use href={icon(t.icon)} /></svg>
+        )}
         {t.label}
       </button>
     ) : (
@@ -119,6 +167,43 @@ const about = NAV_ENTRIES.find((n) => n.id === 'about');
     )
   )}
 </nav>
+
+<script is:inline>
+  window.__paintAvatars = function (root) {
+    var p = null;
+    try {
+      p = JSON.parse(localStorage.getItem('cinema.profile.v1'));
+    } catch (e) {}
+    var pic = p && typeof p.picture === 'string' && p.picture.indexOf('data:image/') === 0 ? p.picture : null;
+    var mono = !pic && p && p.mono && p.mono.letters ? p.mono : null;
+    var name = p && typeof p.name === 'string' ? p.name : '';
+    (root || document).querySelectorAll('[data-avatar]').forEach(function (el) {
+      var old = el.querySelector('.avatar-img, .avatar-mono');
+      if (old) old.remove();
+      el.removeAttribute('data-kind');
+      el.removeAttribute('data-mono');
+      var add;
+      if (pic) {
+        add = document.createElement('img');
+        add.className = 'avatar-img';
+        add.alt = '';
+        add.src = pic;
+        el.dataset.kind = 'picture';
+      } else if (mono) {
+        add = document.createElement('span');
+        add.className = 'avatar-mono';
+        add.textContent = mono.letters;
+        el.dataset.kind = 'mono';
+        el.dataset.mono = mono.color;
+      }
+      if (add) el.append(add);
+    });
+    (root || document).querySelectorAll('[data-profile-name]').forEach(function (el) {
+      el.textContent = name || el.dataset.profileName;
+    });
+  };
+  window.__paintAvatars();
+</script>
 
 <script>
   import { initHeader } from '../lib/header.js';

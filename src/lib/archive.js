@@ -155,6 +155,15 @@ export async function loadPosters(ids) {
   return new Map(ids.map((id) => [id, byShard.get(id % POSTER_SHARDS)[id] ?? null]));
 }
 
+// The same for backdrops: Map(id → backdrop path or null).
+const BACKDROP_SHARDS = 64; // = BACKDROP_SHARDS in client-data.js
+export async function loadBackdrops(ids) {
+  const shards = [...new Set(ids.map((id) => id % BACKDROP_SHARDS))];
+  const maps = await Promise.all(shards.map((s) => loadFile(`backdrops/${s}`).catch(() => ({}))));
+  const byShard = new Map(shards.map((s, i) => [s, maps[i]]));
+  return new Map(ids.map((id) => [id, byShard.get(id % BACKDROP_SHARDS)[id] ?? null]));
+}
+
 // Film objects from card rows (rated-films, card shards): the same fields as
 // loadArchive with scores, rated and (from shards) posters, minus pop.
 function cardFilm(keys, row, rated) {

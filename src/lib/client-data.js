@@ -259,6 +259,13 @@ export function posterShard(shard) {
   return Object.fromEntries(rows.filter((m) => m.id % POSTER_SHARDS === shard && m.poster).map((m) => [m.id, m.poster]));
 }
 
+// Backdrop shards, the same way: /data/backdrops/<n>.json holds { [id]: backdrop }
+// (the profile page's cover is the backdrop of the visitor's highest-rated film).
+export const BACKDROP_SHARDS = 64;
+export function backdropShard(shard) {
+  return Object.fromEntries(rows.filter((m) => m.id % BACKDROP_SHARDS === shard && m.backdrop).map((m) => [m.id, m.backdrop]));
+}
+
 // Credits for a few films (compare, later the graph): /data/credits/<n>.json
 // holds { roles: { [code]: label }, films: { [filmId]: { [code]: [personId, …] } } }
 // for films with id % CREDIT_SHARDS === n (~23KB gzipped each). Names and

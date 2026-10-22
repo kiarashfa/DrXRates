@@ -1,7 +1,9 @@
 // Site navigation: the one list behind the desktop header menus, the phone
 // tab bar and its sheets, the footer and the "pages" part of search. A group
 // with a single entry renders as a plain link. Paths are unprefixed; render
-// them through withBase. `icon` names a symbol in SiteHeader.astro.
+// them through withBase. `icon` names a symbol in public/icons.svg; `avatar`
+// shows the visitor's picture instead. The `profile` group sits under the
+// profile circle at the end of the wide header, not in the text menus.
 export const NAV = [
   { id: 'archive', label: 'Archive', href: '/#catalog', icon: 'archive', desc: 'Browse, filter and sort every film' },
   {
@@ -29,8 +31,10 @@ export const NAV = [
   {
     id: 'yours',
     label: 'Yours',
-    icon: 'star',
+    icon: 'user',
+    profile: true,
     items: [
+      { label: 'Profile', href: '/user', icon: 'user', avatar: true, desc: 'Your picture, your numbers, your save', footer: false },
       { label: 'Your ratings', href: '/your-ratings', icon: 'star', desc: 'Your scores, kept in this browser', footer: false },
       { label: 'Watchlist', href: '/watchlist', icon: 'bookmark', desc: 'Films you mean to see', footer: false },
       { label: 'Taste match', href: '/your-ratings#taste-match', icon: 'match', desc: "Your scores against Dr. X's" },

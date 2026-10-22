@@ -1,0 +1,15 @@
+---
+import Base from '../layouts/Base.astro';
+import Profile from '../components/Profile.svelte';
+---
+
+<Base title="Your profile" description="Your picture, your numbers and your save: everything you keep on The Cinema Ledger, in this browser or your own cloud.">
+  <div class="profile-page">
+    <Profile client:only="svelte" />
+  </div>
+</Base>
+
+<style>
+  /* Reserves the page while the island (which reads this browser's storage) renders, so the footer never moves into view. */
+  .profile-page { min-height: 100vh; padding-bottom: 3rem; }
+</style>

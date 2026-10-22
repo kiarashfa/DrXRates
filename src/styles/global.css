@@ -211,6 +211,53 @@ button { font: inherit; cursor: pointer; }
 .pop a[aria-current='page'] { color: var(--accent); }
 .pop button[aria-pressed='true']::after { content: ''; margin-left: auto; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
 
+/* The visitor's picture: a circle that holds a placeholder icon until
+   window.__paintAvatars (SiteHeader.astro) or Avatar.svelte adds a photo or a
+   monogram. --av sets the size. */
+.avatar {
+  --av: 34px;
+  position: relative; display: inline-grid; place-items: center; flex: none; width: var(--av); height: var(--av); overflow: hidden;
+  border: 1px solid var(--border-strong); border-radius: 50%; background: var(--bg-raised); color: var(--ink-muted);
+}
+.avatar > * { grid-area: 1 / 1; }
+.avatar-icon { width: 55%; height: 55%; }
+.avatar[data-kind] { border-color: transparent; }
+.avatar[data-kind] .avatar-icon { display: none; }
+.avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.avatar[data-kind='mono'] { --mono-ink: var(--bg); background: var(--mono-bg, var(--accent)); }
+.avatar-mono { color: var(--mono-ink); font: italic 600 calc(var(--av) * 0.44) / 1 var(--font-display); letter-spacing: 0.02em; }
+:root[data-theme='matrix'] .avatar-mono { font-style: normal; font-size: calc(var(--av) * 0.36); }
+.avatar[data-mono='content'] { --mono-bg: var(--content-c); }
+.avatar[data-mono='form'] { --mono-bg: var(--form-c); }
+.avatar[data-mono='sage'] { --mono-bg: #6b8f71; --mono-ink: #f4efe4; }
+.avatar[data-mono='plum'] { --mono-bg: #8a6f9e; --mono-ink: #f4efe4; }
+.avatar[data-mono='amber'] { --mono-bg: #c07a3c; --mono-ink: #f4efe4; }
+.avatar[data-mono='ink'] { --mono-bg: var(--ink); }
+.avatar-md { --av: 44px; }
+
+/* Profile circle: after a divider at the end of the wide header. */
+.tools-sep { width: 1px; height: 22px; margin: 0 0.35rem; background: var(--border-strong); }
+.avatar-btn { position: relative; display: inline-flex; padding: 0; border: 0; border-radius: 50%; background: none; }
+.avatar-btn .avatar { transition: box-shadow 0.15s ease; }
+.avatar-btn:hover .avatar, [data-open] > .avatar-btn .avatar, .avatar-btn[data-current] .avatar { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--accent); }
+/* Amber dot: changes the connected cloud hasn't got yet (header.js). */
+.avatar-btn[data-unsaved]::after, .tab[data-unsaved] .avatar::after { content: ''; position: absolute; right: -1px; bottom: -1px; width: 10px; height: 10px; border: 2px solid var(--bg); border-radius: 50%; background: #d9a23a; }
+.tab[data-unsaved] .avatar { overflow: visible; }
+.tab[data-unsaved] .avatar::after { width: 8px; height: 8px; }
+.pop-profile { min-width: 224px; }
+.pop-profile .pop-who { gap: 0.7rem; padding: 0.55rem 0.65rem; margin-bottom: 0.3rem; border-bottom: 1px solid var(--border); border-radius: 4px 4px 0 0; }
+.pop-who-n { display: block; max-width: 150px; overflow: hidden; color: var(--ink); font-family: var(--font-display); font-size: 1.12rem; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
+.pop-who-s { display: block; color: var(--ink-muted); font-size: 0.74rem; }
+.pop-who:hover .pop-who-n { color: var(--accent); }
+.pop-save { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-top: 0.3rem; padding: 0.5rem 0.65rem 0.25rem; border-top: 1px solid var(--border); color: var(--ink-muted); font-size: 0.74rem; }
+.pop-save[hidden] { display: none; }
+.pop .pop-save button { width: auto; padding: 0; color: var(--accent); font-size: 0.74rem; }
+.pop .pop-save button:hover { background: none; text-decoration: underline; }
+.cloud-state { display: inline-flex; align-items: center; gap: 0.45em; }
+.cloud-state::before { content: ''; width: 7px; height: 7px; flex: none; border-radius: 50%; background: #3fb26b; box-shadow: 0 0 0 3px rgb(63 178 107 / 0.18); }
+.cloud-state[data-state='pending']::before { background: #d9a23a; box-shadow: 0 0 0 3px rgb(217 162 58 / 0.18); }
+.cloud-state[data-state='error']::before { background: var(--form-c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--form-c) 20%, transparent); }
+
 /* Search field: the search button grows leftwards into it while the nav makes way. */
 .hs { position: relative; display: flex; }
 .hs-field {
@@ -288,7 +335,7 @@ button { font: inherit; cursor: pointer; }
   .site-header { position: static; backdrop-filter: none; background: var(--bg); }
   .header-row { justify-content: space-between; height: 56px; }
   .site-header .brand { font-size: 1.15rem; }
-  .site-nav, .hs { display: none; }
+  .site-nav, .hs, .tools-sep, .profile-menu { display: none; }
   .about-btn { display: inline-flex; }
   .tabbar {
     display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; position: fixed; z-index: 70; left: 0; right: 0; bottom: 0;
@@ -303,6 +350,11 @@ button { font: inherit; cursor: pointer; }
   .tab .icon { width: 21px; height: 21px; transition: transform 0.2s var(--ease-out); }
   .tab:active .icon { transform: scale(0.9); }
   .tab[aria-current='page'], .tab[data-current], .tab[aria-expanded='true'] { color: var(--accent); }
+  .tab .avatar-tab { --av: 23px; transition: transform 0.2s var(--ease-out), box-shadow 0.15s ease; }
+  .tab:active .avatar-tab { transform: scale(0.9); }
+  .tab[data-current] .avatar-tab, .tab[aria-expanded='true'] .avatar-tab { box-shadow: 0 0 0 1.5px var(--bg-panel), 0 0 0 2.5px var(--accent); }
+  .sheet-icon:has(.avatar) { border: 0; }
+  .sheet-icon .avatar { --av: 38px; }
   body { padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom)); }
 
   .sheet-backdrop {

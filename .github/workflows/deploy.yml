@@ -3,7 +3,8 @@ name: Deploy to GitHub Pages
 # Builds the static site and publishes it via GitHub Pages (Actions source).
 # One-time repo setup: Settings → Pages → Source: "GitHub Actions". That's all:
 # the site URL and base path are detected automatically below, and the build
-# needs no secrets (it renders from the committed data/generated JSON).
+# renders from the committed data/generated JSON. The cloud-save client ids
+# are public OAuth ids, read from the repository variables.
 
 on:
   push:
@@ -46,6 +47,8 @@ jobs:
           # (username.github.io → base "/") and project sites (→ "/<repo>").
           SITE: ${{ steps.pages.outputs.origin }}
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          PUBLIC_GOOGLE_CLIENT_ID: ${{ vars.PUBLIC_GOOGLE_CLIENT_ID }}
+          PUBLIC_DROPBOX_APP_KEY: ${{ vars.PUBLIC_DROPBOX_APP_KEY }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

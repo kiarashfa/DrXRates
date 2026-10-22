@@ -1,5 +1,5 @@
 // Behaviour for SiteHeader.astro: desktop menus, the theme menus, the phone
-// tab bar's sheets, and search. Every open/close is a CSS transition keyed on
+// tab bar's sheets, search, and the profile circle's cloud-save line. Every open/close is a CSS transition keyed on
 // a data attribute, so closing animates as well as opening (and both collapse
 // to instant under prefers-reduced-motion, in global.css). Search code and
 // data load on first open only.
@@ -7,6 +7,8 @@ import meta from '../../data/generated/meta.json';
 import { withBase, tmdbImg } from './util.js';
 import { fmtScore } from '../../shared/rating-meta.mjs';
 import { NAV, NAV_LINKS, isCurrent } from './nav.js';
+import { CHANGED_EVENT, CHANGED_KEY } from './store.js';
+import { CLOUD_EVENT, CLOUD_KEY, PROVIDERS, cloudState, unsaved, ago } from './cloud-state.js';
 
 const PHONE = window.matchMedia('(max-width: 860px)');
 const BASE = import.meta.env.BASE_URL || '/';
@@ -116,11 +118,12 @@ function initSheets() {
         .map(
           (i) =>
             `<li><a class="sheet-item" href="${withBase(i.href)}"${isCurrent(i, location.pathname, BASE) ? ' aria-current="page"' : ''}>` +
-            `<span class="sheet-icon">${svg(i.icon)}</span>` +
+            `<span class="sheet-icon">${i.avatar ? `<span class="avatar" data-avatar>${svg(i.icon).replace('class="icon"', 'class="avatar-icon"')}</span>` : svg(i.icon)}</span>` +
             `<span><span class="sheet-t">${esc(i.label)}</span><span class="sheet-d">${esc(i.desc ?? '')}</span></span></a></li>`
         )
         .join('')}</ul>`;
     document.body.append(sheet);
+    window.__paintAvatars?.(sheet);
     enableDrag(sheet);
     sheets.set(id, sheet);
     return sheet;
@@ -510,9 +513,68 @@ function initSearch({ menus, sheets }) {
   PHONE.addEventListener('change', () => close(false));
 }
 
+/* ── Profile: pictures follow other tabs; the cloud-save line ─────────── */
+// Once the visitor connects a cloud save, the profile menu ends with its
+// state, an amber dot on the picture marks unsaved changes, and cloud.js
+// (loaded only then) saves them in the background.
+
+function initProfile() {
+  const line = document.querySelector('[data-cloud-line]');
+  const marks = [...document.querySelectorAll('.avatar-btn, .tab:has(.avatar-tab)')];
+  let status = { state: 'idle' };
+  let autosave = false;
+
+  function paint() {
+    const s = cloudState();
+    const pending = unsaved(s);
+    marks.forEach((m) => m.toggleAttribute('data-unsaved', pending));
+    if (!line) return;
+    line.hidden = !s;
+    if (!s) return;
+    const label = PROVIDERS[s.provider];
+    if (status.state === 'saving') line.innerHTML = `<span class="cloud-state" data-state="pending">Saving to ${label}…</span>`;
+    else if (pending || status.state === 'error' || status.state === 'auth')
+      line.innerHTML =
+        `<span class="cloud-state" data-state="${status.state === 'error' ? 'error' : 'pending'}">${status.state === 'error' ? "Couldn't save" : 'Not saved yet'}</span>` +
+        `<button type="button" data-cloud-save>Save</button>`;
+    else line.innerHTML = `<span class="cloud-state" title="${label}">${s.savedAt ? `Saved ${ago(s.savedAt)}` : `Connected to ${label}`}</span>`;
+  }
+
+  const cloud = () => import('./cloud.js');
+  function start() {
+    if (autosave || !cloudState()) return;
+    autosave = true;
+    cloud().then((c) => c.startAutoSave(), () => (autosave = false));
+  }
+
+  window.addEventListener(CLOUD_EVENT, (e) => {
+    if (e.detail) status = e.detail;
+    paint();
+    start();
+  });
+  window.addEventListener(CHANGED_EVENT, paint);
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'cinema.profile.v1' || e.key == null) window.__paintAvatars?.();
+    if (e.key === CLOUD_KEY || e.key === CHANGED_KEY || e.key == null) paint();
+  });
+  // Opening the menu refreshes "4 min ago"; Google needs its sign-in script
+  // ready before a click can open its window.
+  document.querySelector('.avatar-btn')?.addEventListener('click', () => {
+    paint();
+    if (cloudState()?.provider === 'google') cloud().then((c) => c.loadGoogle().catch(() => {}));
+  });
+  line?.addEventListener('click', (e) => {
+    if (!e.target.closest('[data-cloud-save]')) return;
+    cloud().then((c) => c.sync({ interactive: true }).catch(() => {}));
+  });
+  paint();
+  start();
+}
+
 export function initHeader() {
   const menus = initMenus();
   initTheme(menus);
   const sheets = initSheets();
   initSearch({ menus, sheets });
+  initProfile();
 }
