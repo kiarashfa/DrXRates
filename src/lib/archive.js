@@ -88,14 +88,18 @@ function attachRated(byId) {
   for (const m of archive.list) {
     m.myRating = byId.get(m.id) ?? null;
     m.my = m.myRating?.overall ?? null; // the number the shared sorts read
+    m.stills = stillCounts.get(m.id) ?? 0;
   }
 }
 
-// Dr. X's ratings as Map(id → { scores, contentAvg, formAvg, overall }).
+// Dr. X's ratings as Map(id → { scores, contentAvg, formAvg, overall }); the
+// same file carries how many still frames each film has (stillCounts).
 let ratedMap = null;
+const stillCounts = new Map();
 export async function loadRated() {
   if (!ratedMap) {
     const r = await loadFile('rated');
+    for (const [id, n] of Object.entries(r.stills ?? {})) stillCounts.set(Number(id), n);
     ratedMap = new Map(
       Object.entries(r.byId).map(([id, vals]) => {
         const scores = Object.fromEntries(r.keys.map((k, i) => [k, vals[i]]));
@@ -110,7 +114,8 @@ export async function loadRated() {
 //   always   id, title, year, slug, genres[], directors[{ id, name }], pop (search rank, see client-data.js)
 //   scores   tmdb, tmdbVotes, imdb, imdbVotes, rt, metacritic, runtime (runtime in minutes)
 //   posters  poster
-//   rated    myRating ({ scores, contentAvg, formAvg, overall } or null), my (overall or null)
+//   rated    myRating ({ scores, contentAvg, formAvg, overall } or null), my (overall or null),
+//            stills (number of Dr. X's still frames, 0 if none)
 //   originalTitles  originalTitle (or null)
 // Missing values are null. Options only add fields; objects stay the same.
 export async function loadArchive({ scores = false, posters = false, rated = false, originalTitles = false } = {}) {
@@ -158,6 +163,7 @@ function cardFilm(keys, row, rated) {
   m.directors = m.directors.map(([id, name]) => ({ id, name }));
   m.myRating = rated.get(m.id) ?? null;
   m.my = m.myRating?.overall ?? null;
+  m.stills = stillCounts.get(m.id) ?? 0;
   return m;
 }
 

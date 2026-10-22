@@ -173,6 +173,7 @@
               <div class="no-poster">{m.title}</div>
             {/if}
             {#if m.my != null}<span class="rating-tag">{f1(m.my)}</span>{/if}
+            {#if m.stills}<span class="stills-tag" role="img" aria-label={`${m.stills} stills by Dr. X`} title={`${m.stills} stills`}><svg aria-hidden="true"><use href={`${base}/icons.svg#i-stills`}></use></svg></span>{/if}
           </div>
           <div class="card-title">{m.title}</div>
           <div class="card-sub">{m.year ?? ''}{m.directors?.length ? ` · ${m.directors.join(', ')}` : ''}</div>

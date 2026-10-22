@@ -1,0 +1,209 @@
+---
+// Dr. X's still frames for one film: the lead frame full width in an album
+// mount, then the others as a Grid (scene titles as headings where the film
+// has them) or as 2×2 posts, the groups the frames were first shown in. Every
+// box takes its aspect ratio from the stored frame size, so nothing moves as
+// images load. Both views are in the markup and CSS shows one; a saved choice
+// is applied by the inline script before paint. Frames are links to the full
+// image; with JS they open the viewer (src/lib/stills-viewer.js), which reads
+// each frame's size and title from the lead and Grid links.
+// The 640px tiles cover 2× screens at these tile sizes, so tiles carry no
+// srcset. Every image starts as a blank pixel and the script loads it near
+// the screen (data-src): native lazy loading would start them all with the
+// page on connections Chrome can't measure, competing with the hero. Styles are global under .stills to
+// keep scoping attributes off the ~100 elements a long film has.
+import { stillUrl, withBase } from '../lib/util.js';
+
+const { id, title, frames } = Astro.props;
+const BLANK = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+const pad = (n) => String(n).padStart(3, '0');
+const total = frames.length;
+const [lead, ...rest] = frames;
+
+// Alt text and the viewer use scene titles without their trailing emoji.
+const plain = (s) => (s ? s.replace(/[\s\p{Extended_Pictographic}\u{FE0F}\u{200D}]+$/u, '').trim() || null : null);
+const alt = (f) => `Still ${f.n} of ${total} from ${title}${plain(f.scene) ? `: ${plain(f.scene)}` : ''}`;
+const range = (fr) => (fr.length === 1 ? `frame ${fr[0].n}` : `frames ${fr[0].n}–${fr.at(-1).n}`);
+
+// Grid tiles share the film's most common shape so rows stay even; other
+// shapes sit whole on the tile's background.
+const shapes = new Map();
+for (const f of rest) {
+  const k = (f.w / f.h).toFixed(1);
+  shapes.set(k, (shapes.get(k) ?? 0) + 1);
+}
+const tileAr = [...shapes].sort((a, b) => b[1] - a[1])[0]?.[0] ?? '2.4';
+
+// Grid sections: runs of frames sharing a scene title (untitled frames run together).
+const scenes = [];
+for (const f of rest) {
+  const last = scenes.at(-1);
+  if (last && last.title === f.scene) last.frames.push(f);
+  else scenes.push({ title: f.scene, frames: [f] });
+}
+const posts = [];
+for (const f of rest) {
+  const last = posts.at(-1);
+  if (last && last[0].g === f.g) last.push(f);
+  else posts.push([f]);
+}
+const note = total === 1 ? 'the frame Dr. X chose' : `${total} frames chosen by Dr. X`;
+---
+
+<section class="wrap stills" id="stills" data-view="grid" aria-labelledby="stills-h" data-testid="stills" data-film={title}>
+  <script is:inline>
+    try {
+      if (JSON.parse(localStorage.getItem('cinema.stills.view')) === 'posts') document.currentScript.parentElement.dataset.view = 'posts';
+    } catch (e) {}
+  </script>
+  <div class="shelf-head">
+    <h2 id="stills-h">Stills</h2>
+    <span class="shelf-note">{note}</span>
+    {rest.length > 0 && (
+      <div class="seg stills-views" role="group" aria-label="Layout">
+        <button type="button" data-set-view="grid"><svg class="icon" aria-hidden="true"><use href={withBase('/icons.svg#i-frames')}></use></svg>Grid</button>
+        <button type="button" data-set-view="posts"><svg class="icon" aria-hidden="true"><use href={withBase('/icons.svg#i-posts')}></use></svg>2×2</button>
+      </div>
+    )}
+  </div>
+
+  <figure class="still-lead">
+    <div class="still-mount">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner br"></i><i class="corner bl"></i>
+      <a class="still" href={stillUrl(id, lead.n)} data-frame={lead.n} data-w={lead.w} data-h={lead.h} style={`--c:${lead.c}; aspect-ratio:${lead.w} / ${lead.h}`}>
+        <img src={BLANK} data-src={stillUrl(id, lead.n)} width={lead.w} height={lead.h} alt={alt(lead)} />
+      </a>
+    </div>
+    <figcaption class="still-cap"><span>the lead frame</span><span>{total > 1 ? `${pad(1)} / ${pad(total)}` : pad(1)}</span></figcaption>
+  </figure>
+
+  {rest.length > 0 && (
+    <div class="stills-grid" style={`--tile-ar:${tileAr}`}>
+      {scenes.map((s) => (
+        <div class="still-scene">
+          {s.title && <h3 class="scene-title">{s.title} <small>{range(s.frames)}</small></h3>}
+          <div class="tiles">
+            {s.frames.map((f) => (
+              <a class="still" href={stillUrl(id, f.n)} data-frame={f.n} data-w={f.w} data-h={f.h} data-scene={plain(f.scene)} style={`--c:${f.c}`}>
+                <img src={BLANK} data-src={stillUrl(id, f.n, 'thumb')} width={f.w} height={f.h} alt={alt(f)} />
+              </a>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+
+  {rest.length > 0 && (
+    <div class="stills-posts">
+      {posts.map((p) => (
+        <figure class="post-card">
+          <div class={`post n${Math.min(p.length, 4)}`}>
+            {p.slice(0, 4).map((f) => (
+              <a class="still" href={stillUrl(id, f.n)} data-frame={f.n} style={`--c:${f.c}`}>
+                <img src={BLANK} data-src={stillUrl(id, f.n, 'thumb')} width={f.w} height={f.h} alt={alt(f)} />
+              </a>
+            ))}
+          </div>
+          <figcaption>{p[0].scene ? <span class="scene-title">{p[0].scene}</span> : <span></span>}<small>{range(p)}</small></figcaption>
+        </figure>
+      ))}
+    </div>
+  )}
+</section>
+
+<script>
+  import { initStills } from '../lib/stills-viewer.js';
+  initStills();
+</script>
+
+<style is:global>
+  .stills { margin-top: 2.5rem; scroll-margin-top: calc(var(--header-h) + 1rem); }
+  .stills .shelf-head { flex-wrap: wrap; }
+  .stills .stills-views { margin-left: auto; }
+  .stills .stills-views button { display: inline-flex; align-items: center; gap: 0.4em; }
+  .stills .stills-views .icon { width: 15px; height: 15px; }
+  .stills[data-view='grid'] [data-set-view='grid'],
+  .stills[data-view='posts'] [data-set-view='posts'] { background: var(--accent); color: var(--bg); font-weight: 600; }
+  .stills[data-view='grid'] .stills-posts,
+  .stills[data-view='posts'] .stills-grid { display: none; }
+
+  .stills .still { display: block; position: relative; overflow: hidden; background: var(--c, var(--bg-raised)); cursor: zoom-in; }
+  .stills .still img { display: block; width: 100%; height: 100%; }
+  .stills .still:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* The lead: one fine line in the accent with the print held by four album
+     corners; the line runs under the corners. Corner tones follow the theme. */
+  .stills .still-lead { margin: 0; }
+  .stills .still-mount {
+    --line: color-mix(in srgb, var(--accent) 70%, transparent);
+    --corner-hi: #c4a466; --corner-mid: #8a6d3b; --corner-lo: #6b5229; --corner-edge: #d8bd85;
+    position: relative; padding: 6px;
+  }
+  :root[data-theme='dark'] .stills .still-mount { --corner-hi: #3d362c; --corner-mid: #2b2620; --corner-lo: #1f1b17; --corner-edge: color-mix(in srgb, var(--accent) 55%, #2b2620); }
+  :root[data-theme='matrix'] .stills .still-mount { --corner-hi: #10301c; --corner-mid: #0a2012; --corner-lo: #06160c; --corner-edge: color-mix(in srgb, var(--accent) 60%, #0a2012); }
+  .stills .still-mount::before { content: ''; position: absolute; inset: 0; border: 1px solid var(--line); pointer-events: none; }
+  .stills .still-mount .still img { object-fit: cover; }
+  .stills .corner {
+    position: absolute; z-index: 2; width: clamp(16px, 2.6vw, 27px); aspect-ratio: 1; pointer-events: none;
+    background: linear-gradient(135deg, var(--corner-hi), var(--corner-mid) 38%, var(--corner-lo) 46%, var(--corner-edge) 46.5%, var(--corner-edge) 50%, transparent 50%);
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+    filter: drop-shadow(0 0 1px rgb(0 0 0 / 0.35));
+  }
+  .stills .corner.tl { left: -2px; top: -2px; }
+  .stills .corner.tr { right: -2px; top: -2px; transform: rotate(90deg); }
+  .stills .corner.br { right: -2px; bottom: -2px; transform: rotate(180deg); }
+  .stills .corner.bl { left: -2px; bottom: -2px; transform: rotate(270deg); }
+  .stills .still-cap { display: flex; justify-content: space-between; gap: 1rem; margin-top: 0.5rem; font-family: var(--font-mono); font-size: 0.74rem; color: var(--ink-faint); }
+
+  .stills .stills-grid, .stills .stills-posts { margin-top: 1.5rem; }
+  .stills .still-scene + .still-scene { margin-top: 1.25rem; }
+  .stills .scene-title { font-family: var(--font-display); font-style: italic; font-weight: 500; font-size: 1.12rem; margin: 0 0 0.5rem; }
+  .stills .scene-title small, .stills .post-card small { font-family: var(--font-mono); font-style: normal; font-size: 0.72rem; color: var(--ink-faint); margin-left: 0.5em; }
+  .stills .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.45rem; }
+  .stills .tiles .still { aspect-ratio: var(--tile-ar); border-radius: 3px; }
+  .stills .tiles .still img { object-fit: contain; }
+
+  .stills .stills-posts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.1rem 1rem; }
+  .stills .post-card { margin: 0; }
+  .stills .post { display: grid; gap: 2px; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+  .stills .post .still { height: 100%; }
+  .stills .post .still img { object-fit: cover; }
+  .stills .post.n2 { grid-template-columns: 1fr 1fr; }
+  .stills .post.n3, .stills .post.n4 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+  .stills .post.n3 > :first-child { grid-row: span 2; }
+  .stills .post-card figcaption { display: flex; justify-content: space-between; align-items: baseline; gap: 0.6rem; margin-top: 0.4rem; min-height: 1.6rem; }
+  .stills .post-card .scene-title { font-size: 1.02rem; margin: 0; }
+
+  @media (max-width: 640px) {
+    .stills .tiles { grid-template-columns: repeat(2, 1fr); }
+    .stills .stills-posts { grid-template-columns: 1fr; }
+  }
+
+  /* The viewer is appended to <body>. Always dark, like a screening room, in
+     every theme. */
+  html:has(.still-viewer[open]) { overflow: hidden; }
+  .still-viewer { border: 0; padding: 0; margin: 0; width: 100vw; height: 100dvh; max-width: none; max-height: none; background: rgb(8 8 7 / 0.97); color: #ece7dc; }
+  .still-viewer[open] { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; }
+  .still-viewer::backdrop { background: rgb(0 0 0 / 0.6); }
+  .sv-top, .sv-bottom { display: flex; align-items: center; gap: 0.8rem; padding: 0.7rem 1rem; }
+  .sv-title { flex: 1; min-width: 0; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sv-title b { font-family: var(--font-display); font-weight: 500; font-size: 1.1rem; }
+  .sv-title i { font-family: var(--font-display); color: #c9a86a; font-size: 1.05rem; margin-left: 0.4em; }
+  :root[data-theme='matrix'] .sv-title i { color: var(--accent); }
+  .sv-btn { display: inline-flex; align-items: center; gap: 0.4em; background: transparent; border: 1px solid rgb(255 255 255 / 0.2); border-radius: 4px; color: inherit; padding: 0.25rem 0.7rem; font-size: 0.8rem; }
+  .sv-btn:hover { border-color: #c9a86a; color: #c9a86a; }
+  .sv-btn .icon { width: 15px; height: 15px; }
+  .sv-btn[hidden], .sv-side[hidden] { display: none; }
+  .sv-stage { position: relative; display: grid; place-items: center; min-height: 0; padding: 0 0.5rem; touch-action: pan-y; }
+  .sv-frame { aspect-ratio: var(--ar); width: min(100%, calc((100dvh - 7.5rem) * var(--r))); background: var(--c); }
+  .sv-frame img { display: block; width: 100%; height: 100%; object-fit: contain; }
+  .sv-side { position: absolute; top: 0; bottom: 0; width: 22%; border: 0; padding: 0; background: transparent; }
+  .sv-side.prev { left: 0; cursor: w-resize; }
+  .sv-side.next { right: 0; cursor: e-resize; }
+  .sv-bottom { justify-content: center; font-family: var(--font-mono); font-size: 0.85rem; color: rgb(236 231 220 / 0.65); }
+  @media (prefers-reduced-motion: no-preference) {
+    .still-viewer[open] { animation: sv-in 0.18s var(--ease-out); }
+    @keyframes sv-in { from { opacity: 0; } }
+  }
+</style>

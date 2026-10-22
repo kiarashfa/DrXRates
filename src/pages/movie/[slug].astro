@@ -3,7 +3,8 @@ import Base from '../../layouts/Base.astro';
 import RatingPanel from '../../components/RatingPanel.svelte';
 import RatingsReport from '../../components/RatingsReport.svelte';
 import FilmActions from '../../components/FilmActions.svelte';
-import { movies, directors as allDirectors, directorPageFor } from '../../lib/data.js';
+import Stills from '../../components/Stills.astro';
+import { movies, directors as allDirectors, directorPageFor, stillsFor } from '../../lib/data.js';
 import { withBase, tmdbImg, fmtRuntime, fmt1 } from '../../lib/util.js';
 
 export async function getStaticPaths() {
@@ -16,6 +17,7 @@ const poster = tmdbImg(movie.poster, 'w342');
 // Link previews: the wide backdrop suits summary_large_image; poster as fallback.
 const shareImage = backdrop ?? tmdbImg(movie.poster, 'w500') ?? undefined;
 const directorLinks = movie.directors.map((d) => ({ ...d, page: directorPageFor(d.name) }));
+const stills = stillsFor(movie.id);
 const aslDirector = movie.asl ? allDirectors.find((d) => d.name === movie.asl.director) : null;
 const reportProps = {
   id: movie.id,
@@ -67,6 +69,11 @@ const panelProps = {
             <span class="status-badge">Not yet rated</span>
           )}
           <FilmActions client:load id={movie.id} title={movie.title} />
+          {stills && (
+            <a class="quiet-link" href="#stills" data-testid="stills-link">
+              <svg class="icon" aria-hidden="true"><use href={withBase('/icons.svg#i-stills')}></use></svg>{stills.length} {stills.length === 1 ? 'still' : 'stills'}
+            </a>
+          )}
         </div>
       </div>
     </div>
@@ -120,16 +127,5 @@ const panelProps = {
     </div>
   </div>
 
-  {/* Designated home for my captured still frames (X archive import, pending). */}
-  <section class="wrap" id="stills" data-testid="stills-home" hidden={movie.stills.length === 0} style="margin-top:2.5rem;">
-    <div class="shelf-head">
-      <h2>Stills</h2>
-      <span class="shelf-note">frames I captured</span>
-    </div>
-    <div class="stills-grid">
-      {movie.stills.map((s) => (
-        <img src={withBase(s)} alt={`Still from ${movie.title}`} loading="lazy" />
-      ))}
-    </div>
-  </section>
+  {stills && <Stills id={movie.id} title={movie.title} frames={stills} />}
 </Base>

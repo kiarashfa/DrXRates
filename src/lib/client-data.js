@@ -4,7 +4,7 @@
 // data always matches the pages it ships with. Read in the browser through
 // src/lib/archive.js only.
 import { createHash } from 'node:crypto';
-import { movies, directors, collections } from './data.js';
+import { movies, directors, collections, stillCounts } from './data.js';
 import credits from '../../data/generated/credits.json';
 import people from '../../data/generated/people.json';
 import { movieSlug } from '../../shared/slug.mjs';
@@ -106,10 +106,12 @@ const files = {
   }),
   // Dr. X's ten sub-scores per rated film, in ALL_KEYS order; totals are
   // recomputed client-side with computeTotals. Small, and the only file that
-  // changes with day-to-day rating edits.
+  // changes with day-to-day rating edits. `stills`: how many of Dr. X's still
+  // frames each film has (films without frames are left out), for card tags.
   rated: () => ({
     keys: ALL_KEYS.map((k) => k.key),
     byId: Object.fromEntries(rows.filter((m) => m.myRating).map((m) => [m.id, ALL_KEYS.map((k) => m.myRating.scores[k.key])])),
+    stills: stillCounts,
   }),
   // Dr. X's films as card rows minus the poster (posters are high-entropy and
   // only the picked film needs one): Tonight's default pool, ~50KB gzipped
@@ -187,6 +189,7 @@ const files = {
         poster: m.poster,
         directors: m.directors.slice(0, 2).map((d) => d.name),
         my: m.myRating?.overall ?? null,
+        ...(stillCounts[m.id] ? { stills: stillCounts[m.id] } : {}),
       })),
 };
 

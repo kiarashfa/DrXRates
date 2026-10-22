@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import SortableGrid from '../../components/SortableGrid.svelte';
-import { collections, movieById, directorBySlug } from '../../lib/data.js';
+import { collections, movieById, directorBySlug, stillCounts } from '../../lib/data.js';
 import { withBase, fmt1 } from '../../lib/util.js';
 
 export async function getStaticPaths() {
@@ -18,6 +18,7 @@ const gridFilms = films.map((m) => ({
   my: m.myRating?.overall ?? null,
   tmdb: m.tmdbRating?.score ?? null,
   imdb: m.omdb?.imdb ?? null,
+  stills: stillCounts[m.id] ?? 0,
 }));
 const rated = films.filter((m) => m.myRating);
 const avg = rated.length ? rated.reduce((a, m) => a + m.myRating.overall, 0) / rated.length : null;

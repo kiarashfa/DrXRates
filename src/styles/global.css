@@ -424,6 +424,13 @@ button { font: inherit; cursor: pointer; }
   padding: 0.1em 0.45em; border-radius: 3px;
 }
 :root[data-theme='matrix'] .movie-card .rating-tag, :root[data-theme='matrix'] .sr-poster .rating-tag, :root[data-theme='matrix'] .fc-poster .rating-tag { color: var(--accent); border-color: var(--accent); box-shadow: var(--glow) color-mix(in srgb, var(--accent) 30%, transparent); }
+/* Dr. X's still frames exist for this film (count in the label) */
+.movie-card .stills-tag, .fc-poster .stills-tag {
+  position: absolute; top: 6px; left: 6px; display: flex; padding: 3px; border-radius: 3px;
+  background: rgb(8 8 8 / 0.78); color: #f3d99a; border: 1px solid rgb(243 217 154 / 0.4);
+}
+.movie-card .stills-tag svg, .fc-poster .stills-tag svg { width: 13px; height: 13px; }
+:root[data-theme='matrix'] .movie-card .stills-tag, :root[data-theme='matrix'] .fc-poster .stills-tag { color: var(--accent); border-color: var(--accent); }
 .movie-card .card-title {
   margin-top: 0.5rem; font-size: 0.83rem; line-height: 1.3; color: var(--ink);
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
@@ -464,10 +471,6 @@ button { font: inherit; cursor: pointer; }
 }
 .shelf-arrow:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
 .shelf-arrow:disabled { opacity: 0.3; cursor: default; }
-
-/* Stills gallery (X archive import fills this in) */
-.stills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.8rem; }
-.stills-grid img { width: 100%; border-radius: 4px; border: 1px solid var(--border); }
 
 /* Collection index cards: equal height regardless of content */
 .collection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); grid-auto-rows: 1fr; gap: 1.2rem; }

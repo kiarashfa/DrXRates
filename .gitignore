@@ -23,6 +23,3 @@ ARCHIVE.md
 handoff.md
 tests/
 playwright.config.mjs
-
-# --- data-archive ---
-x-archive/

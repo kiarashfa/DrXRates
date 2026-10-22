@@ -49,6 +49,7 @@
       <div class="no-poster">{film.title}</div>
     {/if}
     {#if film.my != null && !blind}<span class="rating-tag">{fmtScore(film.my)}</span>{/if}
+    {#if film.stills && !blind}<span class="stills-tag" role="img" aria-label={`${film.stills} stills by Dr. X`} title={`${film.stills} stills`}><svg aria-hidden="true"><use href={icon('stills')}></use></svg></span>{/if}
     {@render overlay?.()}
     {#if watch}
       <button

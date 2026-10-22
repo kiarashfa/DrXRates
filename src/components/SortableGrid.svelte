@@ -3,7 +3,7 @@
   import { fmtScore } from '../../shared/rating-meta.mjs';
   import { RATING_SORTS } from '../lib/sorts.js';
 
-  // films: [{ slug, title, year, poster, my, tmdb, imdb }] in curated order.
+  // films: [{ slug, title, year, poster, my, tmdb, imdb, stills }] in curated order.
   let { films, defaultLabel = 'Original order' } = $props();
 
   let sort = $state('default');
@@ -43,6 +43,7 @@
             <div class="no-poster">{m.title}</div>
           {/if}
           {#if m.my != null}<span class="rating-tag">{fmtScore(m.my)}</span>{/if}
+          {#if m.stills}<span class="stills-tag" role="img" aria-label={`${m.stills} stills by Dr. X`} title={`${m.stills} stills`}><svg aria-hidden="true"><use href={`${base}/icons.svg#i-stills`}></use></svg></span>{/if}
         </div>
         <div class="card-title">{m.title}</div>
         <div class="card-sub">{m.year ?? ''}</div>

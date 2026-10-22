@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import SortableGrid from '../../components/SortableGrid.svelte';
-import { directors, collections, movieById } from '../../lib/data.js';
+import { directors, collections, movieById, stillCounts } from '../../lib/data.js';
 import { withBase, tmdbImg, fmt1 } from '../../lib/util.js';
 
 export async function getStaticPaths() {
@@ -24,6 +24,7 @@ const gridFilms = cards.map((m) => ({
   my: m.myRating?.overall ?? null,
   tmdb: m.tmdbRating?.score ?? null,
   imdb: m.omdb?.imdb ?? null,
+  stills: stillCounts[m.id] ?? 0,
 }));
 // TMDB headshot first; Wikipedia/Wikimedia portrait as fallback (compound
 // entries like 'Coen Brothers' only exist there).

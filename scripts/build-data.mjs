@@ -19,6 +19,7 @@ import { omdbByImdbId, omdbLimitHit } from './lib/omdb.mjs';
 import { wikiSummary } from './lib/wiki.mjs';
 import { slugify, movieSlug } from '../shared/slug.mjs';
 import { filmCredits, buildPeople } from './lib/people.mjs';
+import { importStills } from './lib/stills.mjs';
 
 const offline = process.argv.includes('--excel-only');
 const OUT_DIR = path.resolve('data/generated');
@@ -270,7 +271,6 @@ async function main() {
         myRating: null,
         asl: null,
         hashtag: null,
-        stills: [],
       });
     })
   );
@@ -488,6 +488,11 @@ async function main() {
   const { credits, people } = buildPeople(creditsByMovie);
   log(`  credits for ${Object.keys(credits.films).length} films, ${Object.keys(people).length} people`);
 
+  await mkdir(OUT_DIR, { recursive: true });
+  const stills = await importStills(new Set(records.keys()), path.join(OUT_DIR, 'stills.json'));
+  log(`• Stills: ${stills.frames} frames for ${stills.films} films${stills.imported ? ' (from ../DrXMedia/stills.json)' : ' (no ../DrXMedia checkout; kept the committed file)'}`);
+  for (const id of stills.unknown) review.resolutionNotes.push(`stills: film ${id} in DrXMedia's stills.json is not in the archive; its frames are not shown`);
+
   const meta = {
     generatedAt: new Date().toISOString(),
     // Single source of truth for TMDB image URLs (from /configuration); never
@@ -499,6 +504,8 @@ async function main() {
       withAsl: aslAttached,
       directors: directors.length,
       collections: collections.length,
+      withStills: stills.films,
+      stills: stills.frames,
     },
     omdbCoverage: {
       have: omdbHave,

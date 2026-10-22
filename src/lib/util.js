@@ -1,4 +1,5 @@
 import meta from '../../data/generated/meta.json';
+import { STILLS_SITE, stillPath } from '../../shared/stills.mjs';
 
 export const SITE_TITLE = 'The Cinema Ledger';
 export const SITE_TAGLINE = 'A personal archive of film, rated in ten parts';
@@ -25,6 +26,13 @@ export function tmdbImg(path, size = 'w342') {
   if (!path) return null;
   if (path.startsWith('http')) return path; // OMDb-fallback poster: already a full URL
   return `${IMG_BASE}${size}${path}`;
+}
+
+// Still frame URLs (see shared/stills.mjs); the only place they are assembled.
+// PUBLIC_STILLS_BASE points a local build at a local copy of DrXMedia.
+const STILLS_BASE = import.meta.env.PUBLIC_STILLS_BASE || STILLS_SITE;
+export function stillUrl(id, frame, size = 'full') {
+  return STILLS_BASE + stillPath(id, frame, size);
 }
 
 // Delegates to the one shared score formatter (see shared/rating-meta.mjs).
