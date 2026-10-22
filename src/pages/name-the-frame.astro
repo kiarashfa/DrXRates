@@ -1,0 +1,27 @@
+---
+import '@fontsource/limelight/latin-400.css';
+import Base from '../layouts/Base.astro';
+import NameTheFrame from '../components/NameTheFrame.svelte';
+import { movies, collections, stillCounts } from '../lib/data.js';
+import { frameFilms } from '../lib/client-data.js';
+import { dailyPool, dailySchedule, dailyNumber } from '../lib/frame-game.js';
+
+// Everything the lobby shows before the game data loads is known at build
+// time. The Daily Reel's schedule is embedded (as Film of the day's is), so
+// today's film never changes with a rebuild; rebuild at least every ~6 weeks.
+const years = frameFilms.map((m) => m.year).filter(Boolean);
+const frameIds = new Set(frameFilms.map((m) => m.id));
+const directorCounts = new Map();
+for (const m of frameFilms) for (const d of m.directors) directorCounts.set(d.name, (directorCounts.get(d.name) ?? 0) + 1);
+const directors = [...directorCounts].filter(([, n]) => n >= 3).map(([name]) => name).sort((a, b) => a.localeCompare(b));
+const collectionList = collections
+  .map((c) => ({ slug: c.slug, title: c.title, ids: c.movieIds.filter((id) => frameIds.has(id)) }))
+  .filter((c) => c.ids.length >= 4);
+const schedule = dailySchedule(dailyPool(frameFilms.map((m) => ({ id: m.id, frames: stillCounts[m.id], votes: m.omdb?.imdbVotes ?? 0 })))).map((d) => ({ ...d, number: dailyNumber(d.date) }));
+---
+
+<Base title="Name the Frame" description="A frame from one of Dr. X's films: name it before the lights go out. Survival, Sprint, typed answers, a Daily Reel and party play.">
+  <section class="wrap" style="padding-top:2.4rem; padding-bottom:1rem;">
+    <NameTheFrame client:load {directors} collections={collectionList} {schedule} yearMin={Math.min(...years)} yearMax={Math.max(...years)} filmCount={movies.length} />
+  </section>
+</Base>

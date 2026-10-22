@@ -7,6 +7,7 @@
 import { loadStore, mergeRatings } from './visitor.js';
 import { watchlistItems, mergeWatchlist } from './watchlist.js';
 import { knockoutStore, mergeKnockout } from './knockout-store.js';
+import { frameStore, mergeFrames } from './frame-store.js';
 
 const SECTIONS = {
   ratings: {
@@ -20,6 +21,10 @@ const SECTIONS = {
   knockout: {
     read: () => knockoutStore(),
     merge: (value) => mergeKnockout(value),
+  },
+  frames: {
+    read: () => frameStore(),
+    merge: (value) => mergeFrames(value),
   },
 };
 

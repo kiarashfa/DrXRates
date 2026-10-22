@@ -71,6 +71,45 @@ const cardRow = (m) => [
 // small shards keyed by id % POSTER_SHARDS instead of the full posters file.
 export const POSTER_SHARDS = 64;
 
+// Name the Frame: Dr. X's films that have still frames. `e` holds four
+// percentiles (0–100, within these films) that src/lib/frame-game.js weighs
+// into how recognisable a film is: IMDb votes, IMDb rating, the best-known of
+// the top three billed actors and the director's standing. Actors and
+// directors are measured over the whole archive: every film they lead or
+// direct adds log10(IMDb votes) − 4, so a 10k-vote film adds nothing and a
+// 1M-vote film adds 2.
+export const frameFilms = rows.filter((m) => m.myRating && stillCounts[m.id]);
+function frameEase() {
+  const fame = new Map();
+  const add = (key, w) => fame.set(key, (fame.get(key) ?? 0) + w);
+  for (const m of rows) {
+    const w = Math.max(0, Math.log10(m.omdb?.imdbVotes || 1) - 4);
+    if (!w) continue;
+    for (const c of (m.cast ?? []).slice(0, 3)) add(`a${c.id}`, w);
+    for (const d of m.directors) add(`d${d.id}`, w);
+  }
+  const raw = frameFilms.map((m) => [
+    m.omdb?.imdbVotes ?? 0,
+    m.omdb?.imdb ?? 0,
+    Math.max(0, ...(m.cast ?? []).slice(0, 3).map((c) => fame.get(`a${c.id}`) ?? 0)),
+    Math.max(0, ...m.directors.map((d) => fame.get(`d${d.id}`) ?? 0)),
+  ]);
+  const pct = [0, 1, 2, 3].map((k) => {
+    const sorted = raw.map((r) => r[k]).sort((a, b) => a - b);
+    return (v) => {
+      let lo = 0;
+      let hi = sorted.length;
+      while (lo < hi) {
+        const mid = (lo + hi) >> 1;
+        if (sorted[mid] < v) lo = mid + 1;
+        else hi = mid;
+      }
+      return Math.round((100 * lo) / Math.max(1, sorted.length - 1));
+    };
+  });
+  return raw.map((r) => r.map((v, k) => pct[k](v)));
+}
+
 const files = {
   // Every film: identity, genres (bitmask over genreNames), directors
   // (indices into directors) and pop, a popularity rank for ordering search
@@ -120,6 +159,26 @@ const files = {
     keys: CARD_KEYS.slice(0, -1),
     rows: rows.filter((m) => m.myRating).map((m) => cardRow(m).slice(0, -1)),
   }),
+  // Name the Frame's films (see frameFilms): ids delta-encoded, genres as a
+  // bitmask over genreNames, director names, IMDb votes and rating, Dr. X's
+  // total and halves, how many frames each has (numbered 1…n, 1 = the lead)
+  // and the ease percentiles [votes, imdb, star, director].
+  frames: () => {
+    const ease = frameEase();
+    return {
+      genreNames,
+      id: delta(frameFilms.map((m) => m.id)),
+      title: frameFilms.map((m) => m.title),
+      year: frameFilms.map((m) => m.year ?? null),
+      genres: frameFilms.map((m) => m.genres.reduce((mask, g) => mask | genreBit.get(g), 0)),
+      directors: frameFilms.map((m) => m.directors.slice(0, 2).map((d) => d.name)),
+      votes: frameFilms.map((m) => m.omdb?.imdbVotes ?? 0),
+      imdb: frameFilms.map((m) => m.omdb?.imdb ?? null),
+      my: frameFilms.map((m) => [m.myRating.overall, m.myRating.contentAvg, m.myRating.formAvg]),
+      frames: frameFilms.map((m) => stillCounts[m.id]),
+      ease,
+    };
+  },
   // Search's non-film entries: directors with a page and collections.
   'search-extra': () => ({
     directors: directors.map((d) => ({ slug: d.slug, name: d.name, photo: d.profile ?? d.portraitUrl ?? null, rated: d.myCount })),

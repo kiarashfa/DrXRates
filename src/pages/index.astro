@@ -4,6 +4,7 @@ import Shelf from '../components/Shelf.astro';
 import MovieCard from '../components/MovieCard.astro';
 import CatalogBrowser from '../components/CatalogBrowser.svelte';
 import FilmOfDay from '../components/FilmOfDay.astro';
+import FrameTeaser from '../components/FrameTeaser.astro';
 import { movies, collections, meta, movieById, stillCounts } from '../lib/data.js';
 import { withBase, SITE_TAGLINE } from '../lib/util.js';
 
@@ -27,6 +28,7 @@ const catalogGenres = [...new Set(movies.flatMap((m) => m.genres))].sort();
   </section>
 
   <FilmOfDay />
+  <FrameTeaser />
 
   <section class="wrap">
     <div class="shelf-head" style="margin-top:2.6rem;">

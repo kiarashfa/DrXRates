@@ -256,6 +256,36 @@ export async function loadNetArchive() {
   };
 }
 
+// Name the Frame's films (see client-data.js) as
+// [{ id, title, year, genres[], directors[name], votes, imdb, my, content,
+//    form, frames (count; frame 1 is the lead), e: { votes, imdb, star, dir } (0–1) }].
+let framesPending = null;
+export function loadFrameFilms() {
+  framesPending ??= loadFile('frames')
+    .then((f) => {
+      const ids = undelta(f.id);
+      return ids.map((id, i) => ({
+        id,
+        title: f.title[i],
+        year: f.year[i],
+        genres: f.genreNames.filter((_, g) => f.genres[i] & (1 << g)),
+        directors: f.directors[i],
+        votes: f.votes[i],
+        imdb: f.imdb[i],
+        my: f.my[i][0],
+        content: f.my[i][1],
+        form: f.my[i][2],
+        frames: f.frames[i],
+        e: { votes: f.ease[i][0] / 100, imdb: f.ease[i][1] / 100, star: f.ease[i][2] / 100, dir: f.ease[i][3] / 100 },
+      }));
+    })
+    .catch((err) => {
+      framesPending = null;
+      throw err;
+    });
+  return framesPending;
+}
+
 // Search's directors-with-pages and collections (see client-data.js).
 export function loadSearchExtra() {
   return loadFile('search-extra');

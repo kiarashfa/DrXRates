@@ -1,0 +1,59 @@
+---
+// Homepage strip for Name the Frame's Daily Reel, under Film of the day. Like
+// Film of the day it embeds a short schedule and an inline script swaps in
+// the visitor's local date (fixed height, so nothing moves). The frame is
+// shown heavily blurred: a teaser, not a hint.
+import { stillCounts } from '../lib/data.js';
+import { frameFilms } from '../lib/client-data.js';
+import { dailyPool, dailySchedule, dailyNumber } from '../lib/frame-game.js';
+import { withBase, stillUrl } from '../lib/util.js';
+
+const schedule = dailySchedule(dailyPool(frameFilms.map((m) => ({ id: m.id, frames: stillCounts[m.id], votes: m.omdb?.imdbVotes ?? 0 }))), new Date(), 45);
+const entries = schedule.map((d) => ({ date: d.date, n: dailyNumber(d.date), img: stillUrl(d.id, d.frames[0], 'thumb') }));
+const today = new Date().toISOString().slice(0, 10);
+const e = entries.find((x) => x.date === today) ?? entries[0];
+const href = withBase('/name-the-frame#daily');
+---
+
+{e && (
+  <section class="wrap" style="margin-top:1.2rem;">
+    <a class="ft" id="ft" href={href} data-date={e.date} data-testid="frame-teaser">
+      <span class="ft-img"><img data-f="img" src={e.img} alt="" width="640" height="320" loading="lazy" /></span>
+      <span class="ft-text">
+        <span class="ft-kicker">Name the Frame · Daily Reel #<span data-f="n">{e.n}</span></span>
+        <span class="ft-title">Name today's film in six frames</span>
+      </span>
+      <span class="btn ft-btn">Play</span>
+    </a>
+    <script is:inline type="application/json" id="ft-data" set:html={JSON.stringify(entries).replace(/</g, '\\u003c')}></script>
+    <script is:inline>
+      (function () {
+        var box = document.getElementById('ft');
+        var d = new Date();
+        var iso = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        if (box.dataset.date === iso) return;
+        var e = JSON.parse(document.getElementById('ft-data').textContent).find(function (x) { return x.date === iso; });
+        if (!e) { box.parentNode.hidden = true; return; }
+        box.querySelector('[data-f="img"]').src = e.img;
+        box.querySelector('[data-f="n"]').textContent = e.n;
+        box.dataset.date = iso;
+      })();
+    </script>
+  </section>
+)}
+
+<style>
+  .ft { display: grid; grid-template-columns: 180px minmax(0, 1fr) auto; gap: 1.2rem; align-items: center; height: 104px; padding: 0.7rem 1.1rem 0.7rem 0.7rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-panel); text-decoration: none; color: var(--ink); }
+  .ft:hover { border-color: var(--accent); }
+  .ft-img { display: block; height: 100%; border-radius: 4px; overflow: hidden; background: var(--bg-raised); }
+  .ft-img img { width: 100%; height: 100%; object-fit: cover; filter: blur(8px) brightness(0.85); transform: scale(1.15); }
+  .ft-text { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; }
+  .ft-kicker { font: 600 0.68rem/1 var(--font-ui); letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); }
+  .ft-title { font: 500 1.3rem var(--font-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ft-btn { white-space: nowrap; }
+  @media (max-width: 600px) {
+    .ft { grid-template-columns: 96px minmax(0, 1fr); height: 88px; }
+    .ft-btn { display: none; }
+    .ft-title { font-size: 1.05rem; }
+  }
+</style>

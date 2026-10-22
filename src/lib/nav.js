@@ -20,6 +20,7 @@ export const NAV = [
     label: 'Play',
     icon: 'dice',
     items: [
+      { label: 'Name the Frame', href: '/name-the-frame', icon: 'stills', desc: "Name the film from one of Dr. X's frames" },
       { label: 'Knockout', href: '/knockout', also: '/knockout/', icon: 'trophy', desc: "Head-to-head brackets and Dr. X's Cup" },
       { label: 'Tonight', href: '/tonight', icon: 'dice', desc: 'Let the ledger pick a film for tonight' },
       { label: 'Compare', href: '/compare', icon: 'compare', desc: 'Two films side by side' },
