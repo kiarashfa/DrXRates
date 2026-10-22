@@ -2,7 +2,7 @@
   import { untrack } from 'svelte';
   import { fmtScore } from '../../shared/rating-meta.mjs';
   import { tmdbImg, withBase, fmtRuntime } from '../lib/util.js';
-  import { loadArchive, loadPosters, loadRatedFilms, loadFilms } from '../lib/archive.js';
+  import { loadArchive, loadPosters, loadRatedFilms, loadFilms, loadOverview } from '../lib/archive.js';
   import { listWatchlist, inWatchlist, toggleWatchlist, onWatchlistChange } from '../lib/watchlist.js';
   import { filterPool, pickFilm, VOTE_FLOOR } from '../lib/tonight.js';
   import RangePair from './RangePair.svelte';
@@ -13,9 +13,9 @@
   const LENGTH_MAX = 240;
 
   const SOURCES = [
-    { id: 'drx', label: "Dr. X's films", note: () => `${(counts.drx ?? 0).toLocaleString()} rated` },
-    { id: 'archive', label: 'The archive', note: () => `${(counts.archive ?? 0).toLocaleString()} with ${VOTE_FLOOR / 1000}k+ IMDb votes` },
-    { id: 'watchlist', label: 'Your watchlist', note: () => `${watchIds.size} film${watchIds.size === 1 ? '' : 's'}` },
+    { id: 'drx', label: "Dr. X's films", short: 'Dr. X', note: () => `${(counts.drx ?? 0).toLocaleString()} rated` },
+    { id: 'archive', label: 'The archive', short: 'Archive', note: () => `${(counts.archive ?? 0).toLocaleString()} with ${VOTE_FLOOR / 1000}k+ IMDb votes` },
+    { id: 'watchlist', label: 'Your watchlist', short: 'Watchlist', note: () => `${watchIds.size} film${watchIds.size === 1 ? '' : 's'}` },
   ];
 
   const params = new URLSearchParams(location.search);
@@ -45,6 +45,8 @@
   let loadError = $state('');
   let pick = $state(null);
   let poster = $state(null);
+  let overview = $state('');
+  let dealtAt = $state(new Date());
   let seen = new Set();
   let seenCount = $state(0);
   let cycled = $state(false);
@@ -107,6 +109,9 @@
   function show(film) {
     pick = film;
     poster = film.poster ?? null;
+    overview = '';
+    dealtAt = new Date();
+    loadOverview(film.id).then((text) => pick?.id === film.id && (overview = text));
     seen.add(film.id);
     seenCount = seen.size;
     saved = inWatchlist(film.id);
@@ -161,11 +166,10 @@
       <span class="tn-lbl" id="tn-src">Pick from</span>
       <div class="tn-src" role="radiogroup" aria-labelledby="tn-src">
         {#each SOURCES as s}
-          <button role="radio" aria-checked={source === s.id} class:on={source === s.id} onclick={() => (source = s.id)} data-testid={`src-${s.id}`}>
-            <b>{s.label}</b><span>{s.note()}</span>
-          </button>
+          <button role="radio" aria-checked={source === s.id} class:on={source === s.id} title={s.label} onclick={() => (source = s.id)} data-testid={`src-${s.id}`}>{s.short}</button>
         {/each}
       </div>
+      <span class="tn-srcnote">{SOURCES.find((s) => s.id === source).note()}</span>
     </div>
     <RangePair label="Length" min={LENGTH_MIN} max={LENGTH_MAX} unit=" min" anyText="Any length" bind:lo={lengthMin} bind:hi={lengthMax} testid="length" />
     <RangePair label="Year" min={yearMin} max={yearMax} anyText="Any year" bind:lo={yearFrom} bind:hi={yearTo} testid="year" />
@@ -201,36 +205,44 @@
     {:else}
       {#key dealKey}
         <article class="tn-ticket" data-testid="tonight-pick" data-id={pick.id}>
-          <a class="tn-stub" href={withBase(`/movie/${pick.slug}`)} tabindex="-1" aria-hidden="true">
-            {#if poster}<img src={tmdbImg(poster, 'w342')} alt="" width="342" height="513" />{:else}<span class="no-poster">{pick.title}</span>{/if}
-          </a>
-          <div class="tn-body">
-            <span class="tn-kicker">Admit one · tonight</span>
-            <h2><a href={withBase(`/movie/${pick.slug}`)}>{pick.title}</a></h2>
-            <div class="tn-sub">
-              {[pick.year, directorNames(pick), fmtRuntime(pick.runtime), pick.genres.slice(0, 3).join(', ')].filter(Boolean).join(' · ')}
+          <div class="tn-main">
+            <a class="tn-stub" href={withBase(`/movie/${pick.slug}`)} tabindex="-1" aria-hidden="true">
+              {#if poster}<img src={tmdbImg(poster, 'w342')} alt="" width="342" height="513" />{:else}<span class="no-poster">{pick.title}</span>{/if}
+            </a>
+            <div class="tn-body">
+              <span class="tn-kicker">Tonight's feature</span>
+              <h2><a href={withBase(`/movie/${pick.slug}`)}>{pick.title}</a></h2>
+              <div class="tn-sub">
+                {[pick.year, directorNames(pick), fmtRuntime(pick.runtime), pick.genres.slice(0, 3).join(', ')].filter(Boolean).join(' · ')}
+              </div>
+              <p class="tn-plot" data-testid="tonight-plot">{overview}</p>
+              <div class="fc-ledger tn-ledger">
+                <div><span class="k">Dr. X</span><span class="dots"></span><span class="v">{fmtScore(pick.my)}</span></div>
+                <div><span class="k">IMDb</span><span class="dots"></span><span class="v">{fmtScore(pick.imdb)}</span></div>
+                <div><span class="k">Rotten Tomatoes</span><span class="dots"></span><span class="v">{pick.rt == null ? '–' : `${pick.rt}%`}</span></div>
+                <div><span class="k">Metacritic</span><span class="dots"></span><span class="v">{fmtScore(pick.metacritic)}</span></div>
+              </div>
+              <div class="tn-acts">
+                <button class="btn primary" onclick={another} disabled={!pool.length} data-testid="tonight-another">
+                  <svg class="icon" aria-hidden="true"><use href={icon('dice')}></use></svg>Another
+                </button>
+                <a class="btn tn-open" href={withBase(`/movie/${pick.slug}`)}>Open film</a>
+                <button class="btn" aria-pressed={saved} onclick={() => (saved = toggleWatchlist(pick.id, pick.title))} title={saved ? 'Remove from watchlist' : 'Add to watchlist'} data-testid="tonight-watch">
+                  <svg class="icon" aria-hidden="true"><use href={icon(saved ? 'bookmarked' : 'bookmark')}></use></svg><span class="tn-lb">{saved ? 'On your watchlist' : 'Watchlist'}</span>
+                </button>
+                <button class="btn" onclick={copyLink} title="Copy a link to this pick">
+                  <svg class="icon" aria-hidden="true"><use href={icon('link')}></use></svg><span class="tn-lb">{copied ? 'Link copied' : 'Copy link'}</span>
+                </button>
+              </div>
+              <div class="tn-seen" data-testid="tonight-seen">
+                {cycled ? "That's every match; starting the round again. " : ''}{seenCount} seen this visit · {pool.length.toLocaleString()} matching
+              </div>
             </div>
-            <div class="fc-ledger tn-ledger">
-              <div><span class="k">Dr. X</span><span class="dots"></span><span class="v">{fmtScore(pick.my)}</span></div>
-              <div><span class="k">IMDb</span><span class="dots"></span><span class="v">{fmtScore(pick.imdb)}</span></div>
-              <div><span class="k">Rotten Tomatoes</span><span class="dots"></span><span class="v">{pick.rt == null ? '–' : `${pick.rt}%`}</span></div>
-              <div><span class="k">Metacritic</span><span class="dots"></span><span class="v">{fmtScore(pick.metacritic)}</span></div>
-            </div>
-            <div class="tn-acts">
-              <button class="btn primary" onclick={another} disabled={!pool.length} data-testid="tonight-another">
-                <svg class="icon" aria-hidden="true"><use href={icon('dice')}></use></svg>Another
-              </button>
-              <a class="btn" href={withBase(`/movie/${pick.slug}`)}>Open film</a>
-              <button class="btn" aria-pressed={saved} onclick={() => (saved = toggleWatchlist(pick.id, pick.title))} title={saved ? 'Remove from watchlist' : 'Add to watchlist'} data-testid="tonight-watch">
-                <svg class="icon" aria-hidden="true"><use href={icon(saved ? 'bookmarked' : 'bookmark')}></use></svg><span class="tn-lb">{saved ? 'On your watchlist' : 'Watchlist'}</span>
-              </button>
-              <button class="btn" onclick={copyLink} title="Copy a link to this pick">
-                <svg class="icon" aria-hidden="true"><use href={icon('link')}></use></svg><span class="tn-lb">{copied ? 'Link copied' : 'Copy link'}</span>
-              </button>
-            </div>
-            <div class="tn-seen" data-testid="tonight-seen">
-              {cycled ? "That's every match; starting the round again. " : ''}{seenCount} seen this visit · {pool.length.toLocaleString()} matching
-            </div>
+          </div>
+          <div class="tn-tear" aria-hidden="true">
+            <span class="tn-vert">Admit one</span>
+            <div class="tn-num" data-testid="tonight-stamp">{dealtAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}<small>{dealtAt.toLocaleDateString([], { day: 'numeric', month: 'short' })}</small></div>
+            <div class="tn-bars"></div>
           </div>
         </article>
       {/key}
@@ -239,67 +251,87 @@
 </div>
 
 <style>
-  .tn { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 1.5rem; align-items: start; }
-  .tn-ctrl { display: flex; flex-direction: column; gap: 1.2rem; }
+  /* Controls and ticket share one height: the ticket never gets shorter than
+     450px and stretches with the controls panel. */
+  .tn { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 1.5rem; align-items: stretch; }
+  .tn-ctrl { display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; }
   .tn-lbl { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 0.4rem; display: block; }
-  .tn-src { display: grid; gap: 0.5rem; }
-  .tn-src button { text-align: left; padding: 0.6rem 0.85rem; border-radius: var(--radius); border: 1px solid var(--border-strong); background: var(--bg-raised); color: var(--ink); }
-  .tn-src button:hover { border-color: var(--accent); }
-  .tn-src b { display: block; font-family: var(--font-display); font-weight: 560; font-size: 1.06rem; }
-  .tn-src span { font-size: 0.75rem; color: var(--ink-faint); }
-  .tn-src .on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
-  .tn-src .on b { color: var(--accent); }
+  .tn-src { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--border-strong); border-radius: var(--radius); overflow: hidden; }
+  .tn-src button { padding: 0.5em 0.3em; border: 0; border-left: 1px solid var(--border-strong); background: transparent; color: var(--ink-muted); font-size: 0.84rem; }
+  .tn-src button:first-child { border-left: 0; }
+  .tn-src button:hover { color: var(--ink); }
+  .tn-src .on { background: var(--accent); color: var(--bg); font-weight: 600; }
+  .tn-srcnote { display: block; min-height: 1.2em; margin-top: 0.4rem; font-size: 0.75rem; color: var(--ink-faint); }
   .tn-sel { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
   .tn-sel select { width: 100%; }
 
-  .tn-ticket { display: grid; grid-template-columns: 230px minmax(0, 1fr); border: 1px solid var(--border-strong); border-radius: 10px; background: var(--bg-panel); overflow: hidden;
-    animation: tn-deal 0.45s var(--ease-out) both; }
-  .tn-wait { min-height: 345px; animation: none; background: var(--bg-panel); }
-  .tn-stub { position: relative; display: block; background: var(--bg-raised); aspect-ratio: 2 / 3; }
-  .tn-stub img { width: 100%; height: 100%; object-fit: cover; }
+  .tn-stage { display: flex; flex-direction: column; min-width: 0; }
+  /* The ticket: the film on the left, a tear-off stub on the right. */
+  .tn-ticket { display: grid; grid-template-columns: minmax(0, 1fr) 150px; min-height: 450px; flex: 1; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--bg-panel); overflow: hidden;
+    box-shadow: 0 10px 26px rgb(0 0 0 / 0.18); animation: tn-deal 0.45s var(--ease-out) both; }
+  .tn-wait { animation: none; box-shadow: none; }
+  .tn-main { display: grid; grid-template-columns: clamp(160px, 30%, 270px) minmax(0, 1fr); gap: 1.6rem; padding: 1.5rem; min-width: 0; }
+  .tn-stub { position: relative; display: block; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); background: var(--bg-raised); box-shadow: 0 6px 14px rgb(0 0 0 / 0.28); }
+  .tn-stub img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .tn-stub .no-poster { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 1rem; text-align: center; font-family: var(--font-display); color: var(--ink-muted); }
-  /* The perforation between stub and body, with punched notches. */
-  .tn-body { position: relative; padding: 1.4rem 1.6rem 1.3rem; border-left: 2px dashed var(--border-strong); display: flex; flex-direction: column; min-width: 0; }
-  .tn-body::before, .tn-body::after { content: ''; position: absolute; left: -11px; width: 20px; height: 20px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border-strong); }
-  .tn-body::before { top: -11px; }
-  .tn-body::after { bottom: -11px; }
-  .tn-kicker { font: 600 0.7rem/1 var(--font-ui); letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); }
+  .tn-body { display: flex; flex-direction: column; min-width: 0; container-type: inline-size; }
+  .tn-kicker { font: 600 0.7rem/1 var(--font-ui); letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); }
   .tn-body h2 { font-size: clamp(1.6rem, 3.4vw, 2.4rem); margin: 0.5rem 0 0.15rem; }
+  .tn-body h2, .tn-sub { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .tn-body h2 a { text-decoration: none; }
   .tn-body h2 a:hover { color: var(--accent); }
   .tn-sub { font-size: 0.86rem; color: var(--ink-muted); }
-  .tn-ledger { max-width: 340px; font-size: 0.84rem; margin-top: 1rem; }
-  .tn-acts { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: auto; padding-top: 1.3rem; }
+  /* The synopsis and the scores follow each other directly; any spare height collects above the buttons. */
+  .tn-plot { margin: 0.8rem 0 0; max-width: 72ch; font-size: 0.95rem; line-height: 1.55; color: var(--ink-muted); display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+  .tn-plot:empty { display: none; }
+  .tn-ledger { font-size: 0.84rem; margin-top: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.8rem; max-width: 460px; }
+  @container (min-width: 720px) { .tn-ledger { grid-template-columns: repeat(4, auto); max-width: none; } }
+  .tn-acts { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: auto; padding-top: 1.1rem; }
   .tn-acts .btn { display: inline-flex; align-items: center; gap: 0.45em; text-decoration: none; }
   .tn-acts .btn .icon { width: 15px; height: 15px; }
   .tn-acts .btn[aria-pressed='true'] { color: var(--accent); border-color: var(--accent); }
   .tn-acts .btn:disabled { opacity: 0.5; cursor: default; }
   .tn-seen { font-size: 0.74rem; color: var(--ink-faint); margin-top: 0.8rem; }
+
+  /* The tear-off stub, with punched notches at both ends of the perforation. */
+  .tn-tear { position: relative; border-left: 2.5px dotted var(--border-strong); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 1.5rem 0.6rem;
+    background: color-mix(in srgb, var(--accent) 7%, transparent); }
+  .tn-tear::before, .tn-tear::after { content: ''; position: absolute; left: -13px; width: 22px; height: 22px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border-strong); }
+  .tn-tear::before { top: -12px; }
+  .tn-tear::after { bottom: -12px; }
+  .tn-vert { writing-mode: vertical-rl; transform: rotate(180deg); font: 700 0.95rem var(--font-ui); letter-spacing: 0.42em; text-transform: uppercase; color: var(--accent); }
+  .tn-num { font-family: var(--font-numeral); font-size: 1.9rem; white-space: nowrap; line-height: 1; color: var(--accent); font-weight: 600; text-align: center; }
+  .tn-num small { display: block; font: 0.62rem var(--font-ui); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); margin-top: 0.3rem; }
+  .tn-bars { width: 52px; height: 90px; opacity: 0.8; background: repeating-linear-gradient(0deg, var(--ink) 0 2px, transparent 2px 4px, var(--ink) 4px 5px, transparent 5px 9px, var(--ink) 9px 12px, transparent 12px 14px); }
+
   .tn-none h3 { margin-bottom: 0.3rem; }
   @keyframes tn-deal { from { opacity: 0; transform: translateY(10px) scale(0.985); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) { .tn-ticket { animation: none; } }
 
+  @media (min-width: 901px) and (max-width: 1099px) {
+    .tn-ledger { grid-template-columns: 1fr; }
+    .tn-ticket { grid-template-columns: minmax(0, 1fr) 110px; }
+  }
   @media (max-width: 900px) {
     .tn { grid-template-columns: 1fr; }
-    .tn-src { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .tn-stage { order: -1; }
   }
   @media (max-width: 640px) {
-    .tn-src button { padding: 0.5rem 0.55rem; }
-    .tn-src b { font-size: 0.92rem; }
-    .tn-src span { display: none; }
-    /* The ticket sits above the controls here: one fixed height (text is clamped)
-       for the ticket and its placeholder, so loading and re-dealing never move them. */
-    .tn-ticket { grid-template-columns: 112px minmax(0, 1fr); height: 392px; }
-    .tn-wait { height: 392px; min-height: 0; }
-    .tn-stub { aspect-ratio: auto; }
-    .tn-stub img { aspect-ratio: 2 / 3; height: auto; }
-    .tn-body { padding: 1rem 0.9rem; }
-    .tn-body h2, .tn-sub { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .tn-seen { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .tn-ledger { font-size: 0.76rem; }
-    .tn-acts { gap: 0.4rem; }
-    .tn-acts .btn { padding: 0.42em 0.7em; }
+    /* The ticket sits above the controls here: a fixed height (text is clamped)
+       for the ticket and its placeholder, so loading and re-dealing never move them.
+       The poster and the title block share the first rows; scores and buttons use the full width below. */
+    .tn-ticket { grid-template-columns: minmax(0, 1fr) 56px; height: 340px; min-height: 0; flex: none; }
+    .tn-main { grid-template-columns: 104px minmax(0, 1fr); grid-template-rows: auto auto auto auto 1fr auto; gap: 0 0.9rem; padding: 0.9rem; }
+    .tn-body { display: contents; container-type: normal; }
+    .tn-stub { grid-column: 1; grid-row: 1 / span 3; align-self: start; aspect-ratio: 2 / 3; }
+    .tn-kicker, .tn-body h2, .tn-sub { grid-column: 2; align-self: start; }
+    .tn-plot, .tn-acts .tn-open { display: none; }
+    .tn-ledger { grid-column: 1 / -1; grid-row: 4; grid-template-columns: 1fr 1fr; gap: 0 1.2rem; font-size: 0.8rem; margin-top: 0.9rem; max-width: none; }
+    .tn-acts { grid-column: 1 / -1; grid-row: 5; align-self: end; margin-top: 0; padding-top: 0.8rem; gap: 0.5rem; }
     .tn-lb { display: none; }
+    .tn-seen { grid-column: 1 / -1; grid-row: 6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tn-tear { padding: 1rem 0.3rem; }
+    .tn-num, .tn-bars { display: none; }
+    .tn-vert { font-size: 0.72rem; }
   }
 </style>

@@ -291,3 +291,17 @@ export const CARD_SHARDS = 128;
 export function cardShard(shard) {
   return { keys: CARD_KEYS, rows: rows.filter((m) => m.id % CARD_SHARDS === shard).map(cardRow) };
 }
+
+// Synopsis shards: /data/overviews/<n>.json holds { [id]: text } for films
+// with id % OVERVIEW_SHARDS === n, each clipped to a few sentences (what
+// Tonight's ticket shows for the film it deals).
+export const OVERVIEW_SHARDS = 128;
+const OVERVIEW_MAX = 320;
+function clipOverview(text) {
+  if (text.length <= OVERVIEW_MAX) return text;
+  const cut = text.slice(0, OVERVIEW_MAX);
+  return `${cut.slice(0, cut.lastIndexOf(' '))}…`;
+}
+export function overviewShard(shard) {
+  return Object.fromEntries(rows.filter((m) => m.id % OVERVIEW_SHARDS === shard && m.overview).map((m) => [m.id, clipOverview(m.overview)]));
+}

@@ -15,7 +15,7 @@
   let decade = $state('all');
   let genre = $state('all');
   let sort = $state('shuffle');
-  let visible = $state(120);
+  let visible = $state(60);
 
   const base = withBase('');
   const img = (p) => tmdbImg(p, 'w342');
@@ -108,7 +108,7 @@
   $effect(() => {
     // reset pagination whenever filters change
     q; rated; decade; genre; sort;
-    visible = 120;
+    visible = 60;
   });
 
   $effect(() => {
@@ -120,8 +120,8 @@
   const count = $derived(full ? filtered.length : total);
 
   function showMore() {
-    if (full) visible += 120;
-    else loadFull().then(() => (visible += 120));
+    if (full) visible += 60;
+    else loadFull().then(() => (visible += 60));
   }
 </script>
 

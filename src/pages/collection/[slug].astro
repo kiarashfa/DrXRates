@@ -34,7 +34,7 @@ const directorSlug =
       {collection.type === 'director' ? 'Director collection' : collection.type === 'franchise' ? 'Franchise collection' : 'Collection'}
     </p>
     <h1 style="font-size:clamp(2rem, 4.5vw, 3rem);">{collection.title}</h1>
-    <p class="muted" style="max-width:640px;">{collection.description}</p>
+    <p class="muted">{collection.description}</p>
     <div style="display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center; margin-top:0.6rem;">
       <span class="pill">{films.length} films</span>
       <span class="pill">{rated.length} rated</span>

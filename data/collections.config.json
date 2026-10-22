@@ -1,54 +1,1516 @@
 {
-  "_readme": "User-editable. Three collection types: 'director' (person: exact TMDB person name; full directed filmography is auto-resolved), 'franchise' (tmdbCollectionSearch or explicit tmdbCollectionId), 'custom' (movies: array of {title, year} matched like Excel rows). Order here = display order on the shelf.",
+  "_readme": "User-editable. Types: 'director' (person: exact TMDB person name; full directed filmography is auto-resolved; or a 'movies' list for a directing duo), 'franchise' (tmdbCollectionSearch, a string or a list, or explicit tmdbCollectionId; or a 'movies' list for a franchise TMDB does not group), 'custom' (movies: array of {title, year} matched like Excel rows). 'home': true puts a collection on the homepage shelf. Collections with fewer than 5 films are skipped by the build. Order here = display order within each group on the collections page.",
   "collections": [
     {
       "slug": "alfred-hitchcock",
       "type": "director",
       "person": "Alfred Hitchcock",
       "title": "Alfred Hitchcock",
-      "description": "The master of suspense: the complete directed filmography, from the silent era to Family Plot."
+      "description": "The master of suspense: the complete directed filmography, from the silent era to Family Plot.",
+      "home": true
     },
     {
       "slug": "stanley-kubrick",
       "type": "director",
       "person": "Stanley Kubrick",
       "title": "Stanley Kubrick",
-      "description": "Thirteen films in forty-six years. Perfectionism as a body of work."
+      "description": "Thirteen films in forty-six years. Perfectionism as a body of work.",
+      "home": true
     },
     {
       "slug": "andrei-tarkovsky",
       "type": "director",
       "person": "Andrei Tarkovsky",
       "title": "Andrei Tarkovsky",
-      "description": "Sculpting in time: seven features that treat cinema as prayer."
+      "description": "Sculpting in time: seven features that treat cinema as prayer.",
+      "home": true
     },
     {
       "slug": "christopher-nolan",
       "type": "director",
       "person": "Christopher Nolan",
       "title": "Christopher Nolan",
-      "description": "Puzzle boxes at blockbuster scale."
+      "description": "Puzzle boxes at blockbuster scale.",
+      "home": true
     },
     {
       "slug": "quentin-tarantino",
       "type": "director",
       "person": "Quentin Tarantino",
       "title": "Quentin Tarantino",
-      "description": "Dialogue, needle drops, and a career-long conversation with film history."
+      "description": "Dialogue, needle drops, and a career-long conversation with film history.",
+      "home": true
     },
     {
       "slug": "david-fincher",
       "type": "director",
       "person": "David Fincher",
       "title": "David Fincher",
-      "description": "Precision-machined thrillers and the dark side of institutions."
+      "description": "Precision-machined thrillers and the dark side of institutions.",
+      "home": true
     },
     {
       "slug": "transformers",
       "type": "franchise",
       "tmdbCollectionSearch": "Transformers",
       "title": "Transformers",
-      "description": "Every Transformers movie: the complete franchise, for better or worse."
+      "description": "Every Transformers movie: the complete franchise, for better or worse.",
+      "home": true
+    },
+    {
+      "slug": "martin-scorsese",
+      "type": "director",
+      "person": "Martin Scorsese",
+      "title": "Martin Scorsese",
+      "description": "Crime, faith and guilt, from Mean Streets to the present.",
+      "home": true
+    },
+    {
+      "slug": "steven-spielberg",
+      "type": "director",
+      "person": "Steven Spielberg",
+      "title": "Steven Spielberg",
+      "description": "The blockbuster and the serious drama, often in the same year.",
+      "home": true
+    },
+    {
+      "slug": "akira-kurosawa",
+      "type": "director",
+      "person": "Akira Kurosawa",
+      "title": "Akira Kurosawa",
+      "description": "Samurai epics, humanist dramas and Shakespeare in Japan.",
+      "home": true
+    },
+    {
+      "slug": "denis-villeneuve",
+      "type": "director",
+      "person": "Denis Villeneuve",
+      "title": "Denis Villeneuve",
+      "description": "Scale, silence and slow-burn science fiction.",
+      "home": true
+    },
+    {
+      "slug": "ingmar-bergman",
+      "type": "director",
+      "person": "Ingmar Bergman",
+      "title": "Ingmar Bergman",
+      "description": "Faith, doubt and the human face in close-up.",
+      "tmdbPersonId": 6648
+    },
+    {
+      "slug": "wes-anderson",
+      "type": "director",
+      "person": "Wes Anderson",
+      "title": "Wes Anderson",
+      "description": "Symmetry, pastel palettes and deadpan melancholy."
+    },
+    {
+      "slug": "park-chan-wook",
+      "type": "director",
+      "person": "Park Chan-wook",
+      "title": "Park Chan-wook",
+      "description": "Revenge, desire and operatic violence.",
+      "tmdbPersonId": 10099
+    },
+    {
+      "slug": "bong-joon-ho",
+      "type": "director",
+      "person": "Bong Joon-ho",
+      "title": "Bong Joon-ho",
+      "description": "Genre-bending social satire."
+    },
+    {
+      "slug": "paul-thomas-anderson",
+      "type": "director",
+      "person": "Paul Thomas Anderson",
+      "title": "Paul Thomas Anderson",
+      "description": "Obsessive characters in sprawling, intimate portraits."
+    },
+    {
+      "slug": "francis-ford-coppola",
+      "type": "director",
+      "person": "Francis Ford Coppola",
+      "title": "Francis Ford Coppola",
+      "description": "Epic ambition, from The Godfather to Apocalypse Now and beyond."
+    },
+    {
+      "slug": "david-lynch",
+      "type": "director",
+      "person": "David Lynch",
+      "title": "David Lynch",
+      "description": "Dream logic and the unease beneath ordinary surfaces."
+    },
+    {
+      "slug": "hayao-miyazaki",
+      "type": "director",
+      "person": "Hayao Miyazaki",
+      "title": "Hayao Miyazaki",
+      "description": "Hand-drawn worlds of flight, forests and quiet wonder."
+    },
+    {
+      "slug": "ridley-scott",
+      "type": "director",
+      "person": "Ridley Scott",
+      "title": "Ridley Scott",
+      "description": "Visual world-building across sci-fi, history and thrillers."
+    },
+    {
+      "slug": "sergio-leone",
+      "type": "director",
+      "person": "Sergio Leone",
+      "title": "Sergio Leone",
+      "description": "Operatic Westerns and the long, wide-screen stare."
+    },
+    {
+      "slug": "billy-wilder",
+      "type": "director",
+      "person": "Billy Wilder",
+      "title": "Billy Wilder",
+      "description": "Sharp comedies and bitter dramas from a master of the script."
+    },
+    {
+      "slug": "wong-kar-wai",
+      "type": "director",
+      "person": "Wong Kar-wai",
+      "title": "Wong Kar-wai",
+      "description": "Longing, missed connections and neon-lit Hong Kong."
+    },
+    {
+      "slug": "asghar-farhadi",
+      "type": "director",
+      "person": "Asghar Farhadi",
+      "title": "Asghar Farhadi",
+      "description": "Moral dilemmas unfolding inside Iranian households."
+    },
+    {
+      "slug": "coen-brothers",
+      "type": "director",
+      "title": "Coen Brothers",
+      "description": "Joel and Ethan Coen: deadpan crime, dark comedy and American oddballs.",
+      "movies": [
+        {
+          "title": "Blood Simple",
+          "year": 1984
+        },
+        {
+          "title": "Raising Arizona",
+          "year": 1987
+        },
+        {
+          "title": "Miller's Crossing",
+          "year": 1990
+        },
+        {
+          "title": "Barton Fink",
+          "year": 1991
+        },
+        {
+          "title": "The Hudsucker Proxy",
+          "year": 1994
+        },
+        {
+          "title": "Fargo",
+          "year": 1996
+        },
+        {
+          "title": "The Big Lebowski",
+          "year": 1998
+        },
+        {
+          "title": "O Brother, Where Art Thou?",
+          "year": 2000
+        },
+        {
+          "title": "The Man Who Wasn't There",
+          "year": 2001
+        },
+        {
+          "title": "Intolerable Cruelty",
+          "year": 2003
+        },
+        {
+          "title": "The Ladykillers",
+          "year": 2004
+        },
+        {
+          "title": "No Country for Old Men",
+          "year": 2007
+        },
+        {
+          "title": "Burn After Reading",
+          "year": 2008
+        },
+        {
+          "title": "A Serious Man",
+          "year": 2009
+        },
+        {
+          "title": "True Grit",
+          "year": 2010
+        },
+        {
+          "title": "Inside Llewyn Davis",
+          "year": 2013
+        },
+        {
+          "title": "Hail, Caesar!",
+          "year": 2016
+        },
+        {
+          "title": "The Ballad of Buster Scruggs",
+          "year": 2018
+        }
+      ]
+    },
+    {
+      "slug": "star-wars",
+      "type": "franchise",
+      "title": "Star Wars",
+      "description": "A galaxy far, far away: the saga and its spin-offs in release order.",
+      "home": true,
+      "tmdbCollectionId": [
+        10,
+        1797552
+      ]
+    },
+    {
+      "slug": "middle-earth",
+      "type": "franchise",
+      "tmdbCollectionSearch": [
+        "The Lord of the Rings",
+        "The Hobbit"
+      ],
+      "title": "Middle-earth",
+      "description": "The Lord of the Rings and The Hobbit trilogies.",
+      "home": true
+    },
+    {
+      "slug": "james-bond",
+      "type": "franchise",
+      "tmdbCollectionSearch": "James Bond",
+      "title": "James Bond",
+      "description": "Every official 007 adventure, from Dr. No to the latest.",
+      "home": true
+    },
+    {
+      "slug": "harry-potter",
+      "type": "franchise",
+      "tmdbCollectionSearch": "Harry Potter",
+      "title": "Harry Potter",
+      "description": "The boy who lived, across eight films."
+    },
+    {
+      "slug": "mission-impossible",
+      "type": "franchise",
+      "tmdbCollectionSearch": "Mission: Impossible",
+      "title": "Mission: Impossible",
+      "description": "Ethan Hunt and the stunts that keep getting bigger."
+    },
+    {
+      "slug": "alien",
+      "type": "franchise",
+      "title": "Alien",
+      "description": "In space, no one can hear you scream: the xenomorph films in release order.",
+      "movies": [
+        {
+          "title": "Alien",
+          "year": 1979
+        },
+        {
+          "title": "Aliens",
+          "year": 1986
+        },
+        {
+          "title": "Alien 3",
+          "year": 1992
+        },
+        {
+          "title": "Alien Resurrection",
+          "year": 1997
+        },
+        {
+          "title": "Prometheus",
+          "year": 2012
+        },
+        {
+          "title": "Alien: Covenant",
+          "year": 2017
+        },
+        {
+          "title": "Alien: Romulus",
+          "year": 2024
+        }
+      ]
+    },
+    {
+      "slug": "marvel-cinematic-universe",
+      "type": "franchise",
+      "title": "Marvel Cinematic Universe",
+      "description": "The interconnected superhero saga, in release order.",
+      "movies": [
+        {
+          "title": "Iron Man",
+          "year": 2008
+        },
+        {
+          "title": "The Incredible Hulk",
+          "year": 2008
+        },
+        {
+          "title": "Iron Man 2",
+          "year": 2010
+        },
+        {
+          "title": "Thor",
+          "year": 2011
+        },
+        {
+          "title": "Captain America: The First Avenger",
+          "year": 2011
+        },
+        {
+          "title": "The Avengers",
+          "year": 2012
+        },
+        {
+          "title": "Iron Man 3",
+          "year": 2013
+        },
+        {
+          "title": "Thor: The Dark World",
+          "year": 2013
+        },
+        {
+          "title": "Captain America: The Winter Soldier",
+          "year": 2014
+        },
+        {
+          "title": "Guardians of the Galaxy",
+          "year": 2014
+        },
+        {
+          "title": "Avengers: Age of Ultron",
+          "year": 2015
+        },
+        {
+          "title": "Ant-Man",
+          "year": 2015
+        },
+        {
+          "title": "Captain America: Civil War",
+          "year": 2016
+        },
+        {
+          "title": "Doctor Strange",
+          "year": 2016
+        },
+        {
+          "title": "Guardians of the Galaxy Vol. 2",
+          "year": 2017
+        },
+        {
+          "title": "Spider-Man: Homecoming",
+          "year": 2017
+        },
+        {
+          "title": "Thor: Ragnarok",
+          "year": 2017
+        },
+        {
+          "title": "Black Panther",
+          "year": 2018
+        },
+        {
+          "title": "Avengers: Infinity War",
+          "year": 2018
+        },
+        {
+          "title": "Ant-Man and the Wasp",
+          "year": 2018
+        },
+        {
+          "title": "Captain Marvel",
+          "year": 2019
+        },
+        {
+          "title": "Avengers: Endgame",
+          "year": 2019
+        },
+        {
+          "title": "Spider-Man: Far From Home",
+          "year": 2019
+        },
+        {
+          "title": "Black Widow",
+          "year": 2021
+        },
+        {
+          "title": "Shang-Chi and the Legend of the Ten Rings",
+          "year": 2021
+        },
+        {
+          "title": "Eternals",
+          "year": 2021
+        },
+        {
+          "title": "Spider-Man: No Way Home",
+          "year": 2021
+        },
+        {
+          "title": "Doctor Strange in the Multiverse of Madness",
+          "year": 2022
+        },
+        {
+          "title": "Thor: Love and Thunder",
+          "year": 2022
+        },
+        {
+          "title": "Black Panther: Wakanda Forever",
+          "year": 2022
+        },
+        {
+          "title": "Ant-Man and the Wasp: Quantumania",
+          "year": 2023
+        },
+        {
+          "title": "Guardians of the Galaxy Vol. 3",
+          "year": 2023
+        },
+        {
+          "title": "The Marvels",
+          "year": 2023
+        },
+        {
+          "title": "Deadpool & Wolverine",
+          "year": 2024
+        },
+        {
+          "title": "Captain America: Brave New World",
+          "year": 2025
+        },
+        {
+          "title": "Thunderbolts*",
+          "year": 2025
+        },
+        {
+          "title": "The Fantastic Four: First Steps",
+          "year": 2025
+        }
+      ]
+    },
+    {
+      "slug": "mind-benders",
+      "type": "custom",
+      "title": "Mind-benders",
+      "description": "Films that rewrite their own rules: time loops, unreliable minds, puzzle plots.",
+      "home": true,
+      "movies": [
+        {
+          "title": "Inception",
+          "year": 2010
+        },
+        {
+          "title": "Memento",
+          "year": 2000
+        },
+        {
+          "title": "Shutter Island",
+          "year": 2010
+        },
+        {
+          "title": "The Prestige",
+          "year": 2006
+        },
+        {
+          "title": "Primer",
+          "year": 2004
+        },
+        {
+          "title": "Donnie Darko",
+          "year": 2001
+        },
+        {
+          "title": "Mulholland Drive",
+          "year": 2001
+        },
+        {
+          "title": "Eternal Sunshine of the Spotless Mind",
+          "year": 2004
+        },
+        {
+          "title": "The Matrix",
+          "year": 1999
+        },
+        {
+          "title": "Fight Club",
+          "year": 1999
+        },
+        {
+          "title": "Interstellar",
+          "year": 2014
+        },
+        {
+          "title": "Arrival",
+          "year": 2016
+        },
+        {
+          "title": "Tenet",
+          "year": 2020
+        },
+        {
+          "title": "Predestination",
+          "year": 2014
+        },
+        {
+          "title": "Coherence",
+          "year": 2013
+        },
+        {
+          "title": "eXistenZ",
+          "year": 1999
+        },
+        {
+          "title": "Dark City",
+          "year": 1998
+        },
+        {
+          "title": "Twelve Monkeys",
+          "year": 1995
+        },
+        {
+          "title": "Being John Malkovich",
+          "year": 1999
+        },
+        {
+          "title": "Synecdoche, New York",
+          "year": 2008
+        },
+        {
+          "title": "Lost Highway",
+          "year": 1997
+        },
+        {
+          "title": "The Game",
+          "year": 1997
+        },
+        {
+          "title": "Black Swan",
+          "year": 2010
+        },
+        {
+          "title": "Identity",
+          "year": 2003
+        },
+        {
+          "title": "Enemy",
+          "year": 2013
+        },
+        {
+          "title": "Vanilla Sky",
+          "year": 2001
+        },
+        {
+          "title": "The Machinist",
+          "year": 2004
+        },
+        {
+          "title": "Adaptation.",
+          "year": 2002
+        },
+        {
+          "title": "Cloud Atlas",
+          "year": 2012
+        },
+        {
+          "title": "Triangle",
+          "year": 2009
+        },
+        {
+          "title": "Source Code",
+          "year": 2011
+        },
+        {
+          "title": "Looper",
+          "year": 2012
+        },
+        {
+          "title": "The Fountain",
+          "year": 2006
+        },
+        {
+          "title": "Perfect Blue",
+          "year": 1997
+        },
+        {
+          "title": "Paprika",
+          "year": 2006
+        },
+        {
+          "title": "Pi",
+          "year": 1998
+        },
+        {
+          "title": "Mr. Nobody",
+          "year": 2009
+        },
+        {
+          "title": "Upstream Color",
+          "year": 2013
+        },
+        {
+          "title": "Run Lola Run",
+          "year": 1998
+        },
+        {
+          "title": "Timecrimes",
+          "year": 2007
+        },
+        {
+          "title": "The Usual Suspects",
+          "year": 1995
+        }
+      ]
+    },
+    {
+      "slug": "heist-films",
+      "type": "custom",
+      "title": "Heist films",
+      "description": "The plan, the crew, the vault and whatever goes wrong.",
+      "home": true,
+      "movies": [
+        {
+          "title": "Heat",
+          "year": 1995
+        },
+        {
+          "title": "Ocean's Eleven",
+          "year": 2001
+        },
+        {
+          "title": "The Italian Job",
+          "year": 2003
+        },
+        {
+          "title": "The Italian Job",
+          "year": 1969
+        },
+        {
+          "title": "Inside Man",
+          "year": 2006
+        },
+        {
+          "title": "Rififi",
+          "year": 1955
+        },
+        {
+          "title": "The Killing",
+          "year": 1956
+        },
+        {
+          "title": "Reservoir Dogs",
+          "year": 1992
+        },
+        {
+          "title": "Dog Day Afternoon",
+          "year": 1975
+        },
+        {
+          "title": "The Town",
+          "year": 2010
+        },
+        {
+          "title": "Baby Driver",
+          "year": 2017
+        },
+        {
+          "title": "Logan Lucky",
+          "year": 2017
+        },
+        {
+          "title": "Thief",
+          "year": 1981
+        },
+        {
+          "title": "The Asphalt Jungle",
+          "year": 1950
+        },
+        {
+          "title": "Bob le flambeur",
+          "year": 1956
+        },
+        {
+          "title": "Le Cercle Rouge",
+          "year": 1970
+        },
+        {
+          "title": "Sexy Beast",
+          "year": 2000
+        },
+        {
+          "title": "Snatch",
+          "year": 2000
+        },
+        {
+          "title": "Lock, Stock and Two Smoking Barrels",
+          "year": 1998
+        },
+        {
+          "title": "Now You See Me",
+          "year": 2013
+        },
+        {
+          "title": "Hell or High Water",
+          "year": 2016
+        },
+        {
+          "title": "Widows",
+          "year": 2018
+        },
+        {
+          "title": "Ocean's Eight",
+          "year": 2018
+        },
+        {
+          "title": "The Thomas Crown Affair",
+          "year": 1968
+        },
+        {
+          "title": "The Thomas Crown Affair",
+          "year": 1999
+        },
+        {
+          "title": "Entrapment",
+          "year": 1999
+        },
+        {
+          "title": "Set It Off",
+          "year": 1996
+        },
+        {
+          "title": "The Bank Job",
+          "year": 2008
+        },
+        {
+          "title": "The Great Train Robbery",
+          "year": 1978
+        },
+        {
+          "title": "Topkapi",
+          "year": 1964
+        },
+        {
+          "title": "Big Deal on Madonna Street",
+          "year": 1958
+        },
+        {
+          "title": "The Lavender Hill Mob",
+          "year": 1951
+        },
+        {
+          "title": "The Ladykillers",
+          "year": 1955
+        },
+        {
+          "title": "Ocean's Thirteen",
+          "year": 2007
+        },
+        {
+          "title": "Fast Five",
+          "year": 2011
+        },
+        {
+          "title": "The Score",
+          "year": 2001
+        },
+        {
+          "title": "Out of Sight",
+          "year": 1998
+        },
+        {
+          "title": "A Fish Called Wanda",
+          "year": 1988
+        },
+        {
+          "title": "The Sting",
+          "year": 1973
+        },
+        {
+          "title": "Bottle Rocket",
+          "year": 1996
+        }
+      ]
+    },
+    {
+      "slug": "single-location-films",
+      "type": "custom",
+      "title": "Single-location films",
+      "description": "One room, one car, one coffin: stories that never leave the set.",
+      "movies": [
+        {
+          "title": "12 Angry Men",
+          "year": 1957
+        },
+        {
+          "title": "Rope",
+          "year": 1948
+        },
+        {
+          "title": "Dial M for Murder",
+          "year": 1954
+        },
+        {
+          "title": "Rear Window",
+          "year": 1954
+        },
+        {
+          "title": "Lifeboat",
+          "year": 1944
+        },
+        {
+          "title": "Buried",
+          "year": 2010
+        },
+        {
+          "title": "Phone Booth",
+          "year": 2002
+        },
+        {
+          "title": "Locke",
+          "year": 2013
+        },
+        {
+          "title": "Cube",
+          "year": 1997
+        },
+        {
+          "title": "Exam",
+          "year": 2009
+        },
+        {
+          "title": "The Hateful Eight",
+          "year": 2015
+        },
+        {
+          "title": "Panic Room",
+          "year": 2002
+        },
+        {
+          "title": "10 Cloverfield Lane",
+          "year": 2016
+        },
+        {
+          "title": "Room",
+          "year": 2015
+        },
+        {
+          "title": "Bug",
+          "year": 2006
+        },
+        {
+          "title": "Devil",
+          "year": 2010
+        },
+        {
+          "title": "Frozen",
+          "year": 2010
+        },
+        {
+          "title": "Tape",
+          "year": 2001
+        },
+        {
+          "title": "Carnage",
+          "year": 2011
+        },
+        {
+          "title": "Who's Afraid of Virginia Woolf?",
+          "year": 1966
+        },
+        {
+          "title": "The Man from Earth",
+          "year": 2007
+        },
+        {
+          "title": "My Dinner with Andre",
+          "year": 1981
+        },
+        {
+          "title": "The Exterminating Angel",
+          "year": 1962
+        },
+        {
+          "title": "Circle",
+          "year": 2015
+        },
+        {
+          "title": "Saw",
+          "year": 2004
+        },
+        {
+          "title": "127 Hours",
+          "year": 2010
+        },
+        {
+          "title": "Open Water",
+          "year": 2003
+        },
+        {
+          "title": "Wait Until Dark",
+          "year": 1967
+        },
+        {
+          "title": "Misery",
+          "year": 1990
+        },
+        {
+          "title": "The Breakfast Club",
+          "year": 1985
+        },
+        {
+          "title": "Sleuth",
+          "year": 1972
+        },
+        {
+          "title": "Das Boot",
+          "year": 1981
+        },
+        {
+          "title": "The Platform",
+          "year": 2019
+        },
+        {
+          "title": "Dogville",
+          "year": 2003
+        },
+        {
+          "title": "Reservoir Dogs",
+          "year": 1992
+        },
+        {
+          "title": "Coherence",
+          "year": 2013
+        },
+        {
+          "title": "Moon",
+          "year": 2009
+        }
+      ]
+    },
+    {
+      "slug": "courtroom-films",
+      "type": "custom",
+      "title": "Courtroom films",
+      "description": "Objections, verdicts and the law on screen.",
+      "movies": [
+        {
+          "title": "12 Angry Men",
+          "year": 1957
+        },
+        {
+          "title": "To Kill a Mockingbird",
+          "year": 1962
+        },
+        {
+          "title": "A Few Good Men",
+          "year": 1992
+        },
+        {
+          "title": "Anatomy of a Murder",
+          "year": 1959
+        },
+        {
+          "title": "Witness for the Prosecution",
+          "year": 1957
+        },
+        {
+          "title": "Judgment at Nuremberg",
+          "year": 1961
+        },
+        {
+          "title": "Inherit the Wind",
+          "year": 1960
+        },
+        {
+          "title": "The Verdict",
+          "year": 1982
+        },
+        {
+          "title": "Philadelphia",
+          "year": 1993
+        },
+        {
+          "title": "My Cousin Vinny",
+          "year": 1992
+        },
+        {
+          "title": "Erin Brockovich",
+          "year": 2000
+        },
+        {
+          "title": "Primal Fear",
+          "year": 1996
+        },
+        {
+          "title": "A Time to Kill",
+          "year": 1996
+        },
+        {
+          "title": "...And Justice for All",
+          "year": 1979
+        },
+        {
+          "title": "Kramer vs. Kramer",
+          "year": 1979
+        },
+        {
+          "title": "Presumed Innocent",
+          "year": 1990
+        },
+        {
+          "title": "Anatomy of a Fall",
+          "year": 2023
+        },
+        {
+          "title": "The Trial of the Chicago 7",
+          "year": 2020
+        },
+        {
+          "title": "Marshall",
+          "year": 2017
+        },
+        {
+          "title": "Just Mercy",
+          "year": 2019
+        },
+        {
+          "title": "The Lincoln Lawyer",
+          "year": 2011
+        },
+        {
+          "title": "Runaway Jury",
+          "year": 2003
+        },
+        {
+          "title": "The Paradine Case",
+          "year": 1947
+        },
+        {
+          "title": "Compulsion",
+          "year": 1959
+        },
+        {
+          "title": "The Accused",
+          "year": 1988
+        },
+        {
+          "title": "Reversal of Fortune",
+          "year": 1990
+        },
+        {
+          "title": "Class Action",
+          "year": 1991
+        },
+        {
+          "title": "Legally Blonde",
+          "year": 2001
+        },
+        {
+          "title": "The Rainmaker",
+          "year": 1997
+        },
+        {
+          "title": "Chicago",
+          "year": 2002
+        },
+        {
+          "title": "Paths of Glory",
+          "year": 1957
+        },
+        {
+          "title": "Breaker Morant",
+          "year": 1980
+        },
+        {
+          "title": "The Caine Mutiny",
+          "year": 1954
+        },
+        {
+          "title": "Amistad",
+          "year": 1997
+        },
+        {
+          "title": "The Passion of Joan of Arc",
+          "year": 1928
+        },
+        {
+          "title": "Michael Clayton",
+          "year": 2007
+        }
+      ]
+    },
+    {
+      "slug": "road-films",
+      "type": "custom",
+      "title": "Road films",
+      "description": "Journeys where the road is the plot.",
+      "movies": [
+        {
+          "title": "Easy Rider",
+          "year": 1969
+        },
+        {
+          "title": "Thelma & Louise",
+          "year": 1991
+        },
+        {
+          "title": "Little Miss Sunshine",
+          "year": 2006
+        },
+        {
+          "title": "Paris, Texas",
+          "year": 1984
+        },
+        {
+          "title": "Y Tu Mamá También",
+          "year": 2001
+        },
+        {
+          "title": "Midnight Run",
+          "year": 1988
+        },
+        {
+          "title": "Planes, Trains and Automobiles",
+          "year": 1987
+        },
+        {
+          "title": "Badlands",
+          "year": 1973
+        },
+        {
+          "title": "Two-Lane Blacktop",
+          "year": 1971
+        },
+        {
+          "title": "Vanishing Point",
+          "year": 1971
+        },
+        {
+          "title": "Rain Man",
+          "year": 1988
+        },
+        {
+          "title": "Nebraska",
+          "year": 2013
+        },
+        {
+          "title": "The Straight Story",
+          "year": 1999
+        },
+        {
+          "title": "Wild at Heart",
+          "year": 1990
+        },
+        {
+          "title": "Mad Max 2",
+          "year": 1981
+        },
+        {
+          "title": "Mad Max: Fury Road",
+          "year": 2015
+        },
+        {
+          "title": "Sideways",
+          "year": 2004
+        },
+        {
+          "title": "About Schmidt",
+          "year": 2002
+        },
+        {
+          "title": "Into the Wild",
+          "year": 2007
+        },
+        {
+          "title": "The Motorcycle Diaries",
+          "year": 2004
+        },
+        {
+          "title": "Bonnie and Clyde",
+          "year": 1967
+        },
+        {
+          "title": "Detour",
+          "year": 1945
+        },
+        {
+          "title": "It Happened One Night",
+          "year": 1934
+        },
+        {
+          "title": "Wild Strawberries",
+          "year": 1957
+        },
+        {
+          "title": "Kings of the Road",
+          "year": 1976
+        },
+        {
+          "title": "Alice in the Cities",
+          "year": 1974
+        },
+        {
+          "title": "Stranger Than Paradise",
+          "year": 1984
+        },
+        {
+          "title": "Duel",
+          "year": 1971
+        },
+        {
+          "title": "The Sugarland Express",
+          "year": 1974
+        },
+        {
+          "title": "Almost Famous",
+          "year": 2000
+        },
+        {
+          "title": "Green Book",
+          "year": 2018
+        },
+        {
+          "title": "Nomadland",
+          "year": 2020
+        },
+        {
+          "title": "Wild",
+          "year": 2014
+        },
+        {
+          "title": "The Road",
+          "year": 2009
+        },
+        {
+          "title": "Kikujiro",
+          "year": 1999
+        },
+        {
+          "title": "Taste of Cherry",
+          "year": 1997
+        },
+        {
+          "title": "Broken Flowers",
+          "year": 2005
+        },
+        {
+          "title": "Dumb and Dumber",
+          "year": 1994
+        },
+        {
+          "title": "National Lampoon's Vacation",
+          "year": 1983
+        },
+        {
+          "title": "Fear and Loathing in Las Vegas",
+          "year": 1998
+        },
+        {
+          "title": "Natural Born Killers",
+          "year": 1994
+        }
+      ]
+    },
+    {
+      "slug": "foreign-language-films",
+      "type": "custom",
+      "title": "Foreign-language films",
+      "description": "Essential cinema from outside the English-speaking world.",
+      "movies": [
+        {
+          "title": "Seven Samurai",
+          "year": 1954
+        },
+        {
+          "title": "Rashomon",
+          "year": 1950
+        },
+        {
+          "title": "Tokyo Story",
+          "year": 1953
+        },
+        {
+          "title": "Bicycle Thieves",
+          "year": 1948
+        },
+        {
+          "title": "La Dolce Vita",
+          "year": 1960
+        },
+        {
+          "title": "8½",
+          "year": 1963
+        },
+        {
+          "title": "The 400 Blows",
+          "year": 1959
+        },
+        {
+          "title": "Breathless",
+          "year": 1960
+        },
+        {
+          "title": "Au Hasard Balthazar",
+          "year": 1966
+        },
+        {
+          "title": "The Seventh Seal",
+          "year": 1957
+        },
+        {
+          "title": "Persona",
+          "year": 1966
+        },
+        {
+          "title": "M",
+          "year": 1931
+        },
+        {
+          "title": "Cinema Paradiso",
+          "year": 1988
+        },
+        {
+          "title": "Amélie",
+          "year": 2001
+        },
+        {
+          "title": "City of God",
+          "year": 2002
+        },
+        {
+          "title": "Pan's Labyrinth",
+          "year": 2006
+        },
+        {
+          "title": "Oldboy",
+          "year": 2003
+        },
+        {
+          "title": "Parasite",
+          "year": 2019
+        },
+        {
+          "title": "Spirited Away",
+          "year": 2001
+        },
+        {
+          "title": "Life Is Beautiful",
+          "year": 1997
+        },
+        {
+          "title": "The Lives of Others",
+          "year": 2006
+        },
+        {
+          "title": "Amour",
+          "year": 2012
+        },
+        {
+          "title": "A Separation",
+          "year": 2011
+        },
+        {
+          "title": "Children of Heaven",
+          "year": 1997
+        },
+        {
+          "title": "In the Mood for Love",
+          "year": 2000
+        },
+        {
+          "title": "Crouching Tiger, Hidden Dragon",
+          "year": 2000
+        },
+        {
+          "title": "Ikiru",
+          "year": 1952
+        },
+        {
+          "title": "Yojimbo",
+          "year": 1961
+        },
+        {
+          "title": "Sátántangó",
+          "year": 1994
+        },
+        {
+          "title": "Stalker",
+          "year": 1979
+        },
+        {
+          "title": "Come and See",
+          "year": 1985
+        },
+        {
+          "title": "Cléo from 5 to 7",
+          "year": 1962
+        },
+        {
+          "title": "Jules and Jim",
+          "year": 1962
+        },
+        {
+          "title": "Le Samouraï",
+          "year": 1967
+        },
+        {
+          "title": "Army of Shadows",
+          "year": 1969
+        },
+        {
+          "title": "La Haine",
+          "year": 1995
+        },
+        {
+          "title": "Amores Perros",
+          "year": 2000
+        },
+        {
+          "title": "The Secret in Their Eyes",
+          "year": 2009
+        },
+        {
+          "title": "Nights of Cabiria",
+          "year": 1957
+        },
+        {
+          "title": "Rome, Open City",
+          "year": 1945
+        },
+        {
+          "title": "Ran",
+          "year": 1985
+        },
+        {
+          "title": "Pather Panchali",
+          "year": 1955
+        },
+        {
+          "title": "Ugetsu",
+          "year": 1953
+        },
+        {
+          "title": "Metropolis",
+          "year": 1927
+        },
+        {
+          "title": "Battleship Potemkin",
+          "year": 1925
+        },
+        {
+          "title": "Persepolis",
+          "year": 2007
+        }
+      ]
     }
   ]
 }

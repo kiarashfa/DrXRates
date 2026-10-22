@@ -20,9 +20,8 @@ const catalogGenres = [...new Set(movies.flatMap((m) => m.genres))].sort();
 <Base>
   <section class="wrap" style="padding-top:3.2rem;">
     <h1 style="font-size:clamp(2.1rem, 5vw, 3.4rem); max-width:720px;">{SITE_TAGLINE}.</h1>
-    <p class="muted" style="max-width:640px;">
-      Every film scored out of ten: five points of <span class="pill content">content</span> and five of
-      <span class="pill form">form</span>. {meta.counts.rated.toLocaleString()} films rated so far,
+    <p class="muted">
+      Every film scored out of ten: five points of <span class="pill content">content</span> and five of <span class="pill form">form</span>. {meta.counts.rated.toLocaleString()} films rated so far,
       shelved among {meta.counts.movies.toLocaleString()} in the archive.
     </p>
   </section>
@@ -31,12 +30,8 @@ const catalogGenres = [...new Set(movies.flatMap((m) => m.genres))].sort();
   <FrameTeaser />
 
   <section class="wrap">
-    <div class="shelf-head" style="margin-top:2.6rem;">
-      <h2>Collections</h2>
-      <span class="shelf-note"><a href={withBase('/collections')} style="color:inherit;">all shelves →</a></span>
-    </div>
-    <div class="spine-row">
-      {collections.map((c, i) => {
+    <Shelf title="Collections" note="all shelves →" noteHref={withBase('/collections')} label="collections">
+      {collections.filter((c) => c.home).map((c, i) => {
         const inArchive = c.movieIds.filter((id) => movieById.has(id)).length;
         return (
           <a class="spine" href={withBase(`/collection/${c.slug}`)}>
@@ -46,10 +41,7 @@ const catalogGenres = [...new Set(movies.flatMap((m) => m.genres))].sort();
           </a>
         );
       })}
-    </div>
-  </section>
-
-  <section class="wrap">
+    </Shelf>
     <Shelf title="Top of the ledger" note="highest scores on the shelf">
       {topRated.map((m) => <MovieCard {...cardProps(m)} />)}
     </Shelf>

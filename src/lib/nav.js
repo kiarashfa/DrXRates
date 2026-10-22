@@ -12,7 +12,7 @@ export const NAV = [
       { label: 'Dr. X Net', href: '/net', icon: 'net', desc: 'Films and the people who made them, connected' },
       { label: 'Insights', href: '/insights', icon: 'chart', desc: "Dr. X's ratings in numbers" },
       { label: 'Collections', href: '/collections', also: '/collection/', icon: 'shelf', desc: 'Filmographies and franchises' },
-      { label: 'Directors', href: '/directors', also: '/director/', icon: 'chair', desc: 'Shot length, director by director' },
+      { label: 'Directors', href: '/directors', also: '/director/', icon: 'chair', desc: 'Shot length, director by director', footer: false },
     ],
   },
   {
@@ -20,10 +20,10 @@ export const NAV = [
     label: 'Play',
     icon: 'dice',
     items: [
-      { label: 'Name the Frame', href: '/name-the-frame', icon: 'stills', desc: "Name the film from one of Dr. X's frames" },
-      { label: 'Knockout', href: '/knockout', also: '/knockout/', icon: 'trophy', desc: "Head-to-head brackets and Dr. X's Cup" },
-      { label: 'Tonight', href: '/tonight', icon: 'dice', desc: 'Let the ledger pick a film for tonight' },
-      { label: 'Compare', href: '/compare', icon: 'compare', desc: 'Two films side by side' },
+      { label: 'Name the Frame', href: '/name-the-frame', icon: 'stills', desc: "Name the film from one of Dr. X's frames", footer: false },
+      { label: 'Knockout', href: '/knockout', also: '/knockout/', icon: 'trophy', desc: "Head-to-head brackets and Dr. X's Cup", footer: false },
+      { label: 'Tonight', href: '/tonight', icon: 'dice', desc: 'Let the ledger pick a film for tonight', footer: false },
+      { label: 'Compare', href: '/compare', icon: 'compare', desc: 'Two films side by side', footer: false },
     ],
   },
   {
@@ -31,8 +31,8 @@ export const NAV = [
     label: 'Yours',
     icon: 'star',
     items: [
-      { label: 'Your ratings', href: '/your-ratings', icon: 'star', desc: 'Your scores, kept in this browser' },
-      { label: 'Watchlist', href: '/watchlist', icon: 'bookmark', desc: 'Films you mean to see' },
+      { label: 'Your ratings', href: '/your-ratings', icon: 'star', desc: 'Your scores, kept in this browser', footer: false },
+      { label: 'Watchlist', href: '/watchlist', icon: 'bookmark', desc: 'Films you mean to see', footer: false },
       { label: 'Taste match', href: '/your-ratings#taste-match', icon: 'match', desc: "Your scores against Dr. X's" },
     ],
   },

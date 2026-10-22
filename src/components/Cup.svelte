@@ -189,10 +189,10 @@
   .cup-kicker, .cup-lbl { font: 600 0.7rem/1 var(--font-ui); letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); }
   .cup-lbl { display: block; margin-bottom: 0.6rem; }
   .cup-hero h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); margin: 0.4rem 0; }
-  .cup-desc { margin: 0; max-width: 560px; color: var(--ink-muted); }
+  .cup-desc { margin: 0; max-width: var(--measure); color: var(--ink-muted); }
   .cup-meta { margin-top: 0.5rem; }
   .cup-acts { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.1rem; min-height: 2.3rem; }
-  .cup-how { margin: 0.8rem 0 0; max-width: 560px; }
+  .cup-how { margin: 0.8rem 0 0; max-width: var(--measure); }
   .cup-trophy { text-align: center; }
   .cup-trophy :global(.film-card) { text-align: left; }
   .cup-trophy :global(.fc-poster) { box-shadow: 0 0 0 3px var(--accent), 0 14px 34px rgb(0 0 0 / 0.4); }

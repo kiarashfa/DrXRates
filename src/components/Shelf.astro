@@ -1,15 +1,15 @@
 ---
-const { title, note = null, paged = true } = Astro.props;
+const { title, note = null, noteHref = null, label = 'films', paged = true } = Astro.props;
 ---
 
 <section class="shelf" data-shelf>
   <div class="shelf-head">
     <h2>{title}</h2>
-    {note && <span class="shelf-note">{note}</span>}
+    {note && <span class="shelf-note">{noteHref ? <a href={noteHref} style="color:inherit;">{note}</a> : note}</span>}
     {paged && (
       <div class="shelf-arrows">
-        <button class="shelf-arrow" data-shelf-prev aria-label="Previous films" data-testid="shelf-prev" disabled>←</button>
-        <button class="shelf-arrow" data-shelf-next aria-label="Next films" data-testid="shelf-next">→</button>
+        <button class="shelf-arrow" data-shelf-prev aria-label={`Previous ${label}`} data-testid="shelf-prev" disabled>←</button>
+        <button class="shelf-arrow" data-shelf-next aria-label={`Next ${label}`} data-testid="shelf-next">→</button>
       </div>
     )}
   </div>

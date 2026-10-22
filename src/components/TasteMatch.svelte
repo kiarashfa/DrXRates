@@ -132,7 +132,7 @@
   .tm-head h2 { margin: 0; font-size: clamp(1.5rem, 3vw, 1.9rem); }
   .tm-head a { color: var(--accent); text-decoration: none; }
   .tm-head a:hover { text-decoration: underline; }
-  .intro { margin: 0.8rem 0 0; max-width: 620px; }
+  .intro { margin: 0.8rem 0 0; max-width: var(--measure); }
   .meter { height: 4px; max-width: 320px; background: var(--border); border-radius: 2px; overflow: hidden; margin: 0.8rem 0 0.3rem; }
   .meter i { display: block; height: 100%; background: var(--accent); }
   .figs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-raised); margin: 1.1rem 0 1.2rem; }

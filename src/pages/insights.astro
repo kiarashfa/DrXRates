@@ -228,13 +228,13 @@ const SECTIONS = [
   .ins-sec:first-child { border-top: 0; padding-top: 0.2rem; }
   .ins-sec h2 { font-size: clamp(1.6rem, 3vw, 2rem); }
   .kicker { font: 600 0.72rem/1 var(--font-mono); letter-spacing: 0.12em; color: var(--accent); }
-  .lede { max-width: 660px; }
+  .lede { max-width: var(--measure); }
   .lede a { color: var(--accent); }
   .h-sub { font: 600 0.74rem/1.3 var(--font-ui); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-muted); margin: 1.6rem 0 0.7rem; }
   .chart-box { max-width: 700px; margin-top: 1.2rem; }
   .h-sub + .chart-box { margin-top: 0; }
   .two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 2rem; }
-  .foot { margin-top: 1.2rem; max-width: 660px; }
+  .foot { margin-top: 1.2rem; max-width: var(--measure); }
   .narrow-only { display: none; }
   ol.plain { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.3rem; font-size: 0.9rem; }
   ol.plain li { display: flex; justify-content: space-between; gap: 0.8rem; align-items: baseline; border-bottom: 1px dotted var(--border-strong); padding-bottom: 0.3rem; }

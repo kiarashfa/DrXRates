@@ -31,6 +31,7 @@ const TOP_RATED_PAGES = 500;
 const POPULAR_PAGES = 160;
 const VOTE_FLOOR = 100; // never take films below this many TMDB votes
 const TARGET_MOVIES = 20300; // small buffer over 20k for detail-fetch dropouts
+const MIN_COLLECTION_FILMS = 5; // shorter groupings (trilogies, pairs) are not shelved
 const FALLBACK_IMG_BASE = 'https://image.tmdb.org/t/p/';
 
 function round1(n) {
@@ -99,8 +100,10 @@ async function main() {
 
   for (const c of config.collections ?? []) {
     try {
-      if (c.type === 'director') {
-        const found = await searchPerson(c.person, { offline });
+      if (c.type === 'director' && !c.movies) {
+        const found = c.tmdbPersonId
+          ? { results: [{ id: c.tmdbPersonId, name: c.person }] }
+          : await searchPerson(c.person, { offline });
         const results = found?.results ?? [];
         const exact = results.find((p) => normalizeTitle(p.name) === normalizeTitle(c.person)) ?? results[0];
         if (!exact) {
@@ -120,6 +123,7 @@ async function main() {
         collections.push({
           slug: c.slug,
           type: 'director',
+          home: !!c.home,
           title: c.title ?? person.name,
           description: c.description ?? '',
           personId: person.id,
@@ -127,38 +131,43 @@ async function main() {
           movieIds: ids,
         });
         directorPersonBySlug.set(slugify(person.name), person);
-      } else if (c.type === 'franchise') {
-        let colId = c.tmdbCollectionId;
-        if (!colId && c.tmdbCollectionSearch) {
-          const found = await searchCollection(c.tmdbCollectionSearch, { offline });
-          const results = found?.results ?? [];
-          const norm = normalizeTitle(c.tmdbCollectionSearch);
-          const pick =
-            results.find((r) => normalizeTitle(r.name).startsWith(norm)) ?? results[0];
-          if (pick) {
-            colId = pick.id;
-            review.resolutionNotes.push(`franchise '${c.title}': using TMDB collection '${pick.name}' (${pick.id})`);
+      } else if (c.type === 'franchise' && !c.movies) {
+        // One or more TMDB collections (e.g. The Lord of the Rings + The Hobbit) shelved together.
+        const colIds = [].concat(c.tmdbCollectionId ?? []);
+        if (!colIds.length) {
+          for (const query of [].concat(c.tmdbCollectionSearch ?? [])) {
+            const found = await searchCollection(query, { offline });
+            const results = found?.results ?? [];
+            const norm = normalizeTitle(query);
+            const pick = results.find((r) => normalizeTitle(r.name).startsWith(norm)) ?? results[0];
+            if (pick) {
+              colIds.push(pick.id);
+              review.resolutionNotes.push(`franchise '${c.title}': using TMDB collection '${pick.name}' (${pick.id})`);
+            }
           }
         }
-        if (!colId) {
+        if (!colIds.length) {
           review.resolutionNotes.push(`franchise '${c.title}': could not resolve a TMDB collection; skipped`);
           continue;
         }
-        const col = await collectionDetails(colId, { offline });
-        if (!col || col.__notFound) continue;
-        const parts = (col.parts ?? [])
-          .filter((p) => p.release_date)
-          .sort((a, b) => a.release_date.localeCompare(b.release_date));
-        const ids = parts.map((p) => p.id);
+        const parts = [];
+        for (const colId of colIds) {
+          const col = await collectionDetails(colId, { offline });
+          if (col && !col.__notFound) parts.push(...(col.parts ?? []).filter((p) => p.release_date));
+        }
+        parts.sort((a, b) => a.release_date.localeCompare(b.release_date));
+        const ids = [...new Set(parts.map((p) => p.id))];
         ids.forEach((id) => wantedIds.add(id));
         collections.push({
           slug: c.slug,
           type: 'franchise',
-          title: c.title ?? col.name,
+          home: !!c.home,
+          title: c.title,
           description: c.description ?? '',
           movieIds: ids,
         });
-      } else if (c.type === 'custom') {
+      } else if (c.type === 'custom' || c.movies) {
+        // A hand-picked list; a 'director' or 'franchise' type only decides which group it is shelved under.
         const ids = [];
         for (const ref of c.movies ?? []) {
           const res = await matchMovie(ref, { overrides, offline });
@@ -171,7 +180,8 @@ async function main() {
         }
         collections.push({
           slug: c.slug,
-          type: 'custom',
+          type: c.type,
+          home: !!c.home,
           title: c.title,
           description: c.description ?? '',
           movieIds: ids,
@@ -179,6 +189,12 @@ async function main() {
       }
     } catch (err) {
       review.resolutionNotes.push(`collection '${c.slug}': failed: ${err.message}`);
+    }
+  }
+  for (let i = collections.length - 1; i >= 0; i--) {
+    if (collections[i].movieIds.length < MIN_COLLECTION_FILMS) {
+      review.resolutionNotes.push(`collection '${collections[i].slug}': only ${collections[i].movieIds.length} films (minimum ${MIN_COLLECTION_FILMS}); skipped`);
+      collections.splice(i, 1);
     }
   }
   log(`  ${collections.length} collections resolved`);

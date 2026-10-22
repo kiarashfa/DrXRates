@@ -2,32 +2,101 @@
 import Base from '../layouts/Base.astro';
 import { collections, movieById } from '../lib/data.js';
 import { withBase, tmdbImg } from '../lib/util.js';
+
+const groups = [
+  { key: 'director', title: 'Directors', items: collections.filter((c) => c.type === 'director') },
+  { key: 'franchise', title: 'Franchises', items: collections.filter((c) => c.type === 'franchise') },
+  { key: 'custom', title: 'Themes', items: collections.filter((c) => c.type === 'custom') },
+].filter((g) => g.items.length);
 ---
 
 <Base title="Collections" description="Curated shelves: director filmographies, franchises, and other groupings.">
   <section class="wrap" style="padding-top:3rem;">
     <h1>Collections</h1>
-    <p class="muted" style="max-width:640px;">
+    <p class="muted">
       Curated shelves inside the archive: complete director filmographies, franchises, and other groupings.
       Each is a view into the same film database.
     </p>
   </section>
-  <section class="wrap collection-grid" style="margin-top:2rem;" data-testid="collection-cards">
-    {collections.map((c) => {
-      const films = c.movieIds.map((id) => movieById.get(id)).filter(Boolean);
-      const posters = films.filter((m) => m.poster).slice(0, 4);
-      return (
-        <a class="panel collection-card" href={withBase(`/collection/${c.slug}`)}>
-          <div style="display:flex; gap:0.4rem; margin-bottom:0.9rem;">
-            {posters.map((m) => (
-              <img src={tmdbImg(m.poster, 'w154')} alt="" loading="lazy" style="width:56px; height:84px; object-fit:cover; border-radius:3px; border:1px solid var(--border);" />
-            ))}
-          </div>
-          <h3>{c.title}</h3>
-          <p class="small muted collection-desc">{c.description}</p>
-          <span class="small faint mono collection-count">{films.length} films</span>
-        </a>
-      );
-    })}
+  <section class="wrap collection-tools" data-collection-tools>
+    <div class="seg" role="group" aria-label="Show">
+      <button type="button" class="active" aria-pressed="true" data-group="all">All {collections.length}</button>
+      {groups.map((g) => <button type="button" aria-pressed="false" data-group={g.key}>{g.title} {g.items.length}</button>)}
+    </div>
+    <div class="seg" role="group" aria-label="Order">
+      <button type="button" class="active" aria-pressed="true" data-sort="curated">Curated</button>
+      <button type="button" aria-pressed="false" data-sort="az">A–Z</button>
+    </div>
   </section>
+  <div data-collection-lists>
+  {groups.map((g) => (
+    <section class="wrap" style="margin-top:2.2rem;" data-group-section={g.key}>
+      <h2 style="margin-bottom:1rem;">{g.title}</h2>
+      <div class="collection-grid" data-testid="collection-cards">
+        {g.items.map((c) => {
+          const films = c.movieIds.map((id) => movieById.get(id)).filter(Boolean);
+          const posters = films.filter((m) => m.poster).slice(0, 5);
+          return (
+            <a class="panel collection-card" href={withBase(`/collection/${c.slug}`)} data-group={g.key} data-name={c.title}>
+              <div class="collection-posters">
+                {posters.map((m) => (
+                  <img src={tmdbImg(m.poster, 'w154')} alt="" loading="lazy" width="56" height="84" />
+                ))}
+                <span class="collection-more" aria-hidden="true" style={films.length > posters.length ? undefined : 'visibility:hidden'}>···</span>
+              </div>
+              <h3>{c.title}</h3>
+              <p class="small muted collection-desc">{c.description}</p>
+              <span class="small faint mono collection-count">{films.length} films</span>
+            </a>
+          );
+        })}
+      </div>
+    </section>
+  ))}
+  <section class="wrap" data-flat hidden style="margin-top:2.2rem;">
+    <div class="collection-grid" data-testid="collection-cards"></div>
+  </section>
+  </div>
 </Base>
+
+<script>
+  // Filter by group and sort by name. The page is complete without this; the
+  // script only hides sections and moves the cards between grids.
+  const tools = document.querySelector('[data-collection-tools]');
+  const lists = document.querySelector('[data-collection-lists]');
+  if (tools && lists) {
+    const sections = [...lists.querySelectorAll<HTMLElement>('[data-group-section]')];
+    const flat = lists.querySelector<HTMLElement>('[data-flat]')!;
+    const flatGrid = flat.querySelector('.collection-grid')!;
+    const cards = [...lists.querySelectorAll<HTMLElement>('.collection-card')];
+    const order = new Map(cards.map((c, i) => [c, i]));
+    const state = { group: 'all', sort: 'curated' };
+    const byName = (a: HTMLElement, b: HTMLElement) => (a.dataset.name ?? '').localeCompare(b.dataset.name ?? '');
+    const byCurated = (a: HTMLElement, b: HTMLElement) => order.get(a)! - order.get(b)!;
+
+    function render() {
+      const sorter = state.sort === 'az' ? byName : byCurated;
+      const merged = state.group === 'all' && state.sort === 'az';
+      flat.hidden = !merged;
+      for (const sec of sections) {
+        const key = (sec as HTMLElement).dataset.groupSection;
+        sec.hidden = merged || (state.group !== 'all' && state.group !== key);
+        const grid = sec.querySelector('.collection-grid')!;
+        grid.append(...cards.filter((c) => c.dataset.group === key).sort(sorter));
+      }
+      if (merged) flatGrid.append(...[...cards].sort(sorter));
+    }
+
+    tools.addEventListener('click', (e) => {
+      const btn = (e.target as Element).closest<HTMLButtonElement>('button');
+      if (!btn) return;
+      const key = btn.dataset.group ? 'group' : 'sort';
+      state[key] = (btn.dataset.group ?? btn.dataset.sort)!;
+      btn.parentElement!.querySelectorAll('button').forEach((b) => {
+        b.classList.toggle('active', b === btn);
+        b.setAttribute('aria-pressed', String(b === btn));
+      });
+      render();
+    });
+  }
+</script>

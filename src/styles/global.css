@@ -52,6 +52,7 @@
   /* Motion: one easing for popovers and the search field, a softer one for
      sheets rising from the bottom. */
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --measure: 64rem; /* widest line of running text under a page heading */
   --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
   --header-h: 58px;
   --tabbar-h: 60px;
@@ -480,16 +481,28 @@ button { font: inherit; cursor: pointer; }
   display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
 }
 .collection-card .collection-desc {
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.5rem; min-height: 2lh;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
+/* Poster strip: four posters, a faded fifth and an ellipsis; posters shrink to fit narrow cards. */
+.collection-posters { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.9rem; }
+.collection-posters img {
+  flex: 0 1 56px; min-width: 0; height: auto; aspect-ratio: 2 / 3; object-fit: cover;
+  border-radius: 3px; border: 1px solid var(--border);
+}
+.collection-posters img:nth-child(5) { opacity: 0.5; -webkit-mask-image: linear-gradient(to right, #000 15%, transparent); mask-image: linear-gradient(to right, #000 15%, transparent); }
+.collection-more { flex: none; color: var(--ink-faint); letter-spacing: 0.12em; font-size: 1rem; line-height: 1; }
+.collection-tools { margin-top: 1.6rem; display: flex; flex-wrap: wrap; gap: 0.8rem 1.2rem; align-items: center; }
 .collection-card .collection-count { margin-top: auto; }
 
 /* Collection spines */
-.spine-row { display: flex; gap: 8px; overflow-x: auto; padding: 0.25rem 0.25rem 1.1rem; border-bottom: 10px solid var(--shelf-wood); }
+/* Paged like the film shelves: 10 spines per view (6 tablet / 4 phone). */
+.shelf-row.paged > .spine { flex: 0 0 calc((100% - 9rem) / 10); width: auto; }
+@media (max-width: 900px) { .shelf-row.paged > .spine { flex-basis: calc((100% - 5rem) / 6); } }
+@media (max-width: 560px) { .shelf-row.paged > .spine { flex-basis: calc((100% - 3rem) / 4); } }
 .spine {
   text-decoration: none; flex-shrink: 0;
-  width: 64px; height: 250px; border-radius: 3px;
+  height: 250px; border-radius: 3px;
   border: 1px solid var(--border-strong);
   background: var(--bg-panel);
   display: flex; flex-direction: column; align-items: center; justify-content: space-between;
@@ -520,6 +533,18 @@ button { font: inherit; cursor: pointer; }
 .panel-stack { display: flex; flex-direction: column; gap: 1.25rem; }
 /* Rows of stat/info panels: equal cells in both dimensions, even when wrapping. */
 .panel-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); grid-auto-rows: 1fr; gap: 1rem; }
+/* Director stat cards: five across, then 2 + 3 on tablets and 2 / 2 / 1 on phones. */
+.stat-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: 1rem; }
+@media (max-width: 900px) {
+  .stat-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .stat-grid > :nth-child(-n + 2) { grid-column: span 3; }
+  .stat-grid > :nth-child(n + 3) { grid-column: span 2; }
+}
+@media (max-width: 560px) {
+  .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stat-grid > :nth-child(n) { grid-column: auto; }
+  .stat-grid > :last-child { grid-column: 1 / -1; }
+}
 
 /* ---------- Movie hero (screening room) ----------
    Gradient + ink are theme-aware via --hero-* vars: dark wash on dark/matrix,
@@ -649,7 +674,7 @@ button.film-card { width: 100%; padding: 0; border: 0; background: none; color: 
 
 /* Page intro: heading and lede (Watchlist, Tonight, Compare) */
 .page-intro { padding-top: 3rem; }
-.page-intro p { max-width: 640px; }
+.page-intro p { max-width: none; }
 
 @media (max-width: 720px) {
   .screen-hero .hero-inner { flex-direction: column; align-items: flex-start; }

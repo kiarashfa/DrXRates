@@ -188,6 +188,13 @@ export async function loadFilms(ids) {
   return new Map(ids.map((id) => [id, found.get(id) ?? null]));
 }
 
+// One film's synopsis from the overview shards ('' when it has none).
+const OVERVIEW_SHARDS = 128; // = OVERVIEW_SHARDS in client-data.js
+export async function loadOverview(id) {
+  const shard = await loadFile(`overviews/${id % OVERVIEW_SHARDS}`).catch(() => ({}));
+  return shard[id] ?? '';
+}
+
 // Credits for a few films from the credit shards. Resolves to
 // { roles: { [code]: label }, byId: Map(id → { [code]: [personId, …] } or null) }.
 const CREDIT_SHARDS = 64; // = CREDIT_SHARDS in client-data.js

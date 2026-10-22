@@ -109,7 +109,7 @@ const copyrightYears = thisYear > COPYRIGHT_START_YEAR ? `${COPYRIGHT_START_YEAR
             <span>{SITE_TITLE}, a personal film archive</span>
             <span class="footer-sep" aria-hidden="true">|</span>
             <nav class="footer-links" aria-label="Footer">
-              {NAV_LINKS.filter((l) => !l.href.includes('#')).map((l) => <a href={withBase(l.href)}>{l.label}</a>)}
+              {NAV_LINKS.filter((l) => !l.href.includes('#') && l.footer !== false).map((l) => <a href={withBase(l.href)}>{l.label}</a>)}
             </nav>
           </div>
           <span>© {copyrightYears} {SITE_AUTHOR}</span>
