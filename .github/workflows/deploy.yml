@@ -47,8 +47,8 @@ jobs:
           # (username.github.io → base "/") and project sites (→ "/<repo>").
           SITE: ${{ steps.pages.outputs.origin }}
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
-          PUBLIC_GOOGLE_CLIENT_ID: ${{ vars.PUBLIC_GOOGLE_CLIENT_ID }}
-          PUBLIC_DROPBOX_APP_KEY: ${{ vars.PUBLIC_DROPBOX_APP_KEY }}
+          PUBLIC_GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
+          PUBLIC_DROPBOX_APP_KEY: ${{ vars.DROPBOX_APP_KEY }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
