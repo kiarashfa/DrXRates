@@ -14,6 +14,14 @@ export function roundName(entrants) {
   return `Round of ${entrants}`;
 }
 
+// The same round in a few characters ("R128", "QF", "SF"), for chips and labels.
+export function roundShort(entrants) {
+  if (entrants === 2) return 'Final';
+  if (entrants === 4) return 'SF';
+  if (entrants === 8) return 'QF';
+  return `R${entrants}`;
+}
+
 // Standard seeding order for a draw of n (a power of two): 1 v n, then the
 // halves are mirrored recursively, so seeds 1 and 2 can only meet in the
 // final, 1–4 not before the semifinals, and so on.

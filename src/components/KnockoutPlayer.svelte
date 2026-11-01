@@ -5,12 +5,13 @@
   // `onchange(picks)` fires after every pick or undo, `onfinish(championId)`
   // when the last match is decided; `done` renders under the champion,
   // whose screen is headed `champLabel`.
-  import { bracketRounds, nextMatch, champion, roundName } from '../lib/knockout.js';
+  import { bracketRounds, nextMatch, champion, roundName, roundShort } from '../lib/knockout.js';
   import { loadPosters } from '../lib/archive.js';
   import { withBase } from '../lib/util.js';
   import FilmCard from './FilmCard.svelte';
   import BracketTable from './BracketTable.svelte';
   import ChampionReveal from './ChampionReveal.svelte';
+  import RoundPause from './RoundPause.svelte';
 
   let {
     slots,
@@ -77,22 +78,46 @@
 
   const reduced = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // The pause after the last match of a round: which round, and the time the
+  // visitor spent on it (gaps between picks, with idle time capped).
+  let pause = $state(null);
+  let lastAt = Date.now();
+  let roundMs = 0;
+  const IDLE_CAP = 45000;
+  const stops = $derived(rounds.map((_, i) => ({ short: roundShort(entrants(i)), left: entrants(i + 1) })));
+
   function choose(side) {
-    if (picking != null || !next) return;
+    if (picking != null || !next || pause) return;
     const id = side ? next.b : next.a;
     const commit = () => {
       picking = null;
+      const before = next.round;
+      const now = Date.now();
+      roundMs += Math.min(now - lastAt, IDLE_CAP);
+      lastAt = now;
       picks = [...picks, id];
       onchange?.(picks);
       if (picks.length === size - 1) onfinish?.(id);
+      else if (next && next.round > before) {
+        pause = { round: before, ms: roundMs };
+        roundMs = 0;
+      }
     };
     if (reduced()) return commit();
     picking = side;
     setTimeout(commit, PICK_MS);
   }
 
+  function proceed() {
+    pause = null;
+    lastAt = Date.now();
+    roundMs = 0;
+  }
+
   function undo() {
     if (picking != null || !picks.length) return;
+    pause = null;
+    lastAt = Date.now();
     picks = picks.slice(0, -1);
     onchange?.(picks);
   }
@@ -100,6 +125,13 @@
   $effect(() => {
     const onKey = (e) => {
       if (e.ctrlKey || e.metaKey || e.altKey || e.target.closest?.('input, select, textarea, [contenteditable]')) return;
+      if (pause) {
+        if (e.key === 'Enter' && !e.target.closest?.('button, a')) proceed();
+        else if (e.key === 'z' || e.key === 'Z') undo();
+        else return;
+        e.preventDefault();
+        return;
+      }
       if (view === 'match' && e.key === 'ArrowLeft') choose(0);
       else if (view === 'match' && e.key === 'ArrowRight') choose(1);
       else if (e.key === 'z' || e.key === 'Z') undo();
@@ -137,12 +169,38 @@
 </script>
 
 <div class="kp panel" data-testid="knockout-player">
+  {#if pause}
+    <RoundPause
+      name={roundName(entrants(pause.round))}
+      entering={entrants(pause.round)}
+      advancing={entrants(pause.round + 1)}
+      matches={rounds[pause.round].length}
+      ms={pause.ms}
+      {stops}
+      done={pause.round}
+      nextName={roundName(entrants(pause.round + 1))}
+      nextMatches={rounds[pause.round + 1].length}
+      oncontinue={proceed}
+      onundo={undo}
+    />
+  {:else}
   {#if next}
     <div class="kp-prog">
       <span>{kicker} · <b data-testid="ko-round">{roundName(entrants(next.round))}</b></span>
       <span data-testid="ko-match">match {next.index + 1} of {rounds[next.round].length}</span>
     </div>
-    <div class="kp-bar" aria-hidden="true"><i style={`width:${(picks.length / (size - 1)) * 100}%`}></i></div>
+    <div class="kp-line">
+      {#if next.round > 0}
+        <span class="kp-chips">
+          <span class="all">{#each rounds.slice(0, next.round) as _, r}<span>✓ {roundShort(entrants(r))}</span>{/each}</span>
+          <span class="sum">✓ {next.round}</span>
+        </span>
+      {/if}
+      <div class="kp-bar" aria-hidden="true">
+        <i class="w" style={`width:${(picks.length / (size - 1)) * 100}%`}></i>
+        <i class="r" style={`width:${(next.index / rounds[next.round].length) * 100}%`}></i>
+      </div>
+    </div>
   {/if}
 
   {#if next && view === 'match'}
@@ -191,14 +249,24 @@
       <button class="btn" onclick={copyLink} data-testid="ko-copy"><svg class="icon" aria-hidden="true"><use href={icon('link')}></use></svg>{copied ? 'Link copied' : 'Copy link'}</button>
     {/if}
   </div>
+  {/if}
 </div>
 
 <style>
   .kp { padding: 1.3rem 1.6rem 1.4rem; }
   .kp-prog { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; max-width: 660px; margin: 0 auto; font: 600 0.72rem/1.3 var(--font-ui); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); }
   .kp-prog b { color: var(--ink); font-weight: 600; }
-  .kp-bar { height: 3px; max-width: 660px; margin: 0.55rem auto 0; background: var(--border); border-radius: 2px; overflow: hidden; }
-  .kp-bar i { display: block; height: 100%; background: var(--accent); transition: width 0.3s ease; }
+  /* Two layers on one bar: the whole knockout in grey, the round in play over
+     it, translucent. The gold chips behind it are the rounds already played. */
+  .kp { --gold: color-mix(in srgb, var(--accent) 62%, #fff); }
+  .kp-line { display: flex; align-items: center; gap: 0.6rem; max-width: 660px; margin: 0.6rem auto 0; }
+  .kp-chips { flex: none; display: flex; gap: 0.55rem; font: 600 0.66rem/1 var(--font-mono); letter-spacing: 0.02em; color: var(--gold); white-space: nowrap; }
+  .kp-chips .all { display: flex; gap: 0.55rem; }
+  .kp-chips .sum { display: none; }
+  .kp-bar { position: relative; flex: 1; min-width: 0; height: 9px; background: var(--border); border-radius: 5px; overflow: hidden; }
+  .kp-bar i { position: absolute; left: 0; top: 0; bottom: 0; transition: width 0.3s ease; }
+  .kp-bar .w { background: var(--ink-faint); }
+  .kp-bar .r { background: var(--accent); opacity: 0.65; }
 
   .kp-pair { display: grid; grid-template-columns: minmax(0, 1fr) 128px minmax(0, 1fr); align-items: start; max-width: 660px; margin: 1.3rem auto 0; touch-action: pan-y; }
   .kp-side { min-width: 0; position: relative; animation: kp-in-l 0.42s var(--ease-out) both; }
@@ -262,6 +330,8 @@
   @media (max-width: 640px) {
     .kp { padding: 0.9rem 0.7rem 1.1rem; }
     .kp-prog { font-size: 0.64rem; letter-spacing: 0.1em; }
+    .kp-chips .all { display: none; }
+    .kp-chips .sum { display: inline; }
     .kp-pair { grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr); }
     .kp-clash { width: 40px; height: 40px; }
     .kp-clash i { height: 38px; }
