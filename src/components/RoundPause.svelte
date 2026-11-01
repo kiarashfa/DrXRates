@@ -1,8 +1,8 @@
 <script>
   // The pause between knockout rounds: the field before and after, what the
   // round took, and the road to the title as a snake of stops (three per row)
-  // with the stretch just covered drawn in gold. `stops` are the rounds in
-  // order, `done` the index of the one just finished.
+  // with the way travelled, up to the stop that comes next, drawn in gold.
+  // `stops` are the rounds in order, `done` the index of the one just finished.
   let { name, entering, advancing, matches, ms, stops, done, nextName, nextMatches, oncontinue, onundo } = $props();
 
   const W = 360, MX = 54, GAP = 56, TOP = 22, COLS = 3;
@@ -45,8 +45,9 @@
 
   // Count the field down and grow the gold to the new stop.
   $effect(() => {
-    const from = done > 0 ? geo.nodes[done - 1].len : 0;
-    const to = geo.nodes[done].len;
+    // The gold runs on to the stop the visitor is heading for.
+    const from = geo.nodes[done].len;
+    const to = geo.nodes[done + 1].len;
     const path = gold;
     if (!path) return;
     if (reduced()) {

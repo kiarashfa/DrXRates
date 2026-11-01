@@ -7,16 +7,20 @@
 
   let { crowd, marks = 2 } = $props();
 
-  const X0 = 3;
-  const X1 = 9.5;
+  // Both axes run the full 0 to 10 scale over a square plot, so one point of
+  // either score is the same length and the equal-standing line is a true diagonal.
+  const S0 = 0;
+  const S1 = 10;
   const VARIANTS = [
-    { cls: 'wide', W: 640, H: 420, L: 40, R: 16, T: 14, B: 40 },
-    { cls: 'narrow', W: 360, H: 320, L: 30, R: 10, T: 12, B: 36 },
+    { cls: 'wide', W: 520, L: 40, R: 16, T: 14, B: 40 },
+    { cls: 'narrow', W: 360, L: 30, R: 10, T: 12, B: 36 },
   ];
 
-  function geometry(v) {
-    const x = (s) => v.L + ((s - X0) / (X1 - X0)) * (v.W - v.L - v.R);
-    const y = (s) => v.T + (1 - s / 10) * (v.H - v.T - v.B);
+  function geometry(base) {
+    const side = base.W - base.L - base.R;
+    const v = { ...base, H: side + base.T + base.B };
+    const x = (s) => v.L + ((s - S0) / (S1 - S0)) * side;
+    const y = (s) => v.T + (1 - (s - S0) / (S1 - S0)) * side;
     const counts = new Map();
     for (const [imdb, my] of crowd.points) {
       const key = `${Math.round(x(imdb))} ${Math.round(y(my))}`;
@@ -40,7 +44,7 @@
       curve: crowd.curve.map(([i, m]) => `${x(i).toFixed(1)},${y(m).toFixed(1)}`).join(' '),
       start: crowd.curve[0],
       yTicks: [0, 2, 4, 6, 8, 10],
-      xTicks: v.cls === 'wide' ? [3, 4, 5, 6, 7, 8, 9] : [3, 5, 7, 9],
+      xTicks: v.cls === 'wide' ? [0, 2, 4, 6, 8, 10] : [0, 2, 4, 6, 8, 10],
     };
   }
   const variants = VARIANTS.map(geometry);
