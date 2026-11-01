@@ -67,17 +67,22 @@ const fold = (s) =>
     .normalize('NFKD')
     .replace(/[̀-ͯ]/g, '');
 
-// filters: { yearMin, yearMax (numbers or null), genre (or null), director
-// (name fragment or ''), collection (Set of ids or null), minVotes (IMDb votes
-// or null), rankBy }. Films without a value for rankBy never qualify.
+// filters: { yearMin, yearMax (numbers or null), genres (array of names),
+// genreMatch ('any' | 'all'), director (name fragment or ''), collections
+// (array of Sets of ids), collectionMatch ('any' | 'all'), minVotes (IMDb votes
+// or null), rankBy }. An empty genres or collections list filters nothing.
+// 'any' keeps a film with at least one picked item, 'all' one with every item.
 export function filterPool(list, f) {
   const director = fold(f.director).trim();
+  const genres = f.genres ?? [];
+  const collections = f.collections ?? [];
+  const matches = (picked, has, match) => (match === 'all' ? picked.every(has) : picked.some(has));
   return list.filter((m) => {
     if (rankValue(m, f.rankBy) == null) return false;
     if (f.yearMin != null && !(m.year >= f.yearMin)) return false;
     if (f.yearMax != null && !(m.year > 0 && m.year <= f.yearMax)) return false;
-    if (f.genre && !m.genres?.includes(f.genre)) return false;
-    if (f.collection && !f.collection.has(m.id)) return false;
+    if (genres.length && !matches(genres, (g) => m.genres?.includes(g), f.genreMatch)) return false;
+    if (collections.length && !matches(collections, (set) => set.has(m.id), f.collectionMatch)) return false;
     if (f.minVotes && !(m.imdbVotes >= f.minVotes)) return false;
     if (director && !(m.directors ?? []).some((d) => fold(typeof d === 'string' ? d : d.name).includes(director))) return false;
     return true;

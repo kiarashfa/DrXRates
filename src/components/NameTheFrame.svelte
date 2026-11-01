@@ -7,7 +7,7 @@
   import { onMount, tick } from 'svelte';
   import { loadFrameFilms, loadArchive } from '../lib/archive.js';
   import { buildIndex } from '../lib/search.js';
-  import { MODES, DEFAULT_OPTS, REVEALS, DIFFICULTIES, PARTY_KEYS, DAILY_FRAMES, filterPool, parseChallenge, frameKey } from '../lib/frame-game.js';
+  import { MODES, DEFAULT_OPTS, REVEALS, DIFFICULTIES, PARTY_KEYS, DAILY_FRAMES, filterPool, parseChallenge, frameKey, clampSeconds } from '../lib/frame-game.js';
   import { frameStore, saveRun, recordFrames, savePrefs, dailyStreak } from '../lib/frame-store.js';
   import { loadStore } from '../lib/visitor.js';
   import { listWatchlist } from '../lib/watchlist.js';
@@ -87,6 +87,7 @@
 
   async function start(o = opts, { seed = (Math.random() * 2 ** 32) >>> 0, challenge = null } = {}) {
     error = '';
+    o = { ...o, seconds: clampSeconds(o.seconds) };
     view = 'loading';
     try {
       const all = await ensureFilms();
@@ -268,7 +269,7 @@
           <div class="field full"><RangePair label="Years" min={yearMin} max={yearMax} anyText="Any year" bind:lo={opts.yearFrom} bind:hi={opts.yearTo} testid="ntf-years" /></div>
           <label class="field">Min. IMDb votes<input type="number" min="0" step="1000" inputmode="numeric" bind:value={opts.minVotes} /></label>
           {#if modeInfo.clock === 'frame'}
-            <label class="field">Seconds a frame<input type="number" min="3" max="60" inputmode="numeric" bind:value={opts.seconds} /></label>
+            <label class="field">Seconds a frame<input type="number" min="3" max="60" inputmode="numeric" bind:value={opts.seconds} onblur={() => (opts.seconds = clampSeconds(opts.seconds))} /></label>
           {:else}
             <span class="field"></span>
           {/if}

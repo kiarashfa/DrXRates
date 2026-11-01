@@ -7,6 +7,14 @@
   let a = $state(lo ?? min);
   let b = $state(hi ?? max);
 
+  // Values the parent sets after mount (saved options restored in onMount)
+  // must reach the fields too. commit() keeps lo/hi in step with a/b, so this
+  // only changes the fields when the parent's values really differ.
+  $effect.pre(() => {
+    a = lo ?? min;
+    b = hi ?? max;
+  });
+
   function commit() {
     a = Math.min(Math.max(Math.round(Number(a) || min), min), max);
     b = Math.min(Math.max(Math.round(Number(b) || max), min), max);
@@ -31,7 +39,9 @@
     commit();
   }
 
-  const pct = (v) => ((v - min) / (max - min)) * 100;
+  // Typed values are clamped only on commit, so the track must clamp too;
+  // an unclamped 3000 would stretch the fill bar far past the track.
+  const pct = (v) => Math.min(Math.max(((Number(v) - min) / (max - min)) * 100, 0), 100);
   const summary = $derived(
     lo == null && hi == null
       ? anyText
@@ -49,11 +59,11 @@
   <legend class="rp-label">{label} <span class="rp-sum">{summary}</span></legend>
   <div class="rp-fields">
     <label><span class="visually-hidden">{label}: from</span>
-      <input type="number" inputmode="numeric" {min} {max} {step} bind:value={a} onchange={commit} data-testid={testid && `${testid}-from`} />
+      <input type="number" inputmode="numeric" {min} {max} {step} bind:value={a} onchange={commit} onblur={commit} data-testid={testid && `${testid}-from`} />
     </label>
     <span class="rp-to">to</span>
     <label><span class="visually-hidden">{label}: to</span>
-      <input type="number" inputmode="numeric" {min} {max} {step} bind:value={b} onchange={commit} data-testid={testid && `${testid}-to`} />
+      <input type="number" inputmode="numeric" {min} {max} {step} bind:value={b} onchange={commit} onblur={commit} data-testid={testid && `${testid}-to`} />
     </label>
     {#if unit}<span class="rp-unit">{unit.trim()}</span>{/if}
     {#if lo != null || hi != null}<button type="button" class="rp-reset" onclick={reset}>Any</button>{/if}
@@ -69,7 +79,9 @@
   .rp-label { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); padding: 0; margin-bottom: 0.45rem; display: flex; gap: 0.6rem; align-items: baseline; width: 100%; }
   .rp-sum { text-transform: none; letter-spacing: 0; font-size: 0.8rem; color: var(--accent); }
   .rp-fields { display: flex; align-items: center; gap: 0.5rem; }
-  .rp-fields input { width: 5.2em; font-family: var(--font-mono); font-size: 0.86rem; padding: 0.35em 0.5em; background: var(--bg-raised); color: var(--ink);
+  /* The two fields share the row, so the from–to pair spans the column like the slider. */
+  .rp-fields label { flex: 1 1 0; min-width: 0; display: flex; }
+  .rp-fields input { width: 100%; min-width: 0; font-family: var(--font-mono); font-size: 0.86rem; padding: 0.35em 0.5em; background: var(--bg-raised); color: var(--ink);
     border: 1px solid var(--border-strong); border-radius: var(--radius); }
   .rp-fields input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
   .rp-to, .rp-unit { font-size: 0.8rem; color: var(--ink-muted); }

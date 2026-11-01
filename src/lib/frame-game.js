@@ -43,6 +43,9 @@ export const DEFAULT_OPTS = {
   bonus: false,
 };
 
+// "Seconds a frame" is 3–60 whatever was typed (blank counts as the default).
+export const clampSeconds = (v) => Math.min(60, Math.max(3, Math.round(Number(v)) || 10));
+
 // The films a run draws its frames from.
 export function filterPool(films, opts, { ids = null } = {}) {
   return films.filter(
@@ -308,7 +311,7 @@ export function parseChallenge(hash) {
         yearFrom: Number.isInteger(c.y?.[0]) ? c.y[0] : null,
         yearTo: Number.isInteger(c.y?.[1]) ? c.y[1] : null,
         minVotes: Number(c.v) || 0,
-        seconds: Math.min(60, Math.max(3, Number(c.t) || 10)),
+        seconds: clampSeconds(c.t),
         difficulty: DIFFICULTIES[c.df] ? c.df : 'rising',
         answer: c.a === 'typing' ? 'typing' : 'choices',
         reveal: REVEALS[c.rv] ? c.rv : 'full',

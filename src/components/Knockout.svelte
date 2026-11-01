@@ -15,6 +15,7 @@
   } from '../lib/knockout.js';
   import { knockoutStore, saveCurrent, addHistory } from '../lib/knockout-store.js';
   import RangePair from './RangePair.svelte';
+  import PickDrawer from './PickDrawer.svelte';
   import KnockoutPlayer from './KnockoutPlayer.svelte';
 
   let { genres = [], yearMin = 1900, yearMax = new Date().getFullYear(), counts = {}, collections = [], cups = [] } = $props();
@@ -42,9 +43,11 @@
   let source = $state('drx');
   let yearFrom = $state(null);
   let yearTo = $state(null);
-  let genre = $state('');
+  let genreList = $state([]);
+  let genreMatch = $state('any');
   let director = $state('');
-  let collection = $state('');
+  let collectionList = $state([]);
+  let collectionMatch = $state('any');
   let rankBy = $state('imdb');
   let minVotes = $state('');
   let size = $state(32);
@@ -82,7 +85,9 @@
     minVotes = id === 'archive' ? VOTE_FLOOR : '';
   }
 
-  const collectionIds = $derived(collection ? new Set(collections.find((c) => c.slug === collection)?.ids ?? []) : null);
+  const genreItems = $derived(genres.map((g) => ({ value: g, label: g })));
+  const collectionItems = $derived(collections.map((c) => ({ value: c.slug, label: c.title })));
+  const collectionSets = $derived(collectionList.map((slug) => new Set(collections.find((c) => c.slug === slug)?.ids ?? [])));
   const ready = $derived(lists[source] != null);
   const pool = $derived(
     ready
@@ -91,9 +96,11 @@
             rankBy,
             yearMin: yearFrom,
             yearMax: yearTo,
-            genre: genre || null,
+            genres: genreList,
+            genreMatch,
             director,
-            collection: collectionIds,
+            collections: collectionSets,
+            collectionMatch,
             minVotes: Number(minVotes) || null,
           }),
           rankBy
@@ -107,9 +114,9 @@
     [
       SOURCES.find((s) => s.id === source).label,
       yearFrom != null || yearTo != null ? `${yearFrom ?? yearMin}–${yearTo ?? yearMax}` : null,
-      genre || null,
+      genreList.length ? genreList.join(genreMatch === 'all' ? ' & ' : ', ') : null,
       director.trim() || null,
-      collection ? collections.find((c) => c.slug === collection)?.title : null,
+      collectionList.length ? collectionItems.filter((c) => collectionList.includes(c.value)).map((c) => c.label).join(collectionMatch === 'all' ? ' & ' : ', ') : null,
       `by ${RANKS[rankBy].label}`,
     ]
       .filter(Boolean)
@@ -290,13 +297,9 @@
         </div>
       </div>
       <RangePair label="Released" min={yearMin} max={yearMax} anyText="Any year" bind:lo={yearFrom} bind:hi={yearTo} testid="ko-year" />
-      <div class="ko-two">
-        <label><span class="ko-lbl">Genre</span>
-          <select bind:value={genre}><option value="">Any genre</option>{#each genres as g}<option value={g}>{g}</option>{/each}</select>
-        </label>
-        <label><span class="ko-lbl">Collection</span>
-          <select bind:value={collection}><option value="">Any</option>{#each collections as c}<option value={c.slug}>{c.title}</option>{/each}</select>
-        </label>
+      <div class="ko-picks">
+        <PickDrawer label="Genres" noun="genre" items={genreItems} bind:picked={genreList} bind:match={genreMatch} anyText="Any genre" testid="ko-genres" />
+        <PickDrawer label="Collections" noun="collection" items={collectionItems} bind:picked={collectionList} bind:match={collectionMatch} anyText="Any" testid="ko-collections" />
       </div>
       <label><span class="ko-lbl">Director</span><input type="text" bind:value={director} placeholder="Any director" data-testid="ko-director" /></label>
       <div class="ko-two">
@@ -390,6 +393,7 @@
   .ko-ctrl input[type='text'], .ko-ctrl input[type='number'], .ko-export input {
     background: var(--bg-raised); color: var(--ink); border: 1px solid var(--border-strong); border-radius: var(--radius); padding: 0.4em 0.6em; font: inherit; font-size: 0.88rem; }
   .ko-two { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+  .ko-picks { display: grid; gap: 0.2rem; }
   .ko-src { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
   .ko-src button { text-align: left; padding: 0.55rem 0.75rem; border-radius: var(--radius); border: 1px solid var(--border-strong); background: var(--bg-raised); color: var(--ink); min-width: 0; }
   .ko-src button:hover { border-color: var(--accent); }

@@ -269,13 +269,14 @@
 
   function lockBonus(skip = false) {
     if (phase !== 'bonus') return;
-    const guess = skip ? null : Number(String(bonusGuess).replace(',', '.'));
-    const hit = !skip && bonusHit(guess, q.film.my);
+    // A blank box is bound as null (Svelte), so it counts as no bonus.
+    const guess = skip || bonusGuess == null || bonusGuess === '' ? null : Number(bonusGuess);
+    const hit = bonusHit(guess, q.film.my);
     if (hit) {
       score += res.pts;
       countUp(score - res.pts, score);
     }
-    res = { ...res, bonus: skip ? null : { guess, hit } };
+    res = { ...res, bonus: guess == null ? null : { guess, hit } };
     phase = 'answered';
   }
 
@@ -592,7 +593,7 @@
             <p class="eyebrow">Bonus · within 0.5 doubles the +{res.pts}</p>
             <p class="b-q">What did Dr. X give it?</p>
             <div class="b-in">
-              <input type="number" min="0" max="10" step="0.1" inputmode="decimal" bind:value={bonusGuess} aria-label="Dr. X's score out of 10" autofocus />
+              <input type="number" min="0" max="10" step="0.1" inputmode="decimal" required bind:value={bonusGuess} aria-label="Dr. X's score out of 10" autofocus />
               <button class="next-btn small" type="submit">Lock it in</button>
               <button class="linkish" type="button" onclick={() => lockBonus(true)}>No bonus</button>
             </div>
