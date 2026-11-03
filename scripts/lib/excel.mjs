@@ -1,4 +1,4 @@
-import ExcelJS from 'exceljs';
+import readExcelFile from 'read-excel-file/node';
 import { CONTENT_KEYS, FORM_KEYS, computeTotals } from '../../shared/rating-meta.mjs';
 
 // Rating_DB.xlsx 'Ratings' sheet: interleaved separator columns.
@@ -9,19 +9,20 @@ const SUB_COLS = [5, 7, 9, 11, 13, 17, 19, 21, 23, 25];
 const SUB_KEYS = [...CONTENT_KEYS, ...FORM_KEYS].map((k) => k.key);
 
 function cellVal(row, col) {
-  const v = row.getCell(col).value;
+  const v = row[col - 1];
   if (v == null) return null;
   if (v instanceof Date) {
     // Titles like '2:22' get stored by Excel as time values (1899-12-31T02:22Z).
     return `${v.getUTCHours()}:${String(v.getUTCMinutes()).padStart(2, '0')}`;
   }
-  if (typeof v === 'object') {
-    if ('result' in v) return v.result ?? null;
-    if ('richText' in v) return v.richText.map((r) => r.text).join('');
-    if ('text' in v) return v.text;
-    return null;
-  }
   return v;
+}
+
+async function readSheetRows(path, name) {
+  const sheets = await readExcelFile(path);
+  const sheet = sheets.find((s) => s.sheet === name);
+  if (!sheet) throw new Error(`Sheet '${name}' not found in ${path}`);
+  return sheet.data;
 }
 
 function asNumber(v) {
@@ -38,16 +39,14 @@ function asString(v) {
 }
 
 export async function parseRatings(path) {
-  const wb = new ExcelJS.Workbook();
-  await wb.xlsx.readFile(path);
-  const ws = wb.getWorksheet('Ratings');
-  if (!ws) throw new Error(`Sheet 'Ratings' not found in ${path}`);
+  const rows = await readSheetRows(path, 'Ratings');
 
   const movies = [];
   const warnings = [];
   const seen = new Map();
 
-  ws.eachRow((row, rowNumber) => {
+  rows.forEach((row, index) => {
+    const rowNumber = index + 1;
     if (rowNumber === 1) return;
     const title = asString(cellVal(row, 2));
     if (!title) return;
@@ -115,16 +114,14 @@ export async function parseRatings(path) {
 // ASL_DB.xlsx 'Sheet1': 1=Dir (only on group's first row), 2=Movie, 3=Year, 7=ASL, 9=marker.
 // Contains embedded 'avg=' summary rows and NA/?/_ placeholders to skip.
 export async function parseAsl(path) {
-  const wb = new ExcelJS.Workbook();
-  await wb.xlsx.readFile(path);
-  const ws = wb.getWorksheet('Sheet1');
-  if (!ws) throw new Error(`Sheet 'Sheet1' not found in ${path}`);
+  const sheetRows = await readSheetRows(path, 'Sheet1');
 
   const rows = [];
   const skipped = [];
   let currentDirector = null;
 
-  ws.eachRow((row, rowNumber) => {
+  sheetRows.forEach((row, index) => {
+    const rowNumber = index + 1;
     if (rowNumber === 1) return;
     const dir = asString(cellVal(row, 1));
     if (dir) currentDirector = dir;

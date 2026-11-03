@@ -21,10 +21,10 @@
     "@fontsource/limelight": "^5.3.0",
     "astro": "^7.0.6",
     "dotenv": "^17.4.2",
-    "exceljs": "^4.4.0",
+    "read-excel-file": "^9.3.14",
     "svelte": "^5.56.4"
   },
   "devDependencies": {
-    "@playwright/test": "^1.61.1"
+    "@playwright/test": "^1.64.1"
   }
 }
