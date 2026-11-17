@@ -302,6 +302,29 @@ export function loadFrameFilms() {
   return framesPending;
 }
 
+// The frame wall: Name the Frame's films plus every frame of theirs as
+// { f: index into films, n: frame number, ar: width / height, col: six hex digits }.
+let wallPending = null;
+export function loadWall() {
+  wallPending ??= Promise.all([loadFrameFilms(), loadFile('wall')])
+    .then(([films, w]) => {
+      if (films.length !== w.frames.length || films.some((f, i) => f.frames !== w.frames[i])) {
+        throw new Error('The archive was updated while loading. Reload the page to continue.');
+      }
+      const frames = [];
+      let k = 0;
+      films.forEach((f, fi) => {
+        for (let n = 1; n <= f.frames; n++, k++) frames.push({ f: fi, n, ar: w.ar[k] / 100, col: w.col.slice(6 * k, 6 * k + 6) });
+      });
+      return { films, frames };
+    })
+    .catch((err) => {
+      wallPending = null;
+      throw err;
+    });
+  return wallPending;
+}
+
 // Search's directors-with-pages and collections (see client-data.js).
 export function loadSearchExtra() {
   return loadFile('search-extra');

@@ -4,7 +4,7 @@
 // data always matches the pages it ships with. Read in the browser through
 // src/lib/archive.js only.
 import { createHash } from 'node:crypto';
-import { movies, directors, collections, stillCounts } from './data.js';
+import { movies, directors, collections, stillCounts, stillsFor } from './data.js';
 import credits from '../../data/generated/credits.json';
 import people from '../../data/generated/people.json';
 import { movieSlug } from '../../shared/slug.mjs';
@@ -178,6 +178,22 @@ const files = {
       frames: frameFilms.map((m) => stillCounts[m.id]),
       ease,
     };
+  },
+  // The frame wall: one entry per frame of the films in `frames` (same
+  // order, frames numbered 1…n), as the frame's aspect ratio ×100 and its
+  // dominant colour (six hex digits each, joined). `frames` repeats the
+  // counts so the loader can refuse a pairing from different builds.
+  wall: () => {
+    const ar = [];
+    let col = '';
+    for (const m of frameFilms) {
+      stillsFor(m.id).forEach((f, i) => {
+        if (f.n !== i + 1 || !/^#[0-9a-f]{6}$/.test(f.c)) throw new Error(`client-data: frame ${f.n} of film ${m.id} breaks the wall's layout (numbering or colour)`);
+        ar.push(Math.round((100 * f.w) / f.h));
+        col += f.c.slice(1);
+      });
+    }
+    return { frames: frameFilms.map((m) => stillCounts[m.id]), ar, col };
   },
   // Search's non-film entries: directors with a page and collections.
   'search-extra': () => ({
