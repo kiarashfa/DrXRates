@@ -43,12 +43,27 @@ export function filmOfDaySchedule(movies, from = new Date(), days = 62) {
   const pool = movies.filter((m) => m.myRating?.overall >= FOD_MIN_SCORE && m.backdrop).sort((a, b) => a.id - b.id);
   if (!pool.length) return [];
   const start = Math.floor(from.getTime() / DAY_MS) - 1;
+  // As the Daily Reel: a cycle's first weeks skip films its predecessor showed
+  // in its last weeks; those move to the middle of the cycle (never its end, so
+  // every cycle's last weeks stay exactly its shuffle's), and a film never
+  // comes back days later across a cycle boundary.
+  const GAP = Math.min(60, Math.floor(pool.length / 4));
+  const raw = (c) => shuffled(pool, c * 2654435761);
   const cycles = new Map();
+  const order = (c) => {
+    if (!cycles.has(c)) {
+      const tail = new Set(raw(c - 1).slice(-GAP).map((m) => m.id));
+      const list = raw(c);
+      const head = list.slice(0, GAP);
+      const rest = list.slice(GAP);
+      const mid = Math.floor(rest.length / 2);
+      cycles.set(c, [...head.filter((m) => !tail.has(m.id)), ...rest.slice(0, mid), ...head.filter((m) => tail.has(m.id)), ...rest.slice(mid)]);
+    }
+    return cycles.get(c);
+  };
   const out = [];
   for (let day = start; day < start + days; day++) {
-    const cycle = Math.floor(day / pool.length);
-    if (!cycles.has(cycle)) cycles.set(cycle, shuffled(pool, cycle * 2654435761));
-    const m = cycles.get(cycle)[day % pool.length];
+    const m = order(Math.floor(day / pool.length))[day % pool.length];
     out.push({
       date: isoDay(day),
       id: m.id,
