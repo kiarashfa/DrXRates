@@ -1,0 +1,253 @@
+---
+// Homepage hero. Hitchcock as Morpheus holds out the red pill (form) and the
+// blue pill (content). Everything is rendered here, sized from the hero's
+// width alone (no layout shift); the script only adds depth: the planes
+// (smoke, masthead, words, fog, blinds...) move by their depth with the cursor,
+// and once the page is idle a WebGL layer replaces the still figure with a
+// depth-mapped one lit by two coloured gels (see src/lib/hero.js).
+// Theme extras: Dark = smoke, fog and dust; Matrix = code rain; Light = a ruled
+// ledger page, a ribbon bookmark and window light through a blind.
+import { CONTENT_KEYS, FORM_KEYS } from '../../shared/rating-meta.mjs';
+import { HERO_PICTURE, HERO_PICTURES } from '../lib/hero.js';
+import { meta } from '../lib/data.js';
+import { withBase } from '../lib/util.js';
+
+const k = HERO_PICTURE;
+const pic = HERO_PICTURES[k];
+const src = (f) => withBase(`/hero/${k}-${f}.webp`);
+const fig = src('fig');
+const srcset = `${src('fig-720')} 720w, ${src('fig-900')} 900w, ${fig} ${pic.w}w`;
+const sizes = '(max-width: 760px) 100vw, 720px';
+const cfg = { ...pic, depth: src('depth') };
+const halves = [
+  { k: 'form', pill: 'red', keys: FORM_KEYS, first: 6, sub: 'The craft: how the film is made.' },
+  { k: 'content', pill: 'blue', keys: CONTENT_KEYS, first: 1, sub: 'The story: what the film carries.' },
+];
+const n = (v) => v.toLocaleString('en-US');
+const dust = Array.from({ length: 18 }, (_, i) => {
+  const s = 1.5 + (i % 4) * 1.1;
+  return `left:${14 + ((i * 37) % 72)}%;top:${12 + ((i * 53) % 76)}%;width:${s}px;height:${s}px;--o:${0.12 + (i % 3) * 0.1};--dx:${(i % 2 ? 1 : -1) * (10 + i * 2)}px;animation-duration:${10 + (i % 5) * 2.5}s;animation-delay:-${i * 1.3}s`;
+});
+const pillStyle = (h) => `left:${pic[h][0]}%;top:${pic[h][1]}%`;
+---
+
+<section class="hx" id="hx" data-cfg={JSON.stringify(cfg)} aria-labelledby="hx-title" data-testid="hero"
+  style={`--fog-back:url(${withBase('/hero/fog-back.webp')});--fog-front:url(${withBase('/hero/fog-front.webp')})`}>
+  <div class="hx-in">
+    <div class="hx-stage" id="hx-stage">
+      <div class="hx-paper"></div>
+      <div class="hx-gel form"></div><div class="hx-gel content"></div>
+      <div class="hx-pl hx-smoke" data-d="-0.7"><img src={src('smoke')} alt="" width="872" height="801" fetchpriority="high" /></div>
+      <canvas class="hx-pl hx-rain" data-d="-0.5" aria-hidden="true"></canvas>
+      <div class="hx-pl hx-blinds back" data-d="-0.4"><div class="sun"></div><div class="slats"></div></div>
+      <div class="hx-pl hx-ribbon" data-d="-0.25"><i></i></div>
+      <div class="hx-pl hx-spot" data-d="-0.3"></div>
+      <div class="hx-photo" id="hx-photo" style={`--ar:${pic.w / pic.h}`}>
+        <div class="hx-pl hx-mast" data-d="0.05" aria-hidden="true"><small>The Cinema</small><span>Ledger</span></div>
+        <div class="hx-pl hx-words" data-d="0.25" aria-hidden="true"><span class="wf">Form</span><span class="wc">Content</span></div>
+        <div class="hx-pl hx-fog back" data-d="0.35"><i></i><i></i></div>
+        <img class="hx-shade" src={fig} srcset={srcset} sizes={sizes} width={pic.w} height={pic.h} alt="" aria-hidden="true" />
+        <img class="hx-still" id="hx-still" src={fig} srcset={srcset} sizes={sizes} width={pic.w} height={pic.h} fetchpriority="high"
+          alt="Alfred Hitchcock as Morpheus, holding out a red pill in one hand and a blue pill in the other" />
+        <canvas class="hx-fig" id="hx-gl" aria-hidden="true"></canvas>
+      </div>
+      <div class="hx-pl hx-fog front" data-d="1.3"><div class="fv"><i></i></div></div>
+      <div class="hx-pl hx-blinds front" data-d="0.9"><div class="slats"></div></div>
+      <svg class="hx-leads" id="hx-leads" aria-hidden="true"><path class="form" /><path class="content" /><circle class="form" /><circle class="content" /></svg>
+      {halves.map((h) => (
+        <aside class={`hx-ann ${h.k}`} id={`hx-ann-${h.k}`} aria-label={h.k === 'form' ? 'Form: five points' : 'Content: five points'}>
+          <p class="k"><span class="anchor">The {h.pill} pill · five points</span></p>
+          <p class="sub">{h.sub}</p>
+          <ol>
+            {h.keys.map((c, i) => (
+              <li><span class="n">{String(h.first + i).padStart(2, '0')}</span><span>{c.label}<i>{c.hint}</i></span></li>
+            ))}
+          </ol>
+          <p class="more">Click the pill for what each one means.</p>
+        </aside>
+      ))}
+      <div class="hx-hits">
+        {halves.map((h) => (
+          <button class={`hx-pill ${h.k}`} type="button" data-k={h.k} style={pillStyle(h.k)} aria-expanded="false" aria-controls={`hx-ann-${h.k}`}
+            aria-label={h.k === 'form' ? 'The red pill: form, five points' : 'The blue pill: content, five points'}></button>
+        ))}
+      </div>
+      <div class="hx-pl hx-dust" data-d="1.8">{dust.map((s) => <i style={s}></i>)}</div>
+    </div>
+    <div class="wrap hx-copy">
+      <h1 id="hx-title">Take both pills.</h1>
+      <p class="hx-lede">Every film here is scored out of ten: five points of <span class="pill form">form</span> and five of <span class="pill content">content</span>. A personal archive, rated in ten parts.</p>
+      <div class="hx-acts">
+        <a class="btn primary" href={withBase('/archive')}><svg class="icon" aria-hidden="true"><use href={`${withBase('/icons.svg')}#i-archive`}></use></svg>Browse the archive</a>
+        <a class="btn" href={withBase('/about#ten-parts')}><svg class="icon" aria-hidden="true"><use href={`${withBase('/icons.svg')}#i-info`}></use></svg>How the scores work</a>
+      </div>
+      <div class="hx-count">
+        <div><b>{n(meta.counts.rated)}</b><span>rated by Dr. X</span></div>
+        <div><b>{n(meta.counts.movies)}</b><span>in the archive</span></div>
+        <div><b>{n(meta.counts.stills)}</b><span>frames</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* The hero has no background or border of its own: its planes fade out into the page. */
+  .hx { position: relative; isolation: isolate; container-type: inline-size; overflow-x: clip; color: var(--ink); }
+  .hx-in { --ph: min(660px, 56cqi); }
+  .hx-stage { position: relative; height: calc(var(--ph) + 1rem); }
+  .hx-pl { position: absolute; inset: 0; pointer-events: none; will-change: transform; }
+  .hx-photo { position: absolute; left: 50%; top: 1rem; height: var(--ph); aspect-ratio: var(--ar); transform: translateX(-50%); }
+  .hx-photo > .hx-pl { inset: 0; }
+  .hx-still, .hx-shade { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none;
+    -webkit-mask-image: linear-gradient(#000 88%, transparent); mask-image: linear-gradient(#000 88%, transparent); }
+  /* Never give the WebGL canvas a CSS filter: Chrome then washes it out next to other filtered layers. */
+  .hx-fig { position: absolute; left: -8%; top: -6%; width: 116%; height: 112%; opacity: 0; transition: opacity 0.4s; }
+  .hx.gl .hx-fig { opacity: 1; }
+  .hx.gl .hx-still { opacity: 0; }
+
+  /* Dark: smoke behind him, an overhead spot, fog, dust */
+  .hx-smoke { inset: -4% -10% -30%; }
+  .hx-smoke img { position: absolute; left: 50%; top: 4%; height: 100%; width: auto; max-width: none; transform: translateX(-50%); opacity: 0.95;
+    -webkit-mask-image: radial-gradient(48% 52% at 50% 42%, #000 45%, transparent 100%); mask-image: radial-gradient(48% 52% at 50% 42%, #000 45%, transparent 100%); }
+  .hx-spot { background: radial-gradient(30% 60% at 50% 0%, rgb(255 232 190 / 0.09), transparent 70%); }
+  :global(:root[data-theme='matrix']) .hx-spot { background: radial-gradient(30% 60% at 50% 0%, rgb(58 255 143 / 0.08), transparent 70%); }
+  .hx-fog { overflow-x: clip; }
+  /* The fog textures load once the page is idle (.fx), then fade in. */
+  .hx-fog { transition: opacity 1.2s; }
+  .hx:not(.fx) .hx-fog { opacity: 0 !important; }
+  .hx-fog i { position: absolute; left: 0; width: 6720px; height: 420px; background: repeat-x 0 0 / 1680px 420px; animation: hx-fog var(--sp) linear infinite; }
+  .hx.fx .hx-fog i { background-image: var(--fog); }
+  .hx-fog.back { --fog: var(--fog-back); --sp: 150s; opacity: 0.26; inset: 0 -70%;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 25%, #000 75%, transparent); mask-image: linear-gradient(90deg, transparent, #000 25%, #000 75%, transparent); }
+  .hx-fog.back i { top: 30%; }
+  .hx-fog.back i + i { top: 4%; opacity: 0.5; animation-duration: 210s; animation-direction: reverse; transform: scaleY(0.7); }
+  .hx-fog.front { --fog: var(--fog-front); --sp: 95s; opacity: 0.42; inset: 0 -10% -24%;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent); mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent); }
+  .hx-fog.front .fv { position: absolute; inset: 0; -webkit-mask-image: linear-gradient(#000 52%, transparent 88%); mask-image: linear-gradient(#000 52%, transparent 88%); }
+  .hx-fog.front i { top: calc(1rem + var(--ph) * 0.6); height: 360px; background-size: 1440px 360px; animation-name: hx-fog-f; animation-direction: reverse; }
+  @keyframes hx-fog { to { transform: translateX(-1680px); } }
+  @keyframes hx-fog-f { to { transform: translateX(-1440px); } }
+  .hx-dust i { position: absolute; border-radius: 50%; background: #f6e7c4; filter: blur(1.5px); animation: hx-dust linear infinite; }
+  @keyframes hx-dust { 0% { transform: translate(0, 0); opacity: 0; } 15% { opacity: var(--o); } 85% { opacity: var(--o); } 100% { transform: translate(var(--dx), -90px); opacity: 0; } }
+  .hx-smoke, .hx-fog, .hx-dust, .hx-rain, .hx-paper, .hx-blinds, .hx-ribbon, .hx-shade { display: none; }
+  :global(:root[data-theme='dark']) .hx-smoke, :global(:root[data-theme='dark']) .hx-fog, :global(:root[data-theme='dark']) .hx-dust { display: block; }
+
+  /* Matrix: code rain behind him */
+  :global(:root[data-theme='matrix']) .hx-rain { display: block; opacity: 0.5; width: 100%; height: 100%;
+    -webkit-mask-image: linear-gradient(#000 55%, transparent); mask-image: linear-gradient(#000 55%, transparent); }
+
+  /* Light: a ruled ledger page, a ribbon bookmark, window light through a blind, his soft shadow */
+  .hx-paper { position: absolute; inset: 0 0 -14%; z-index: -2; pointer-events: none;
+    background: repeating-linear-gradient(transparent 0 31px, rgb(45 100 164 / 0.16) 31px 32px);
+    -webkit-mask-image: linear-gradient(#000 60%, transparent); mask-image: linear-gradient(#000 60%, transparent); }
+  .hx-blinds .sun { position: absolute; inset: 0; background: radial-gradient(38% 58% at 63% 34%, rgb(255 246 222 / 0.9), transparent 72%); }
+  .hx-blinds .slats { position: absolute; inset: -20%;
+    background: repeating-linear-gradient(-28deg, rgb(92 68 36 / 0) 0 22px, rgb(92 68 36 / 0.16) 32px 50px, rgb(92 68 36 / 0) 60px 64px);
+    -webkit-mask-image: radial-gradient(34% 50% at 60% 40%, #000 35%, transparent 80%); mask-image: radial-gradient(34% 50% at 60% 40%, #000 35%, transparent 80%); }
+  .hx-blinds.back .slats { mix-blend-mode: multiply; }
+  .hx-blinds.front .slats { opacity: 0.8;
+    -webkit-mask-image: radial-gradient(26% 40% at 56% 34%, #000 30%, transparent 80%); mask-image: radial-gradient(26% 40% at 56% 34%, #000 30%, transparent 80%); }
+  .hx-ribbon { filter: drop-shadow(1px 3px 3px rgb(80 40 20 / 0.28)); }
+  .hx-ribbon i { position: absolute; left: max(16px, 6%); top: -2px; width: 22px; height: 36%;
+    background: linear-gradient(90deg, #7d1914, #b52d24 30%, #d94a3e 48%, #b52d24 66%, #8f1f1a);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 11px), 0 100%); }
+  .hx-shade { filter: brightness(0) blur(18px); opacity: 0.2; transform: translateY(24px);
+    -webkit-mask-image: linear-gradient(#000 70%, transparent 95%); mask-image: linear-gradient(#000 70%, transparent 95%); }
+  :global(:root[data-theme='light']) .hx-paper, :global(:root[data-theme='light']) .hx-blinds, :global(:root[data-theme='light']) .hx-ribbon, :global(:root[data-theme='light']) .hx-shade { display: block; }
+  :global(:root[data-theme='light']) .hx-spot { display: none; }
+
+  /* The masthead behind his head */
+  .hx-mast { font: 600 min(calc(var(--ph) * 0.3), 13cqi)/0.8 var(--font-display); letter-spacing: 0.02em; text-transform: uppercase; }
+  .hx-mast span { position: absolute; left: 50%; top: 3.5%; transform: translateX(-50%); white-space: nowrap; color: #e9dfcb; opacity: 0.13; }
+  .hx-mast small { position: absolute; left: 50%; top: 1%; transform: translateX(-50%) translateY(-120%); font: 600 0.7rem var(--font-ui); letter-spacing: 0.5em; color: var(--accent); white-space: nowrap; }
+  :global(:root[data-theme='matrix']) .hx-mast span { color: #3aff8f; opacity: 0.15; }
+  :global(:root[data-theme='light']) .hx-mast span { color: #221e19; opacity: 0.86; }
+
+  /* FORM / CONTENT behind his shoulders, each on its pill's side */
+  .hx-words { font: 600 min(calc(var(--ph) * 0.16), 7cqi)/0.8 var(--font-display); letter-spacing: 0.01em; text-transform: uppercase; }
+  .hx-words span { position: absolute; top: 31%; white-space: nowrap; color: transparent; -webkit-background-clip: text; background-clip: text; -webkit-text-stroke: 1.5px;
+    transition: -webkit-text-stroke-color 0.4s, text-shadow 0.4s; }
+  .wf { right: 70%; -webkit-text-stroke-color: color-mix(in srgb, var(--form-c) 80%, transparent);
+    background-image: linear-gradient(90deg, color-mix(in srgb, var(--form-c) 4%, transparent), color-mix(in srgb, var(--form-c) 28%, transparent)); }
+  .wc { left: 68.5%; -webkit-text-stroke-color: color-mix(in srgb, var(--content-c) 80%, transparent);
+    background-image: linear-gradient(270deg, color-mix(in srgb, var(--content-c) 4%, transparent), color-mix(in srgb, var(--content-c) 28%, transparent)); }
+  .hx[data-lit='form'] .wf { -webkit-text-stroke-color: var(--form-c); background-image: linear-gradient(90deg, color-mix(in srgb, var(--form-c) 14%, transparent), color-mix(in srgb, var(--form-c) 62%, transparent)); text-shadow: 0 0 40px color-mix(in srgb, var(--form-c) 30%, transparent); }
+  .hx[data-lit='content'] .wc { -webkit-text-stroke-color: var(--content-c); background-image: linear-gradient(270deg, color-mix(in srgb, var(--content-c) 14%, transparent), color-mix(in srgb, var(--content-c) 62%, transparent)); text-shadow: 0 0 40px color-mix(in srgb, var(--content-c) 30%, transparent); }
+  :global(:root[data-theme='light']) .hx-words span { -webkit-text-stroke-width: 0; background-image: none; mix-blend-mode: multiply; text-shadow: none; }
+  :global(:root[data-theme='light']) .wf { color: color-mix(in srgb, var(--form-c) 22%, transparent); }
+  :global(:root[data-theme='light']) .wc { color: color-mix(in srgb, var(--content-c) 22%, transparent); }
+  :global(:root[data-theme='light']) .hx[data-lit='form'] .wf { color: color-mix(in srgb, var(--form-c) 58%, transparent); }
+  :global(:root[data-theme='light']) .hx[data-lit='content'] .wc { color: color-mix(in srgb, var(--content-c) 58%, transparent); }
+
+  /* The gels spill a little colour onto the page on their side */
+  .hx-gel { position: absolute; top: -6%; bottom: 0; width: 50%; pointer-events: none; z-index: -1; transition: opacity 0.6s; }
+  .hx-gel.form { left: 0; background: radial-gradient(55% 45% at 32% 45%, rgb(255 50 30 / 0.13), transparent 70%); opacity: var(--gr, 0.5); }
+  .hx-gel.content { right: 0; background: radial-gradient(55% 45% at 68% 45%, rgb(30 140 255 / 0.13), transparent 70%); opacity: var(--gb, 0.5); }
+  :global(:root[data-theme='light']) .hx-gel { mix-blend-mode: multiply; }
+  :global(:root[data-theme='light']) .hx-gel.form { background: radial-gradient(55% 45% at 32% 45%, rgb(230 150 130 / 0.3), transparent 70%); }
+  :global(:root[data-theme='light']) .hx-gel.content { background: radial-gradient(55% 45% at 68% 45%, rgb(140 175 225 / 0.3), transparent 70%); }
+
+  /* Pills: hit areas over the pills (they follow the hands as the view moves) */
+  .hx-hits { position: absolute; inset: 0; z-index: 6; pointer-events: none; }
+  .hx-pill { position: absolute; width: 64px; aspect-ratio: 1.2; transform: translate(-50%, -50%); padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; pointer-events: auto; }
+  .hx-pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+
+  /* Panels in the empty sides: the five names on hover, a line on each once the pill is clicked */
+  .hx-ann { position: absolute; z-index: 5; top: calc(1rem + var(--ph) * 0.5); width: min(300px, calc((100% - var(--ph) * 1.09) / 2 - 2.6rem));
+    opacity: 0; transform: translateY(8px); transition: opacity 0.35s, transform 0.35s; pointer-events: none; }
+  .hx-ann.form { right: calc(50% + var(--ph) * 0.545 + 1.2rem); text-align: right; }
+  .hx-ann.content { left: calc(50% + var(--ph) * 0.545 + 1.2rem); }
+  .hx[data-lit='form'] .hx-ann.form, .hx[data-lit='content'] .hx-ann.content { opacity: 1; transform: none; }
+  .hx[data-open='form'] .hx-ann.form, .hx[data-open='content'] .hx-ann.content { pointer-events: auto; }
+  .hx-ann .k { font: 600 0.64rem/1.2 var(--font-ui); letter-spacing: 0.18em; text-transform: uppercase; margin: 0; }
+  .hx-ann.form .k { color: var(--form-c); } .hx-ann.content .k { color: var(--content-c); }
+  .hx-ann .sub { font-size: 0.78rem; color: var(--ink-muted); margin: 0.1rem 0 0.45rem; }
+  .hx-ann ol { list-style: none; margin: 0; padding: 0; }
+  .hx-ann li { display: grid; grid-template-columns: 1.4rem 1fr; gap: 0.5rem; align-items: baseline; padding: 0.16rem 0; font-size: 0.82rem; line-height: 1.3; text-align: left; }
+  .hx-ann li .n { font: 0.62rem var(--font-mono); color: var(--ink-faint); }
+  .hx-ann li i { display: none; font-style: normal; font-size: 0.71rem; line-height: 1.2; color: var(--ink-faint); }
+  .hx[data-open='form'] .hx-ann.form li i, .hx[data-open='content'] .hx-ann.content li i { display: block; }
+  .hx[data-open] .hx-ann li { padding: 0.2rem 0; }
+  .hx-ann .more { font-size: 0.68rem; color: var(--ink-faint); margin: 0.4rem 0 0; }
+  .hx[data-open] .hx-ann .more { display: none; }
+  .hx-leads { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none; overflow: visible; }
+  .hx-leads path { fill: none; stroke-width: 1.5; stroke-dasharray: 900; stroke-dashoffset: 900; transition: stroke-dashoffset 0.6s ease; }
+  .hx-leads circle { r: 0; fill: none; stroke-width: 1.6; transition: r 0.3s; }
+  .hx-leads .form { stroke: var(--form-c); } .hx-leads .content { stroke: var(--content-c); }
+  .hx[data-lit='form'] .hx-leads path.form, .hx[data-lit='content'] .hx-leads path.content { stroke-dashoffset: 0; }
+  .hx[data-lit='form'] .hx-leads circle.form, .hx[data-lit='content'] .hx-leads circle.content { r: 26px; }
+
+  /* Copy under the figure (no band: the coat fades out above it) */
+  .hx-copy { position: relative; z-index: 7; text-align: center; margin-top: -0.6rem; }
+  .hx-copy h1 { font-size: clamp(2.2rem, 4.6cqi, 3.5rem); margin: 0 0 0.5rem; line-height: 1.02; }
+  .hx-lede { color: var(--ink-muted); margin: 0 auto 1.1rem; max-width: 34rem; }
+  .hx-acts { display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; }
+  .hx-acts .btn { display: inline-flex; align-items: center; gap: 0.5em; text-decoration: none; }
+  .hx-acts .icon { width: 16px; height: 16px; }
+  .hx-count { display: flex; gap: 1.8rem; justify-content: center; margin-top: 1.4rem; }
+  .hx-count b { display: block; font: 560 1.6rem/1 var(--font-numeral); }
+  .hx-count span { font-size: 0.72rem; color: var(--ink-faint); }
+
+  /* Narrow screens: no panels, only the glow of the pill, its word and its gel */
+  @container (max-width: 1080px) { .hx-ann, .hx-leads { display: none; } }
+  @container (max-width: 760px) {
+    .hx-in { --ph: 92cqi; }
+    .hx-words { font-size: calc(var(--ph) * 0.078); }
+    .hx-words span { top: 34%; -webkit-text-stroke-width: 1px; }
+    .wf { right: 66%; } .wc { left: 62%; }
+    .hx-pill { width: 48px; }
+    .hx-fog.back i { height: 260px; background-size: 1040px 260px; }
+    .hx-fog.front i { height: 240px; background-size: 960px 240px; }
+    .hx-copy { text-align: left; margin-top: 0.4rem; }
+    .hx-copy h1 { font-size: 2.1rem; }
+    .hx-lede { margin-left: 0; }
+    .hx-acts { justify-content: flex-start; }
+    .hx-count { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .hx-fog i, .hx-dust i { animation: none; } }
+</style>
+
+<script>
+  import { initHero } from '../lib/hero-client.js';
+  initHero(document.getElementById('hx'));
+</script>

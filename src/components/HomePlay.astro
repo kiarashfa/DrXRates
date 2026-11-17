@@ -1,0 +1,167 @@
+---
+// Homepage "Play": Name the Frame (with today's Daily Reel number), Knockout and
+// Tonight, each with its own art. Name the Frame shows one of Dr. X's frames
+// from a film outside the Daily Reel's schedule around now, so the card never
+// gives a reel away. Knockout and Tonight are drawn here as SVG.
+import { movies, stillsFor, stillCounts } from '../lib/data.js';
+import { dailyPool, dailySchedule, dailyNumber, DAILY_EPOCH } from '../lib/frame-game.js';
+import { withBase, tmdbImg, stillUrl } from '../lib/util.js';
+
+const rated = movies.filter((m) => m.myRating);
+const top = [...rated].sort((a, b) => b.myRating.overall - a.myRating.overall || (b.year ?? 0) - (a.year ?? 0)).slice(0, 16);
+
+// Name the Frame: a wide, colourful frame of a well-known film that the Daily Reel doesn't show in these weeks.
+const withFrames = rated.filter((m) => stillCounts[m.id]);
+const pool = dailyPool(withFrames.map((m) => ({ id: m.id, frames: stillCounts[m.id], votes: m.omdb?.imdbVotes ?? 0 })));
+const soon = new Set(dailySchedule(pool, new Date(Date.now() - 14 * 86400000), 75).map((d) => d.id));
+const sat = (hex) => {
+  const v = parseInt(hex.slice(1), 16);
+  const r = v >> 16, g = (v >> 8) & 255, b = v & 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+  return mx < 60 || mx > 225 ? 0 : (mx - mn) / mx;
+};
+const frame = withFrames
+  .filter((m) => !soon.has(m.id) && (m.omdb?.imdbVotes ?? 0) >= 300000)
+  .flatMap((m) => stillsFor(m.id).filter((f) => f.w / f.h > 1.7).map((f) => ({ id: m.id, n: f.n, w: f.w, h: f.h, s: sat(f.c) })))
+  .sort((a, b) => b.s - a.s || a.id - b.id || a.n - b.n)[0];
+const today = new Date().toISOString().slice(0, 10);
+
+// Knockout: a bracket of eight posters with a crowned champion.
+function koArt() {
+  const L = [top[0], top[5], top[2], top[9]], R = [top[3], top[7], top[1], top[11]];
+  const cy = [30, 76, 120, 166], gold = '#d4b06a', dim = 'rgb(255 255 255 / .22)';
+  let s = `<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>
+    <radialGradient id="pl-kobg" cx="50%" cy="48%" r="65%"><stop offset="0" stop-color="#3b2b12"/><stop offset=".55" stop-color="#140f08"/><stop offset="1" stop-color="#070605"/></radialGradient>
+    <linearGradient id="pl-kogold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6e2a8"/><stop offset=".5" stop-color="#c9a052"/><stop offset="1" stop-color="#8a6a2a"/></linearGradient></defs>
+    <rect width="320" height="200" fill="url(#pl-kobg)"/>`;
+  const side = (list, x0, dir) => {
+    list.forEach((m, i) => {
+      const win = dir > 0 && i === 0;
+      s += `<image href="${tmdbImg(m.poster, 'w92')}" x="${x0}" y="${cy[i] - 19.5}" width="26" height="39" preserveAspectRatio="xMidYMid slice" opacity="${win ? 1 : 0.5}"/><rect x="${x0}" y="${cy[i] - 19.5}" width="26" height="39" fill="none" stroke="${win ? gold : 'rgb(255 255 255 / .18)'}" stroke-width="${win ? 1.4 : 0.6}"/>`;
+    });
+    const e = dir > 0 ? x0 + 26 : x0, a = e + 16 * dir, b = a + 22 * dir, c = dir > 0 ? 136 : 184;
+    const col = (on) => (on ? gold : dim);
+    s += `<path d="M${e} 30H${a}V53 M${e} 76H${a}V53" stroke="${col(dir > 0)}" fill="none" stroke-width="1.3"/>`;
+    s += `<path d="M${e} 120H${a}V143 M${e} 166H${a}V143" stroke="${dim}" fill="none" stroke-width="1.1"/>`;
+    s += `<path d="M${a} 53H${b}V98" stroke="${col(dir > 0)}" fill="none" stroke-width="1.3"/><path d="M${a} 143H${b}V98" stroke="${dim}" fill="none" stroke-width="1.1"/>`;
+    s += `<path d="M${b} 98H${c}" stroke="${col(dir > 0)}" fill="none" stroke-width="1.6"/>`;
+  };
+  side(L, 14, 1);
+  side(R, 280, -1);
+  s += `<g class="ko-champ"><circle cx="160" cy="98" r="62" fill="#f3d99a" opacity=".07"/><rect x="134" y="60" width="52" height="78" rx="2" fill="url(#pl-kogold)"/><image href="${tmdbImg(top[0].poster, 'w185')}" x="137" y="63" width="46" height="72" preserveAspectRatio="xMidYMid slice"/>
+    <path d="M144 54 L146 38 L153 46 L160 33 L167 46 L174 38 L176 54 Z" fill="url(#pl-kogold)"/><circle cx="160" cy="33" r="2" fill="#f6e2a8"/><circle cx="146" cy="38" r="1.6" fill="#f6e2a8"/><circle cx="174" cy="38" r="1.6" fill="#f6e2a8"/></g>
+    <text x="160" y="160" text-anchor="middle" font-family="Inter, sans-serif" font-size="7.5" letter-spacing="2.4" fill="#d4b06a">CHAMPION</text>`;
+  for (let i = 0; i < 18; i++) {
+    const x = 110 + ((i * 53) % 100), y = 20 + ((i * 37) % 160);
+    s += `<circle cx="${x}" cy="${y}" r="${(i % 3) * 0.4 + 0.5}" fill="#f6e2a8" opacity="${0.25 + (i % 4) * 0.12}" class="pl-twinkle" style="animation-delay:${i * 0.3}s"/>`;
+  }
+  return s + '</svg>';
+}
+
+// Tonight: a drive-in under the stars, a film on the screen.
+function tonightArt() {
+  const m = top[6];
+  let s = `<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>
+    <linearGradient id="pl-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#070b22"/><stop offset=".6" stop-color="#1e1640"/><stop offset="1" stop-color="#4a2440"/></linearGradient>
+    <linearGradient id="pl-beam" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#fff6d8" stop-opacity=".55"/><stop offset="1" stop-color="#fff6d8" stop-opacity=".04"/></linearGradient>
+    <mask id="pl-moon"><circle cx="276" cy="30" r="13" fill="#fff"/><circle cx="283" cy="25" r="12" fill="#000"/></mask>
+    <filter id="pl-glow"><feGaussianBlur stdDeviation="2.4"/></filter></defs>
+    <rect width="320" height="200" fill="url(#pl-sky)"/>`;
+  for (let i = 0; i < 40; i++) {
+    const x = (i * 71) % 320, y = (i * 29) % 110;
+    s += `<circle cx="${x}" cy="${y}" r="${i % 5 ? 0.6 : 1.1}" fill="#fff" opacity="${0.35 + (i % 3) * 0.2}"${i % 4 ? '' : ` class="pl-twinkle" style="animation-delay:${(i * 0.17).toFixed(2)}s"`}/>`;
+  }
+  s += `<circle cx="276" cy="30" r="13" fill="#f6e7bd" mask="url(#pl-moon)"/>
+    <path d="M0 150 Q60 138 120 146 T240 142 T320 148 V200 H0Z" fill="#120f1f"/>
+    <rect x="108" y="122" width="5" height="44" fill="#0b0912"/><rect x="207" y="122" width="5" height="44" fill="#0b0912"/>
+    <polygon points="160,186 82,44 238,44" fill="url(#pl-beam)" class="pl-beam" opacity=".35"/>
+    <rect x="76" y="38" width="168" height="88" fill="#0b0912"/><image href="${tmdbImg(m.backdrop, 'w500')}" x="80" y="42" width="160" height="80" preserveAspectRatio="xMidYMid slice"/>
+    <rect x="80" y="42" width="160" height="80" fill="none" stroke="#fff" stroke-opacity=".12"/><g fill="#08070d">`;
+  [[18, 168, 62], [96, 172, 70], [182, 170, 66], [262, 168, 62]].forEach(([x, y, w]) => {
+    s += `<path d="M${x} ${y + 14} v-8 q0 -4 6 -5 l${w * 0.18} -1 q${w * 0.06} -8 ${w * 0.22} -9 h${w * 0.22} q${w * 0.12} 1 ${w * 0.2} 9 l${w * 0.1} 1 q6 1 6 5 v8 z"/>`;
+  });
+  s += `</g><g fill="#ff3b3b" filter="url(#pl-glow)">${[[26, 178], [74, 178], [104, 182], [160, 182], [190, 180], [242, 180], [270, 178], [318, 178]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.8"/>`).join('')}</g>
+    <g transform="translate(14 96)"><rect width="52" height="20" rx="2" fill="#120f1f" stroke="#f3d99a" stroke-opacity=".7"/>
+    <text x="26" y="13.5" text-anchor="middle" font-family="Inter, sans-serif" font-size="7" font-weight="700" letter-spacing="1.6" fill="#f3d99a">TONIGHT</text>
+    ${[...Array(9)].map((_, i) => `<circle cx="${4 + i * 5.5}" cy="-3" r="1.3" fill="#ffd98a" class="pl-twinkle" style="animation-delay:${(i * 0.22).toFixed(2)}s"/>`).join('')}
+    <rect x="24" y="20" width="3" height="56" fill="#0b0912"/></g></svg>`;
+  return s;
+}
+---
+
+<section class="wrap pl-sec">
+  <div class="shelf-head"><h2>Play</h2><span class="shelf-note">games made from the ledger</span></div>
+  <div class="pl-grid">
+    <a class="pl" href={withBase('/name-the-frame#daily')} data-testid="frame-teaser">
+      <div class="pl-art nf">
+        {frame && <img src={stillUrl(frame.id, frame.n, 'thumb')} alt="" width="640" height={Math.round((640 * frame.h) / frame.w)} loading="lazy" decoding="async" />}
+        <svg class="vf" viewBox="0 0 160 100" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M14 26V12H32 M128 12H146V26 M146 74V88H128 M32 88H14V74" />
+        </svg>
+        <svg class="ret" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="9" /><path d="M20 4V12 M20 28V36 M4 20H12 M28 20H36" /></svg>
+        <span class="tag">Daily Reel #<span id="pl-reel" data-epoch={DAILY_EPOCH}>{dailyNumber(today)}</span></span>
+        <span class="pips" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      </div>
+      <div class="pl-bd"><p class="pl-kick">Name the Frame</p><h3>Whose frame is this?</h3><p>Six frames from Dr. X's films, the same reel for everyone today. Or play survival.</p><span class="go">Play today's reel →</span></div>
+    </a>
+    <a class="pl" href={withBase('/knockout')}>
+      <div class="pl-art" set:html={koArt()} />
+      <div class="pl-bd"><p class="pl-kick">Knockout</p><h3>One film left standing</h3><p>Brackets of 8 to 256 films. Play Dr. X's Cup and see if your champion matches.</p><span class="go">Enter the bracket →</span></div>
+    </a>
+    <a class="pl" href={withBase('/tonight')}>
+      <div class="pl-art" set:html={tonightArt()} />
+      <div class="pl-bd"><p class="pl-kick">Tonight</p><h3>What's on tonight?</h3><p>Let the ledger pick from Dr. X's films, the archive or your watchlist.</p><span class="go">Pick tonight's film →</span></div>
+    </a>
+  </div>
+  <script is:inline>
+    (function () {
+      // The reel number for the visitor's own date (the page may be older than today).
+      var el = document.getElementById('pl-reel');
+      var d = new Date();
+      var n = Math.floor((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.parse(el.dataset.epoch + 'T00:00:00Z')) / 864e5) + 1;
+      if (n > 0) el.textContent = n;
+    })();
+  </script>
+</section>
+
+<style>
+  .pl-sec { margin-top: 3rem; }
+  .pl-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.1rem; }
+  .pl { display: flex; flex-direction: column; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; text-decoration: none; color: var(--ink);
+    transition: border-color 0.15s, transform 0.2s var(--ease-out); }
+  .pl:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .pl-art { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: #08080a; }
+  .pl-art :global(svg) { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .pl-bd { padding: 1rem 1.2rem 1.2rem; display: flex; flex-direction: column; gap: 0.25rem; flex: 1; }
+  .pl-kick { font: 600 0.66rem/1.3 var(--font-ui); letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin: 0; }
+  .pl h3 { margin: 0; font-size: 1.4rem; }
+  .pl p { margin: 0; font-size: 0.86rem; color: var(--ink-muted); }
+  .pl .go { margin-top: auto; padding-top: 0.7rem; font-size: 0.84rem; color: var(--accent); }
+
+  /* Name the Frame: the frame, sharp, seen through a viewfinder */
+  .nf img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 6s ease; }
+  .pl:hover .nf img { transform: scale(1.06); }
+  .nf::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, rgb(0 0 0 / 0) 30%, rgb(0 0 0 / 0.5) 85%); }
+  .nf .vf, .nf .ret { position: absolute; z-index: 2; fill: none; stroke: rgb(255 255 255 / 0.85); }
+  .nf .vf { inset: 0; width: 100%; height: 100%; stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+  .nf .vf path { vector-effect: non-scaling-stroke; }
+  .nf .ret { left: 50%; top: 50%; width: 40px; height: 40px; transform: translate(-50%, -50%); stroke-width: 1; opacity: 0.8; transition: transform 0.4s var(--ease-out); }
+  .pl:hover .nf .ret { transform: translate(-50%, -50%) scale(1.25) rotate(45deg); }
+  .nf .tag { position: absolute; z-index: 2; top: 10px; left: 10px; font: 600 0.62rem var(--font-ui); letter-spacing: 0.14em; text-transform: uppercase; color: #fff;
+    background: rgb(0 0 0 / 0.45); border: 1px solid rgb(255 255 255 / 0.25); padding: 0.25em 0.6em; border-radius: 999px; backdrop-filter: blur(6px); }
+  .nf .pips { position: absolute; z-index: 2; left: 0; right: 0; bottom: 10px; display: flex; justify-content: center; gap: 6px; }
+  .nf .pips i { width: 22px; height: 3px; border-radius: 2px; background: rgb(255 255 255 / 0.35); }
+  .nf .pips i:first-child { background: #f3d99a; }
+
+  /* Knockout + Tonight */
+  .pl-art :global(.ko-champ) { transition: transform 0.4s ease; transform-origin: 160px 98px; }
+  .pl:hover .pl-art :global(.ko-champ) { transform: scale(1.06); }
+  .pl-art :global(.pl-twinkle) { animation: pl-tw 3s ease-in-out infinite; }
+  .pl-art :global(.pl-beam) { animation: pl-beam 4s ease-in-out infinite; }
+  @keyframes pl-tw { 50% { opacity: 0.25; } }
+  @keyframes pl-beam { 50% { opacity: 0.55; } }
+  @media (max-width: 760px) { .pl-grid { grid-template-columns: 1fr; } }
+  @media (prefers-reduced-motion: reduce) {
+    .pl, .nf img, .nf .ret { transition: none; }
+    .pl-art :global(.pl-twinkle), .pl-art :global(.pl-beam) { animation: none; }
+  }
+</style>

@@ -28,7 +28,7 @@ const kicker = (iso) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-GB',
   <section class="wrap" style="margin-top:2.2rem;">
     <div class="fod" id="fod" data-testid="film-of-day" data-date={e.date}>
       <a class="fod-img" href={e.href} tabindex="-1" aria-hidden="true">
-        <img data-f="img" src={e.img} srcset={`${e.img} 780w, ${e.img2} 1280w`} sizes="(max-width: 720px) 100vw, 600px" alt="" width="780" height="439" fetchpriority="high" />
+        <img data-f="img" src={e.img} srcset={`${e.img} 780w, ${e.img2} 1280w`} sizes="(max-width: 720px) 100vw, 600px" alt="" width="780" height="439" loading="lazy" decoding="async" />
       </a>
       <div class="fod-text">
         <span class="fod-kicker">Film of the day · <span data-f="day">{kicker(e.date)}</span></span>

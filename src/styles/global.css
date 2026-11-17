@@ -524,6 +524,14 @@ button { font: inherit; cursor: pointer; }
 }
 .shelf-arrow:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
 .shelf-arrow:disabled { opacity: 0.3; cursor: default; }
+/* Railed shelf: no wood under the row; the arrows sit on a rule with page dots. */
+.shelf.railed .shelf-row { border-bottom: 0; }
+.shelf-rail { display: flex; align-items: center; gap: 0.8rem; }
+.shelf-rail .ln { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), var(--border-strong)); }
+.shelf-rail .ln.r { background: linear-gradient(90deg, var(--border-strong), var(--border)); }
+.shelf-rail .dots { display: flex; gap: 6px; height: 6px; }
+.shelf-rail .dots i { width: 6px; height: 6px; border-radius: 3px; background: var(--border-strong); transition: width 0.25s var(--ease-out), background 0.25s; }
+.shelf-rail .dots i.on { width: 18px; background: var(--accent); }
 
 /* Collection index cards: equal height regardless of content */
 .collection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); grid-auto-rows: 1fr; gap: 1.2rem; }

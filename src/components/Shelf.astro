@@ -1,12 +1,13 @@
 ---
-const { title, note = null, noteHref = null, label = 'films', paged = true } = Astro.props;
+// rail: the arrows sit on a rule under the row (← ─ page dots ─ →) instead of in the head.
+const { title, note = null, noteHref = null, label = 'films', paged = true, rail = false } = Astro.props;
 ---
 
-<section class="shelf" data-shelf>
+<section class={`shelf${rail ? ' railed' : ''}`} data-shelf>
   <div class="shelf-head">
     <h2>{title}</h2>
     {note && <span class="shelf-note">{noteHref ? <a href={noteHref} style="color:inherit;">{note}</a> : note}</span>}
-    {paged && (
+    {paged && !rail && (
       <div class="shelf-arrows">
         <button class="shelf-arrow" data-shelf-prev aria-label={`Previous ${label}`} data-testid="shelf-prev" disabled>←</button>
         <button class="shelf-arrow" data-shelf-next aria-label={`Next ${label}`} data-testid="shelf-next">→</button>
@@ -16,6 +17,13 @@ const { title, note = null, noteHref = null, label = 'films', paged = true } = A
   <div class={`shelf-row${paged ? ' paged' : ''}`} data-shelf-row>
     <slot />
   </div>
+  {paged && rail && (
+    <div class="shelf-rail">
+      <button class="shelf-arrow" data-shelf-prev aria-label={`Previous ${label}`} data-testid="shelf-prev" disabled>←</button>
+      <span class="ln"></span><span class="dots" data-shelf-dots aria-hidden="true"></span><span class="ln r"></span>
+      <button class="shelf-arrow" data-shelf-next aria-label={`Next ${label}`} data-testid="shelf-next">→</button>
+    </div>
+  )}
 </section>
 
 <script>
@@ -23,6 +31,7 @@ const { title, note = null, noteHref = null, label = 'films', paged = true } = A
     const row = shelf.querySelector('[data-shelf-row]') as HTMLElement | null;
     const prev = shelf.querySelector('[data-shelf-prev]') as HTMLButtonElement | null;
     const next = shelf.querySelector('[data-shelf-next]') as HTMLButtonElement | null;
+    const dots = shelf.querySelector('[data-shelf-dots]') as HTMLElement | null;
     if (!row || !prev || !next) return;
     // One full view per click: N cards + inner gaps = clientWidth, plus the
     // gap that separates this view from the next.
@@ -33,6 +42,12 @@ const { title, note = null, noteHref = null, label = 'films', paged = true } = A
     const sync = () => {
       prev.disabled = row.scrollLeft <= 4;
       next.disabled = row.scrollLeft + row.clientWidth >= row.scrollWidth - 4;
+      if (dots) {
+        const pages = Math.max(1, Math.round(row.scrollWidth / step()));
+        const at = Math.min(pages - 1, Math.round(row.scrollLeft / step()));
+        if (dots.childElementCount !== pages) dots.innerHTML = '<i></i>'.repeat(pages);
+        [...dots.children].forEach((d, i) => d.classList.toggle('on', i === at));
+      }
     };
     prev.addEventListener('click', () => row.scrollBy({ left: -step(), behavior: 'smooth' }));
     next.addEventListener('click', () => row.scrollBy({ left: step(), behavior: 'smooth' }));

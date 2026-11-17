@@ -336,7 +336,7 @@ export async function loadSearchPeople() {
   return people.map(([id, name, rated]) => ({ id, name, rated }));
 }
 
-// The homepage catalog's first view (see client-data.js), as film objects
+// The archive catalog's first view (see client-data.js), as film objects
 // with the fields a card needs.
 export async function loadHomeSample() {
   const sample = await loadFile('home-sample');

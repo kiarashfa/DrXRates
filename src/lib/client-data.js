@@ -251,7 +251,7 @@ const files = {
     const g = netGraph(rows, 2);
     return { rev, roles: NET_ROLES, people: { id: delta(g.ids), name: g.ids.map((p) => people[p]?.[0] ?? '') }, credits: g.credits };
   },
-  // The homepage catalog's first view: a fixed, evenly spread ~1/35 of the
+  // The archive catalog's first view: a fixed, evenly spread ~1/35 of the
   // archive with everything a card shows, so the page doesn't need the full
   // archive files until a visitor searches, filters, sorts or pages.
   'home-sample': () =>
