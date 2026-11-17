@@ -1,0 +1,113 @@
+---
+// The ten-part system on the About page: one film's ten scores as a ring of
+// wedges around its poster (content in blue on the left, form in red on the
+// right, each wedge as long as its score out of 5), the sum spelled out, and
+// the criteria as two cards with a bar per score. Drawn on the server; no script.
+import { CONTENT_KEYS, FORM_KEYS, fmtScore } from '../../shared/rating-meta.mjs';
+import { withBase, tmdbImg } from '../lib/util.js';
+
+const { film } = Astro.props;
+const scores = film.myRating.scores;
+const C = 230; // centre of the 600 × 460 drawing
+const R0 = 82; // the hub
+const STEP = 24; // ring spacing: one score point
+const point = (r, deg) => [C + r * Math.cos((deg * Math.PI) / 180), C + r * Math.sin((deg * Math.PI) / 180)];
+const wedges = [
+  ...CONTENT_KEYS.map((k, i) => ({ ...k, half: 'content', at: 108 + i * 36 })),
+  ...FORM_KEYS.map((k, i) => ({ ...k, half: 'form', at: (288 + i * 36) % 360 })),
+].map((w) => {
+  const v = scores[w.key];
+  const r1 = R0 + v * STEP;
+  const [x1, y1] = point(R0, w.at - 15);
+  const [x2, y2] = point(r1, w.at - 15);
+  const [x3, y3] = point(r1, w.at + 15);
+  const [x4, y4] = point(R0, w.at + 15);
+  const [lx, ly] = point(R0 + 5 * STEP + 22, w.at);
+  const anchor = Math.abs(lx - C) < 20 ? 'middle' : lx < C ? 'end' : 'start';
+  return { ...w, v, d: `M${x1} ${y1} L${x2} ${y2} A${r1} ${r1} 0 0 1 ${x3} ${y3} L${x4} ${y4} A${R0} ${R0} 0 0 0 ${x1} ${y1}Z`, lx, ly, anchor };
+});
+const poster = tmdbImg(film.poster, 'w342');
+const sum = `${fmtScore(film.myRating.contentAvg)} + ${fmtScore(film.myRating.formAvg)} = ${fmtScore(film.myRating.overall)}`;
+const halves = [
+  { id: 'content', title: 'Content: 5 points', keys: CONTENT_KEYS },
+  { id: 'form', title: 'Form: 5 points', keys: FORM_KEYS },
+];
+---
+
+<figure class="tp">
+  <div class="ring">
+    <svg viewBox="-70 0 600 460" role="img" aria-label={`${film.title}'s ten scores as a ring: content ${fmtScore(film.myRating.contentAvg)}, form ${fmtScore(film.myRating.formAvg)}, ${fmtScore(film.myRating.overall)} out of ten`}>
+      <defs><clipPath id="tp-hub"><circle cx={C} cy={C} r={R0 - 8} /></clipPath></defs>
+      {[1, 2, 3, 4, 5].map((l) => <circle class="lv" cx={C} cy={C} r={R0 + l * STEP} />)}
+      {wedges.map((w) => <path class={`wd ${w.half}`} d={w.d}><title>{`${w.label}: ${w.v} of 5`}</title></path>)}
+      <circle class="hub" cx={C} cy={C} r={R0 - 4} />
+      {poster && <image href={poster} x={C - R0} y={C - R0 * 1.5} width={R0 * 2} height={R0 * 3} clip-path="url(#tp-hub)" preserveAspectRatio="xMidYMid slice" />}
+      {wedges.map((w) => (
+        <g class={`lbl ${w.half}`}>
+          <text x={w.lx} y={w.ly} text-anchor={w.anchor}>{w.short}</text>
+          <text class="v" x={w.lx} y={w.ly + 17} text-anchor={w.anchor}>{w.v}</text>
+        </g>
+      ))}
+    </svg>
+  </div>
+  <figcaption>
+    <p class="sum" aria-hidden="true"><span class="c">{fmtScore(film.myRating.contentAvg)}</span> + <span class="f">{fmtScore(film.myRating.formAvg)}</span> = <span class="t">{fmtScore(film.myRating.overall)}</span></p>
+    <p class="muted small">
+      Dr. X's scores for <a href={withBase(`/movie/${film.slug}`)} style="color:var(--accent);">{film.title}</a> ({film.year}). Each criterion is out of 5;
+      the content criteria average to the blue half, the form criteria to the red half, and the two halves add up to the score out of ten.
+      <span class="visually-hidden">{sum}.</span>
+    </p>
+  </figcaption>
+</figure>
+
+<div class="panel-row halves">
+  {halves.map((h) => (
+    <div class="panel">
+      <span class={`pill ${h.id}`}>{h.title}</span>
+      <ul>
+        {h.keys.map((k) => (
+          <li class={h.id}>
+            <span class="name">{k.label}</span>
+            <span class="bar"><i style={`width:${(scores[k.key] / 5) * 100}%`}></i></span>
+            <span class="val">{scores[k.key]}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  ))}
+</div>
+
+<style>
+  .tp { margin: 1.4rem 0 0; container-type: inline-size; }
+  .ring { max-width: 560px; margin: 0 auto; }
+  svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .lv { fill: none; stroke: var(--border); stroke-dasharray: 2 4; }
+  .wd { fill-opacity: 0.78; stroke: var(--bg); stroke-width: 1.5; transition: fill-opacity 0.15s; }
+  .wd:hover { fill-opacity: 1; }
+  .wd.content { fill: var(--content-c); }
+  .wd.form { fill: var(--form-c); }
+  .hub { fill: var(--bg-panel); stroke: var(--accent); stroke-width: 1.5; }
+  .lbl text { font-family: var(--font-ui); font-size: 15px; fill: var(--ink-muted); }
+  .lbl .v { font-family: var(--font-mono); font-size: 14px; font-weight: 600; }
+  .lbl.content .v { fill: var(--content-c); }
+  .lbl.form .v { fill: var(--form-c); }
+  figcaption { text-align: center; max-width: 40rem; margin: 0.4rem auto 0; }
+  .sum { margin: 0; font: 560 2.4rem/1.1 var(--font-numeral); }
+  .sum .c { color: var(--content-c); }
+  .sum .f { color: var(--form-c); }
+  figcaption p.small { margin: 0.4rem 0 0; }
+  /* On phones the ring is too small for its labels; the cards below name every criterion. */
+  @container (max-width: 520px) { .lbl { display: none; } }
+
+  .halves { margin-top: 1.6rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  ul { list-style: none; margin: 0.9rem 0 0; padding: 0; display: grid; gap: 0.55rem; }
+  li { display: grid; grid-template-columns: minmax(0, 1fr) 4.5rem 1.2rem; gap: 0.7rem; align-items: center; font-size: 0.86rem; color: var(--ink-muted); }
+  .bar { height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 3px; }
+  li.content .bar i { background: var(--content-c); }
+  li.form .bar i { background: var(--form-c); }
+  .val { font: 600 0.82rem var(--font-mono); text-align: right; }
+  li.content .val { color: var(--content-c); }
+  li.form .val { color: var(--form-c); }
+  @media (max-width: 520px) { li { grid-template-columns: minmax(0, 1fr) 3.4rem 1.2rem; } }
+</style>
