@@ -53,7 +53,7 @@ const catalogGenres = [...new Set(movies.flatMap((m) => m.genres))].sort();
   <section class="wrap" id="catalog" style="margin-top:3rem;">
     <div class="shelf-head">
       <h2>The catalog</h2>
-      <span class="shelf-note">browse, filter, and sort the whole archive</span>
+      <span class="shelf-note"><a href={withBase('/archive')} style="color:inherit;">open it on its own page →</a></span>
     </div>
     <CatalogBrowser client:only="svelte" decades={catalogDecades} genres={catalogGenres} total={movies.length} />
   </section>

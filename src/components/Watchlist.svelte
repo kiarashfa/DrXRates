@@ -93,7 +93,7 @@
         Use the bookmark on any film page or poster. The list stays in this browser and goes into your backup file with
         your ratings.
       </p>
-      <p><a class="btn" href={withBase('/#catalog')}>Browse the archive</a></p>
+      <p><a class="btn" href={withBase('/archive')}>Browse the archive</a></p>
     </div>
   {:else}
     <div class="wl-bar">

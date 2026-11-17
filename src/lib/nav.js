@@ -5,7 +5,7 @@
 // shows the visitor's picture instead. The `profile` group sits under the
 // profile circle at the end of the wide header, not in the text menus.
 export const NAV = [
-  { id: 'archive', label: 'Archive', href: '/#catalog', icon: 'archive', desc: 'Browse, filter and sort every film' },
+  { id: 'archive', label: 'Archive', href: '/archive', icon: 'archive', desc: 'Browse, filter and sort every film' },
   {
     id: 'explore',
     label: 'Explore',

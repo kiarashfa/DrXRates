@@ -5,7 +5,9 @@
 
   // decades/genres/total come from the page at build time, so the filter
   // menus and the count are right before the full archive has loaded.
-  let { decades = [], genres = [], total = 0 } = $props();
+  // page: on the archive page the filters live in the address (?decade=1990&genre=Horror)
+  // and the toolbar stays under the header while the list scrolls.
+  let { decades = [], genres = [], total = 0, page = false } = $props();
 
   let catalog = $state(null);
   let full = $state(false); // false while showing the first-view sample
@@ -84,6 +86,26 @@
     ...RATING_SORTS,
   };
 
+  if (page) {
+    const params = new URLSearchParams(location.search);
+    const pick = (key, ok) => (params.has(key) && ok(params.get(key)) ? params.get(key) : null);
+    q = params.get('q') ?? '';
+    rated = pick('rated', (v) => ['rated', 'unrated', 'frames'].includes(v)) ?? 'all';
+    decade = pick('decade', (v) => decades.map(String).includes(v)) ?? 'all';
+    genre = pick('genre', (v) => genres.includes(v)) ?? 'all';
+    sort = pick('sort', (v) => v in SORTS) ?? 'shuffle';
+    $effect(() => {
+      const p = new URLSearchParams();
+      if (q.trim()) p.set('q', q.trim());
+      if (rated !== 'all') p.set('rated', rated);
+      if (decade !== 'all') p.set('decade', decade);
+      if (genre !== 'all') p.set('genre', genre);
+      if (sort !== 'shuffle') p.set('sort', sort);
+      const qs = p.toString();
+      history.replaceState(history.state, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
+    });
+  }
+
   // Any search/filter/sort needs the full archive; the sample is only ever
   // shown unfiltered, in its shuffled order.
   const active = $derived(q.trim() !== '' || rated !== 'all' || decade !== 'all' || genre !== 'all' || sort !== 'shuffle');
@@ -97,6 +119,7 @@
       if (needle && !m.title.toLowerCase().includes(needle)) return false;
       if (rated === 'rated' && m.my == null) return false;
       if (rated === 'unrated' && m.my != null) return false;
+      if (rated === 'frames' && !m.stills) return false;
       if (decade !== 'all' && (m.year == null || Math.floor(m.year / 10) * 10 !== Number(decade))) return false;
       if (genre !== 'all' && !m.genres.includes(genre)) return false;
       return true;
@@ -128,6 +151,8 @@
 <div data-testid="catalog" bind:this={root}>
   <!-- Pointing at or focusing the controls starts the full load early. -->
   <div
+    class="tools"
+    class:sticky={page}
     style="display:flex; gap:0.7rem; flex-wrap:wrap; align-items:center; margin-bottom:1.2rem;"
     onpointerenter={() => catalog && loadFull()}
     onfocusin={() => catalog && loadFull()}
@@ -137,6 +162,7 @@
       <option value="all">All films</option>
       <option value="rated">Rated by me</option>
       <option value="unrated">Not yet rated</option>
+      <option value="frames">With Dr. X's frames</option>
     </select>
     <select bind:value={decade} aria-label="Decade" data-testid="filter-decade">
       <option value="all">Any decade</option>
@@ -187,3 +213,10 @@
     {/if}
   {/if}
 </div>
+
+<style>
+  .tools.sticky {
+    position: sticky; top: var(--header-h); z-index: 10; margin-bottom: 0.4rem !important;
+    padding: 0.8rem 0; background: var(--bg); border-bottom: 1px solid var(--border);
+  }
+</style>
