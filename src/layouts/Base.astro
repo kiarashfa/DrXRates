@@ -12,16 +12,15 @@ import uiFont from '@fontsource-variable/inter/files/inter-latin-wght-normal.wof
 const {
   title,
   description = 'A personal archive of film, rated in ten parts.',
-  // Link-preview image: an absolute URL (e.g. a TMDB backdrop) or a site path.
-  image = '/og-image.png',
-  imageAlt = `${SITE_TITLE}: a personal archive of film, rated in ten parts`,
   ogType = 'website',
   noindex = false,
 } = Astro.props;
 const pageTitle = title ? `${title} · ${SITE_TITLE}` : SITE_TITLE;
 const absolute = (p) => new URL(p, Astro.site).href;
 const pageUrl = absolute(Astro.url.pathname);
-const imageUrl = image.startsWith('http') ? image : absolute(withBase(image));
+// Link preview: every page uses the one site image (see scripts/brand/).
+const imageUrl = absolute(withBase('/og-image.jpg'));
+const imageAlt = `${SITE_TITLE}: a personal archive of film, rated in ten parts`;
 
 // First-commit year, pinned (CI clones are shallow, so never ask git at build).
 const COPYRIGHT_START_YEAR = 2026;
@@ -51,6 +50,9 @@ const copyrightYears = thisYear > COPYRIGHT_START_YEAR ? `${COPYRIGHT_START_YEAR
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="640" />
+    <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:alt" content={imageAlt} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={pageTitle} />

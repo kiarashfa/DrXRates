@@ -14,8 +14,6 @@ export async function getStaticPaths() {
 const { movie } = Astro.props;
 const backdrop = tmdbImg(movie.backdrop, 'w1280');
 const poster = tmdbImg(movie.poster, 'w342');
-// Link previews: the wide backdrop suits summary_large_image; poster as fallback.
-const shareImage = backdrop ?? tmdbImg(movie.poster, 'w500') ?? undefined;
 const directorLinks = movie.directors.map((d) => ({ ...d, page: directorPageFor(d.name) }));
 const stills = stillsFor(movie.id);
 const aslDirector = movie.asl ? allDirectors.find((d) => d.name === movie.asl.director) : null;
@@ -37,8 +35,6 @@ const panelProps = {
 <Base
   title={`${movie.title}${movie.year ? ` (${movie.year})` : ''}`}
   description={movie.overview || undefined}
-  image={shareImage}
-  imageAlt={shareImage ? `${movie.title}${backdrop ? ' still' : ' poster'}` : undefined}
   ogType="video.movie"
 >
   <section class="screen-hero">
