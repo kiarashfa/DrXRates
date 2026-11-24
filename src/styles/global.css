@@ -164,6 +164,7 @@ button { font: inherit; cursor: pointer; }
   width: 1.05em; height: 1.05em; flex-shrink: 0; background-color: var(--accent);
   -webkit-mask: var(--mark) center / contain no-repeat; mask: var(--mark) center / contain no-repeat;
 }
+.brand-x { color: var(--accent); }
 .site-nav { margin-left: auto; }
 .nav-list { display: flex; align-items: center; gap: 0.15rem; list-style: none; margin: 0; padding: 0; }
 .nav-link, .nav-trigger {

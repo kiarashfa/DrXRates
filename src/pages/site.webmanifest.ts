@@ -5,7 +5,7 @@ import { SITE_TITLE, SITE_TAGLINE, THEME_BG, withBase } from '../lib/util.js';
 export function GET() {
   const manifest = {
     name: SITE_TITLE,
-    short_name: 'Cinema Ledger',
+    short_name: 'Dr. X Rates',
     description: `${SITE_TAGLINE}.`,
     start_url: withBase('/'),
     scope: withBase('/'),

@@ -1,7 +1,7 @@
 import meta from '../../data/generated/meta.json';
 import { STILLS_SITE, stillPath } from '../../shared/stills.mjs';
 
-export const SITE_TITLE = 'The Cinema Ledger';
+export const SITE_TITLE = 'Dr. X Rates';
 export const SITE_TAGLINE = 'A personal archive of film, rated in ten parts';
 export const SITE_AUTHOR = 'Kiarash Farajzadehahary';
 export const REPO_URL = 'https://github.com/kiarashfa/DrXRates';

@@ -466,7 +466,7 @@
       <label class="tog {linkClass(r)}"><input type="checkbox" checked={links.includes(r)} onchange={() => toggleLink(r)} /><span>{label}</span></label>
     {/each}
   </div>
-  <p class="fine">Within the Cinema Ledger: the top 12 billed actors of each film; directors, writers and crew (photography, music, editing, design) when switched on.</p>
+  <p class="fine">Within Dr. X Rates: the top 12 billed actors of each film; directors, writers and crew (photography, music, editing, design) when switched on.</p>
 
   {#if chain}
     <div class="result" data-testid="net-chain">

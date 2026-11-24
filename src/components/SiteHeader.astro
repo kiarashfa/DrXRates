@@ -11,6 +11,11 @@ import ThemeMenu from './ThemeMenu.astro';
 import { NAV_ENTRIES, isCurrent } from '../lib/nav.js';
 import { withBase, SITE_TITLE } from '../lib/util.js';
 
+// The X of the wordmark takes the accent, like the mark beside it.
+const xAt = SITE_TITLE.indexOf('X');
+const titleBefore = SITE_TITLE.slice(0, xAt);
+const titleAfter = SITE_TITLE.slice(xAt + 1);
+
 const path = Astro.url.pathname;
 const base = import.meta.env.BASE_URL;
 const icon = (name: string) => `${withBase('/icons.svg')}#i-${name}`;
@@ -34,7 +39,7 @@ const mine: any = NAV_ENTRIES.find((n: any) => n.profile);
     <a class="brand" href={withBase('/')} data-hs-logo>
       {/* The site mark: favicon.svg used as a CSS mask, filled with the theme accent (same color the favicon switches to). */}
       <span class="brand-mark" aria-hidden="true" style={`--mark: url('${withBase('/favicon.svg')}')`}></span>
-      {SITE_TITLE}
+      <span>{titleBefore}<span class="brand-x">X</span>{titleAfter}</span>
     </a>
     <nav class="site-nav" aria-label="Site" data-hs-fade>
       <ul class="nav-list" role="list">

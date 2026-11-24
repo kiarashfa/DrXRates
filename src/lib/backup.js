@@ -74,7 +74,7 @@ export async function importBackupFile(file) {
 export function importBackupData(parsed) {
   const present = Object.keys(SECTIONS).filter((name) => parsed?.[name] && typeof parsed[name] === 'object');
   if (!present.length) {
-    throw new Error('Not a Cinema Ledger backup: no ratings or other saved data found.');
+    throw new Error('Not a Dr. X Rates backup: no ratings or other saved data found.');
   }
   const sections = {};
   for (const name of present) sections[name] = SECTIONS[name].merge(parsed[name]);
