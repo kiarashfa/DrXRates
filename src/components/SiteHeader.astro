@@ -38,8 +38,16 @@ const mine: any = NAV_ENTRIES.find((n: any) => n.profile);
   <div class="wrap header-row">
     <a class="brand" href={withBase('/')} data-hs-logo>
       {/* The site mark: favicon.svg used as a CSS mask, filled with the theme accent (same color the favicon switches to). */}
-      <span class="brand-mark" aria-hidden="true" style={`--mark: url('${withBase('/favicon.svg')}')`}></span>
-      <span>{titleBefore}<span class="brand-x">X</span>{titleAfter}</span>
+      <span
+        class="brand-mark"
+        aria-hidden="true"
+        style={`--mark: url('${withBase('/favicon.svg')}')`}
+      ></span>
+      <span>
+        {titleBefore}
+        <span class="brand-x">X</span>
+        {titleAfter}
+      </span>
     </a>
     <nav class="site-nav" aria-label="Site" data-hs-fade>
       <ul class="nav-list" role="list">
@@ -55,14 +63,18 @@ const mine: any = NAV_ENTRIES.find((n: any) => n.profile);
                 data-menu-trigger
               >
                 {n.label}
-                <svg class="icon chev" aria-hidden="true"><use href={icon('chevron')} /></svg>
+                <svg class="icon chev" aria-hidden="true">
+                  <use href={icon('chevron')} />
+                </svg>
               </button>
               <div class="pop" id={`menu-${n.id}`} data-menu-pop>
                 <ul role="list">
                   {n.items.map((i: any) => (
                     <li>
                       <a href={withBase(i.href)} aria-current={current(i) ? 'page' : undefined}>
-                        <svg class="icon" aria-hidden="true"><use href={icon(i.icon)} /></svg>
+                        <svg class="icon" aria-hidden="true">
+                          <use href={icon(i.icon)} />
+                        </svg>
                         {i.label}
                       </a>
                     </li>
@@ -72,16 +84,24 @@ const mine: any = NAV_ENTRIES.find((n: any) => n.profile);
             </li>
           ) : (
             <li>
-              <a class="nav-link" href={withBase(n.href)} aria-current={current(n) ? 'page' : undefined}>{n.label}</a>
+              <a
+                class="nav-link"
+                href={withBase(n.href)}
+                aria-current={current(n) ? 'page' : undefined}
+              >
+                {n.label}
+              </a>
             </li>
-          )
+          ),
         )}
       </ul>
     </nav>
     <div class="header-tools">
       <div class="hs" data-hs>
         <div class="hs-field" data-hs-field>
-          <svg class="icon" aria-hidden="true"><use href={icon('search')} /></svg>
+          <svg class="icon" aria-hidden="true">
+            <use href={icon('search')} />
+          </svg>
           <input
             type="search"
             placeholder="Search films, people, collections"
@@ -95,11 +115,22 @@ const mine: any = NAV_ENTRIES.find((n: any) => n.profile);
             data-hs-input
           />
           <button class="hs-close" type="button" aria-label="Close search" data-hs-close>
-            <svg class="icon" aria-hidden="true"><use href={icon('close')} /></svg>
+            <svg class="icon" aria-hidden="true">
+              <use href={icon('close')} />
+            </svg>
           </button>
         </div>
-        <button type="button" class="icon-btn" aria-label="Search" aria-expanded="false" title="Search (Ctrl K)" data-hs-button>
-          <svg class="icon" aria-hidden="true"><use href={icon('search')} /></svg>
+        <button
+          type="button"
+          class="icon-btn"
+          aria-label="Search"
+          aria-expanded="false"
+          title="Search (Ctrl K)"
+          data-hs-button
+        >
+          <svg class="icon" aria-hidden="true">
+            <use href={icon('search')} />
+          </svg>
         </button>
       </div>
       <ThemeMenu id="theme-menu" />
@@ -117,18 +148,33 @@ const mine: any = NAV_ENTRIES.find((n: any) => n.profile);
               data-current={groupCurrent(mine) ? '' : undefined}
               data-menu-trigger
             >
-              <span class="avatar" data-avatar><svg class="avatar-icon" aria-hidden="true"><use href={icon('user')} /></svg></span>
+              <span class="avatar" data-avatar>
+                <svg class="avatar-icon" aria-hidden="true">
+                  <use href={icon('user')} />
+                </svg>
+              </span>
             </button>
             <div class="pop pop-right pop-profile" id={`menu-${mine.id}`} data-menu-pop>
               <a class="pop-who" href={withBase(mine.items[0].href)}>
-                <span class="avatar avatar-md" data-avatar><svg class="avatar-icon" aria-hidden="true"><use href={icon('user')} /></svg></span>
-                <span><span class="pop-who-n" data-profile-name="Your corner">Your corner</span><span class="pop-who-s">View your profile</span></span>
+                <span class="avatar avatar-md" data-avatar>
+                  <svg class="avatar-icon" aria-hidden="true">
+                    <use href={icon('user')} />
+                  </svg>
+                </span>
+                <span>
+                  <span class="pop-who-n" data-profile-name="Your corner">
+                    Your corner
+                  </span>
+                  <span class="pop-who-s">View your profile</span>
+                </span>
               </a>
               <ul role="list">
                 {mine.items.map((i: any) => (
                   <li>
                     <a href={withBase(i.href)} aria-current={current(i) ? 'page' : undefined}>
-                      <svg class="icon" aria-hidden="true"><use href={icon(i.icon)} /></svg>
+                      <svg class="icon" aria-hidden="true">
+                        <use href={icon(i.icon)} />
+                      </svg>
                       {i.label}
                     </a>
                   </li>
@@ -140,8 +186,15 @@ const mine: any = NAV_ENTRIES.find((n: any) => n.profile);
         </>
       )}
       {about && (
-        <a class="icon-btn about-btn" href={withBase(about.href)} aria-label={about.label} aria-current={current(about) ? 'page' : undefined}>
-          <svg class="icon" aria-hidden="true"><use href={icon(about.icon)} /></svg>
+        <a
+          class="icon-btn about-btn"
+          href={withBase(about.href)}
+          aria-label={about.label}
+          aria-current={current(about) ? 'page' : undefined}
+        >
+          <svg class="icon" aria-hidden="true">
+            <use href={icon(about.icon)} />
+          </svg>
         </a>
       )}
     </div>
@@ -152,24 +205,41 @@ const mine: any = NAV_ENTRIES.find((n: any) => n.profile);
   {tabs.map((t) =>
     t.id === 'search' ? (
       <button type="button" class="tab" aria-expanded="false" data-hs-phone>
-        <svg class="icon" aria-hidden="true"><use href={icon(t.icon)} /></svg>
+        <svg class="icon" aria-hidden="true">
+          <use href={icon(t.icon)} />
+        </svg>
         {t.label}
       </button>
     ) : t.items ? (
-      <button type="button" class="tab" aria-expanded="false" aria-controls={`sheet-${t.id}`} data-current={groupCurrent(t) ? '' : undefined} data-sheet-trigger={t.id}>
+      <button
+        type="button"
+        class="tab"
+        aria-expanded="false"
+        aria-controls={`sheet-${t.id}`}
+        data-current={groupCurrent(t) ? '' : undefined}
+        data-sheet-trigger={t.id}
+      >
         {t.profile ? (
-          <span class="avatar avatar-tab" data-avatar><svg class="avatar-icon" aria-hidden="true"><use href={icon(t.icon)} /></svg></span>
+          <span class="avatar avatar-tab" data-avatar>
+            <svg class="avatar-icon" aria-hidden="true">
+              <use href={icon(t.icon)} />
+            </svg>
+          </span>
         ) : (
-          <svg class="icon" aria-hidden="true"><use href={icon(t.icon)} /></svg>
+          <svg class="icon" aria-hidden="true">
+            <use href={icon(t.icon)} />
+          </svg>
         )}
         {t.label}
       </button>
     ) : (
       <a class="tab" href={withBase(t.href)} aria-current={current(t) ? 'page' : undefined}>
-        <svg class="icon" aria-hidden="true"><use href={icon(t.icon)} /></svg>
+        <svg class="icon" aria-hidden="true">
+          <use href={icon(t.icon)} />
+        </svg>
         {t.label}
       </a>
-    )
+    ),
   )}
 </nav>
 
@@ -179,7 +249,10 @@ const mine: any = NAV_ENTRIES.find((n: any) => n.profile);
     try {
       p = JSON.parse(localStorage.getItem('cinema.profile.v1'));
     } catch (e) {}
-    var pic = p && typeof p.picture === 'string' && p.picture.indexOf('data:image/') === 0 ? p.picture : null;
+    var pic =
+      p && typeof p.picture === 'string' && p.picture.indexOf('data:image/') === 0
+        ? p.picture
+        : null;
     var mono = !pic && p && p.mono && p.mono.letters ? p.mono : null;
     var name = p && typeof p.name === 'string' ? p.name : '';
     (root || document).querySelectorAll('[data-avatar]').forEach(function (el) {

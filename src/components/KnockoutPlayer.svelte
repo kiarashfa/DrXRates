@@ -47,7 +47,7 @@
       : rounds.map((r, ri) => {
           const m = r.find((x) => x.w === winner);
           return { round: roundName(size >> ri), film: film(m.a === winner ? m.b : m.a) };
-        })
+        }),
   );
   const film = (id) => {
     const f = films[id];
@@ -59,7 +59,9 @@
   $effect(() => {
     if (!next) return;
     const after = nextMatch(bracketRounds(slots, [...picks, next.a], pairsFrom));
-    const want = [next.a, next.b, after?.a, after?.b].filter((id) => id != null && !films[id]?.poster && !(id in posters));
+    const want = [next.a, next.b, after?.a, after?.b].filter(
+      (id) => id != null && !films[id]?.poster && !(id in posters),
+    );
     if (!want.length) return;
     loadPosters(want)
       .then((m) => (posters = { ...posters, ...Object.fromEntries(m) }))
@@ -76,7 +78,8 @@
     return `Through to R${n}`;
   };
 
-  const reduced = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduced = () =>
+    typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // The pause after the last match of a round: which round, and the time the
   // visitor spent on it (gaps between picks, with idle time capped).
@@ -84,7 +87,9 @@
   let lastAt = Date.now();
   let roundMs = 0;
   const IDLE_CAP = 45000;
-  const stops = $derived(rounds.map((_, i) => ({ short: roundShort(entrants(i)), left: entrants(i + 1) })));
+  const stops = $derived(
+    rounds.map((_, i) => ({ short: roundShort(entrants(i)), left: entrants(i + 1) })),
+  );
 
   function choose(side) {
     if (picking != null || !next || pause) return;
@@ -124,7 +129,13 @@
 
   $effect(() => {
     const onKey = (e) => {
-      if (e.ctrlKey || e.metaKey || e.altKey || e.target.closest?.('input, select, textarea, [contenteditable]')) return;
+      if (
+        e.ctrlKey ||
+        e.metaKey ||
+        e.altKey ||
+        e.target.closest?.('input, select, textarea, [contenteditable]')
+      )
+        return;
       if (pause) {
         if (e.key === 'Enter' && !e.target.closest?.('button, a')) proceed();
         else if (e.key === 'z' || e.key === 'Z') undo();
@@ -184,164 +195,544 @@
       onundo={undo}
     />
   {:else}
-  {#if next}
-    <div class="kp-prog">
-      <span>{kicker} · <b data-testid="ko-round">{roundName(entrants(next.round))}</b></span>
-      <span data-testid="ko-match">match {next.index + 1} of {rounds[next.round].length}</span>
-    </div>
-    <div class="kp-line">
-      {#if next.round > 0}
-        <span class="kp-chips">
-          <span class="all">{#each rounds.slice(0, next.round) as _, r}<span>✓ {roundShort(entrants(r))}</span>{/each}</span>
-          <span class="sum">✓ {next.round}</span>
-        </span>
+    {#if next}
+      <div class="kp-prog">
+        <span>{kicker} · <b data-testid="ko-round">{roundName(entrants(next.round))}</b></span>
+        <span data-testid="ko-match">match {next.index + 1} of {rounds[next.round].length}</span>
+      </div>
+      <div class="kp-line">
+        {#if next.round > 0}
+          <span class="kp-chips">
+            <span class="all"
+              >{#each rounds.slice(0, next.round) as _, r}<span>✓ {roundShort(entrants(r))}</span
+                >{/each}</span
+            >
+            <span class="sum">✓ {next.round}</span>
+          </span>
+        {/if}
+        <div class="kp-bar" aria-hidden="true">
+          <i class="w" style={`width:${(picks.length / (size - 1)) * 100}%`}></i>
+          <i class="r" style={`width:${(next.index / rounds[next.round].length) * 100}%`}></i>
+        </div>
+      </div>
+    {/if}
+
+    {#if next && view === 'match'}
+      {#key next.play}
+        <div
+          class="kp-pair"
+          class:picked={picking != null}
+          ontouchstart={onTouchStart}
+          ontouchend={onTouchEnd}
+          data-testid="ko-pair"
+        >
+          {#each [next.a, next.b] as id, side}
+            {@const f = film(id)}
+            <div class="kp-side" class:won={picking === side} class:lost={picking === 1 - side}>
+              <FilmCard
+                film={f}
+                {blind}
+                onpick={() => choose(side)}
+                aria-label={`Pick ${f.title}`}
+                data-testid={side ? 'ko-right' : 'ko-left'}
+              >
+                {#snippet overlay()}
+                  {#if f.seed != null && !blind}<span class="kp-seed">{f.seed}</span>{/if}
+                  <span class="kp-ribbon" aria-hidden="true">{through(next.round)}</span>
+                {/snippet}
+              </FilmCard>
+            </div>
+            {#if !side}
+              <div class="kp-vs" aria-hidden="true">
+                <div class="kp-clash"><i></i><i></i></div>
+                <div class="kp-medal"><span>VS</span></div>
+              </div>
+            {/if}
+          {/each}
+        </div>
+      {/key}
+      <div class="kp-hint">
+        <span><span class="kbd">←</span> <span class="kbd">→</span> pick</span><span
+          ><span class="kbd">Z</span> undo</span
+        ><span class="kp-touch">Tap a poster to pick</span>
+      </div>
+    {:else if next}
+      <BracketTable
+        {rounds}
+        {films}
+        now={{ round: next.round, index: next.index }}
+        {compare}
+        {compareLabel}
+      />
+    {:else}
+      <ChampionReveal film={film(winner)} path={road} label={champLabel}
+        >{@render done?.()}</ChampionReveal
+      >
+      {#if view === 'bracket'}<BracketTable {rounds} {films} {compare} {compareLabel} />{/if}
+    {/if}
+
+    <div class="kp-tools">
+      <div class="seg" role="group" aria-label="View">
+        <button
+          class:active={view === 'match'}
+          aria-pressed={view === 'match'}
+          onclick={() => (view = 'match')}
+          data-testid="ko-view-match">{next ? 'Matchup' : 'Champion'}</button
+        >
+        <button
+          class:active={view === 'bracket'}
+          aria-pressed={view === 'bracket'}
+          onclick={() => (view = 'bracket')}
+          data-testid="ko-view-bracket">Bracket</button
+        >
+      </div>
+      {#if next}
+        <div class="seg" role="group" aria-label="Scores">
+          <button class:active={!blind} aria-pressed={!blind} onclick={() => (blind = false)}
+            >Scores</button
+          >
+          <button
+            class:active={blind}
+            aria-pressed={blind}
+            onclick={() => (blind = true)}
+            data-testid="ko-blind">Blind</button
+          >
+        </div>
       {/if}
-      <div class="kp-bar" aria-hidden="true">
-        <i class="w" style={`width:${(picks.length / (size - 1)) * 100}%`}></i>
-        <i class="r" style={`width:${(next.index / rounds[next.round].length) * 100}%`}></i>
-      </div>
+      <button
+        class="btn"
+        onclick={undo}
+        disabled={!picks.length || picking != null}
+        data-testid="ko-undo">Undo</button
+      >
+      {#if next}
+        <a class="btn" href={withBase(`/compare?a=${next.a}&b=${next.b}`)}
+          ><svg class="icon" aria-hidden="true"><use href={icon('compare')}></use></svg>Compare
+          these two</a
+        >
+      {/if}
+      {#if shareUrl}
+        <button class="btn" onclick={copyLink} data-testid="ko-copy"
+          ><svg class="icon" aria-hidden="true"><use href={icon('link')}></use></svg>{copied
+            ? 'Link copied'
+            : 'Copy link'}</button
+        >
+      {/if}
     </div>
-  {/if}
-
-  {#if next && view === 'match'}
-    {#key next.play}
-      <div class="kp-pair" class:picked={picking != null} ontouchstart={onTouchStart} ontouchend={onTouchEnd} data-testid="ko-pair">
-        {#each [next.a, next.b] as id, side}
-          {@const f = film(id)}
-          <div class="kp-side" class:won={picking === side} class:lost={picking === 1 - side}>
-            <FilmCard film={f} {blind} onpick={() => choose(side)} aria-label={`Pick ${f.title}`} data-testid={side ? 'ko-right' : 'ko-left'}>
-              {#snippet overlay()}
-                {#if f.seed != null && !blind}<span class="kp-seed">{f.seed}</span>{/if}
-                <span class="kp-ribbon" aria-hidden="true">{through(next.round)}</span>
-              {/snippet}
-            </FilmCard>
-          </div>
-          {#if !side}
-            <div class="kp-vs" aria-hidden="true"><div class="kp-clash"><i></i><i></i></div><div class="kp-medal"><span>VS</span></div></div>
-          {/if}
-        {/each}
-      </div>
-    {/key}
-    <div class="kp-hint"><span><span class="kbd">←</span> <span class="kbd">→</span> pick</span><span><span class="kbd">Z</span> undo</span><span class="kp-touch">Tap a poster to pick</span></div>
-  {:else if next}
-    <BracketTable {rounds} {films} now={{ round: next.round, index: next.index }} {compare} {compareLabel} />
-  {:else}
-    <ChampionReveal film={film(winner)} path={road} label={champLabel}>{@render done?.()}</ChampionReveal>
-    {#if view === 'bracket'}<BracketTable {rounds} {films} {compare} {compareLabel} />{/if}
-  {/if}
-
-  <div class="kp-tools">
-    <div class="seg" role="group" aria-label="View">
-      <button class:active={view === 'match'} aria-pressed={view === 'match'} onclick={() => (view = 'match')} data-testid="ko-view-match">{next ? 'Matchup' : 'Champion'}</button>
-      <button class:active={view === 'bracket'} aria-pressed={view === 'bracket'} onclick={() => (view = 'bracket')} data-testid="ko-view-bracket">Bracket</button>
-    </div>
-    {#if next}
-      <div class="seg" role="group" aria-label="Scores">
-        <button class:active={!blind} aria-pressed={!blind} onclick={() => (blind = false)}>Scores</button>
-        <button class:active={blind} aria-pressed={blind} onclick={() => (blind = true)} data-testid="ko-blind">Blind</button>
-      </div>
-    {/if}
-    <button class="btn" onclick={undo} disabled={!picks.length || picking != null} data-testid="ko-undo">Undo</button>
-    {#if next}
-      <a class="btn" href={withBase(`/compare?a=${next.a}&b=${next.b}`)}><svg class="icon" aria-hidden="true"><use href={icon('compare')}></use></svg>Compare these two</a>
-    {/if}
-    {#if shareUrl}
-      <button class="btn" onclick={copyLink} data-testid="ko-copy"><svg class="icon" aria-hidden="true"><use href={icon('link')}></use></svg>{copied ? 'Link copied' : 'Copy link'}</button>
-    {/if}
-  </div>
   {/if}
 </div>
 
 <style>
-  .kp { padding: 1.3rem 1.6rem 1.4rem; }
-  .kp-prog { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; max-width: 660px; margin: 0 auto; font: 600 0.72rem/1.3 var(--font-ui); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); }
-  .kp-prog b { color: var(--ink); font-weight: 600; }
+  .kp {
+    padding: 1.3rem 1.6rem 1.4rem;
+  }
+  .kp-prog {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    max-width: 660px;
+    margin: 0 auto;
+    font: 600 0.72rem/1.3 var(--font-ui);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .kp-prog b {
+    color: var(--ink);
+    font-weight: 600;
+  }
   /* Two layers on one bar: the whole knockout in grey, the round in play over
      it, translucent. The gold chips behind it are the rounds already played. */
-  .kp { --gold: color-mix(in srgb, var(--accent) 62%, #fff); }
-  .kp-line { display: flex; align-items: center; gap: 0.6rem; max-width: 660px; margin: 0.6rem auto 0; }
-  .kp-chips { flex: none; display: flex; gap: 0.55rem; font: 600 0.66rem/1 var(--font-mono); letter-spacing: 0.02em; color: var(--gold); white-space: nowrap; }
-  .kp-chips .all { display: flex; gap: 0.55rem; }
-  .kp-chips .sum { display: none; }
-  .kp-bar { position: relative; flex: 1; min-width: 0; height: 9px; background: var(--border); border-radius: 5px; overflow: hidden; }
-  .kp-bar i { position: absolute; left: 0; top: 0; bottom: 0; transition: width 0.3s ease; }
-  .kp-bar .w { background: var(--ink-faint); }
-  .kp-bar .r { background: var(--accent); opacity: 0.65; }
+  .kp {
+    --gold: color-mix(in srgb, var(--accent) 62%, #fff);
+  }
+  .kp-line {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    max-width: 660px;
+    margin: 0.6rem auto 0;
+  }
+  .kp-chips {
+    flex: none;
+    display: flex;
+    gap: 0.55rem;
+    font: 600 0.66rem/1 var(--font-mono);
+    letter-spacing: 0.02em;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+  .kp-chips .all {
+    display: flex;
+    gap: 0.55rem;
+  }
+  .kp-chips .sum {
+    display: none;
+  }
+  .kp-bar {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    height: 9px;
+    background: var(--border);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .kp-bar i {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    transition: width 0.3s ease;
+  }
+  .kp-bar .w {
+    background: var(--ink-faint);
+  }
+  .kp-bar .r {
+    background: var(--accent);
+    opacity: 0.65;
+  }
 
-  .kp-pair { display: grid; grid-template-columns: minmax(0, 1fr) 128px minmax(0, 1fr); align-items: start; max-width: 660px; margin: 1.3rem auto 0; touch-action: pan-y; }
-  .kp-side { min-width: 0; position: relative; animation: kp-in-l 0.42s var(--ease-out) both; }
-  .kp-side:last-child { animation-name: kp-in-r; animation-delay: 0.06s; }
-  @keyframes kp-in-l { from { opacity: 0; transform: translateX(-28px); } }
-  @keyframes kp-in-r { from { opacity: 0; transform: translateX(28px); } }
-  .kp-side :global(.film-card:hover .fc-poster), .kp-side :global(.film-card:focus-visible .fc-poster) { box-shadow: 0 0 0 2px var(--accent), 0 10px 24px rgb(0 0 0 / 0.35); }
-  .kp-side :global(.film-card:focus-visible) { outline: none; }
-  .kp-seed { position: absolute; top: 6px; left: 6px; font: 600 0.68rem var(--font-mono); background: rgb(8 8 8 / 0.78); color: #e9e4d8; padding: 0.1em 0.45em; border-radius: 3px; }
+  .kp-pair {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 128px minmax(0, 1fr);
+    align-items: start;
+    max-width: 660px;
+    margin: 1.3rem auto 0;
+    touch-action: pan-y;
+  }
+  .kp-side {
+    min-width: 0;
+    position: relative;
+    animation: kp-in-l 0.42s var(--ease-out) both;
+  }
+  .kp-side:last-child {
+    animation-name: kp-in-r;
+    animation-delay: 0.06s;
+  }
+  @keyframes kp-in-l {
+    from {
+      opacity: 0;
+      transform: translateX(-28px);
+    }
+  }
+  @keyframes kp-in-r {
+    from {
+      opacity: 0;
+      transform: translateX(28px);
+    }
+  }
+  .kp-side :global(.film-card:hover .fc-poster),
+  .kp-side :global(.film-card:focus-visible .fc-poster) {
+    box-shadow:
+      0 0 0 2px var(--accent),
+      0 10px 24px rgb(0 0 0 / 0.35);
+  }
+  .kp-side :global(.film-card:focus-visible) {
+    outline: none;
+  }
+  .kp-seed {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    font: 600 0.68rem var(--font-mono);
+    background: rgb(8 8 8 / 0.78);
+    color: #e9e4d8;
+    padding: 0.1em 0.45em;
+    border-radius: 3px;
+  }
 
   /* The pick: the winner springs up with an accent ring and its ribbon drops
      in; the loser is struck through, drained of colour and sinks away; the
      medallion folds. The next pair then slides in from both sides. */
-  .kp-ribbon { position: absolute; left: 0; right: 0; bottom: 0; padding: 0.45rem 0.2rem; text-align: center; font: 700 0.7rem/1 var(--font-ui); letter-spacing: 0.16em; text-transform: uppercase;
-    background: var(--accent); color: var(--bg); transform: translateY(105%); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s; pointer-events: none; }
-  .kp-side :global(.fc-poster::after) { content: ''; position: absolute; left: -10%; right: -10%; top: 50%; height: 3px; background: var(--ink); box-shadow: 0 0 0 1px rgb(0 0 0 / 0.35);
-    transform: rotate(-56deg) scaleX(0); transform-origin: left center; transition: transform 0.22s cubic-bezier(0.6, 0, 0.4, 1); pointer-events: none; }
-  .won { z-index: 1; }
-  .won :global(.fc-poster) { animation: kp-win 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both; box-shadow: 0 0 0 3px var(--accent), 0 16px 34px rgb(0 0 0 / 0.45); }
-  .won .kp-ribbon { transform: none; }
-  .won :global(.fc-title) { color: var(--accent); transition: color 0.2s; }
-  @keyframes kp-win { 0% { transform: none; } 55% { transform: translateY(-12px) scale(1.06); } 100% { transform: translateY(-8px) scale(1.04); } }
-  .lost :global(.fc-poster::after) { transform: rotate(-56deg) scaleX(1); }
-  .lost :global(.fc-poster img) { filter: grayscale(1) brightness(0.55); transition: filter 0.25s ease; }
-  .kp-side.lost { animation: kp-out 0.5s cubic-bezier(0.5, 0, 0.75, 0) 0.2s both; }
-  .kp-side.lost:last-child { --tilt: 2deg; }
-  @keyframes kp-out { from { opacity: 1; transform: none; } to { opacity: 0.18; transform: translateY(18px) scale(0.92) rotate(var(--tilt, -2deg)); } }
+  .kp-ribbon {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 0.45rem 0.2rem;
+    text-align: center;
+    font: 700 0.7rem/1 var(--font-ui);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    background: var(--accent);
+    color: var(--bg);
+    transform: translateY(105%);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s;
+    pointer-events: none;
+  }
+  .kp-side :global(.fc-poster::after) {
+    content: '';
+    position: absolute;
+    left: -10%;
+    right: -10%;
+    top: 50%;
+    height: 3px;
+    background: var(--ink);
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.35);
+    transform: rotate(-56deg) scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.22s cubic-bezier(0.6, 0, 0.4, 1);
+    pointer-events: none;
+  }
+  .won {
+    z-index: 1;
+  }
+  .won :global(.fc-poster) {
+    animation: kp-win 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    box-shadow:
+      0 0 0 3px var(--accent),
+      0 16px 34px rgb(0 0 0 / 0.45);
+  }
+  .won .kp-ribbon {
+    transform: none;
+  }
+  .won :global(.fc-title) {
+    color: var(--accent);
+    transition: color 0.2s;
+  }
+  @keyframes kp-win {
+    0% {
+      transform: none;
+    }
+    55% {
+      transform: translateY(-12px) scale(1.06);
+    }
+    100% {
+      transform: translateY(-8px) scale(1.04);
+    }
+  }
+  .lost :global(.fc-poster::after) {
+    transform: rotate(-56deg) scaleX(1);
+  }
+  .lost :global(.fc-poster img) {
+    filter: grayscale(1) brightness(0.55);
+    transition: filter 0.25s ease;
+  }
+  .kp-side.lost {
+    animation: kp-out 0.5s cubic-bezier(0.5, 0, 0.75, 0) 0.2s both;
+  }
+  .kp-side.lost:last-child {
+    --tilt: 2deg;
+  }
+  @keyframes kp-out {
+    from {
+      opacity: 1;
+      transform: none;
+    }
+    to {
+      opacity: 0.18;
+      transform: translateY(18px) scale(0.92) rotate(var(--tilt, -2deg));
+    }
+  }
 
   /* The VS medallion: a diamond on the dividing rule, with a faint clash. */
-  .kp-vs { position: relative; align-self: stretch; display: flex; align-items: center; justify-content: center; }
-  .kp-vs::before { content: ''; position: absolute; top: 4%; bottom: 4%; left: 50%; width: 1px; background: linear-gradient(to bottom, transparent, var(--border-strong) 22%, var(--border-strong) 78%, transparent); }
-  .kp-clash { position: absolute; width: 68px; height: 68px; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-  .kp-clash i { position: absolute; left: 50%; top: 50%; width: 1.5px; height: 60px; border-radius: 2px; background: linear-gradient(to bottom, transparent, var(--accent), transparent); opacity: 0.55; }
-  .kp-clash i:nth-child(1) { transform: translate(-50%, -50%) rotate(28deg); }
-  .kp-clash i:nth-child(2) { transform: translate(-50%, -50%) rotate(-28deg); }
-  .kp-medal { position: relative; width: 39px; height: 39px; display: flex; align-items: center; justify-content: center; animation: kp-pop 0.42s var(--ease-out) both; transition: transform 0.25s ease, opacity 0.25s ease; }
-  .kp-medal::before { content: ''; position: absolute; inset: 0; transform: rotate(45deg); border: 1.5px solid var(--accent); border-radius: 6px; background: var(--bg-raised);
-    box-shadow: 0 0 0 4px var(--bg-panel), 0 0 0 5px color-mix(in srgb, var(--accent) 35%, transparent), 0 8px 24px rgb(0 0 0 / 0.35); }
-  :global(:root[data-theme='matrix']) .kp-medal::before { box-shadow: 0 0 0 4px var(--bg-panel), 0 0 0 5px color-mix(in srgb, var(--accent) 45%, transparent), 0 0 18px color-mix(in srgb, var(--accent) 45%, transparent); }
-  .kp-medal span { position: relative; font: italic 700 0.76rem/1 var(--font-display); letter-spacing: 0.06em; color: var(--accent); }
-  .picked .kp-medal { transform: scale(0.5); opacity: 0; }
-  .picked .kp-clash { opacity: 0; transition: opacity 0.2s ease; }
-  @keyframes kp-pop { from { transform: scale(0.4); opacity: 0; } }
+  .kp-vs {
+    position: relative;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .kp-vs::before {
+    content: '';
+    position: absolute;
+    top: 4%;
+    bottom: 4%;
+    left: 50%;
+    width: 1px;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      var(--border-strong) 22%,
+      var(--border-strong) 78%,
+      transparent
+    );
+  }
+  .kp-clash {
+    position: absolute;
+    width: 68px;
+    height: 68px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .kp-clash i {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 1.5px;
+    height: 60px;
+    border-radius: 2px;
+    background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+    opacity: 0.55;
+  }
+  .kp-clash i:nth-child(1) {
+    transform: translate(-50%, -50%) rotate(28deg);
+  }
+  .kp-clash i:nth-child(2) {
+    transform: translate(-50%, -50%) rotate(-28deg);
+  }
+  .kp-medal {
+    position: relative;
+    width: 39px;
+    height: 39px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: kp-pop 0.42s var(--ease-out) both;
+    transition:
+      transform 0.25s ease,
+      opacity 0.25s ease;
+  }
+  .kp-medal::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: rotate(45deg);
+    border: 1.5px solid var(--accent);
+    border-radius: 6px;
+    background: var(--bg-raised);
+    box-shadow:
+      0 0 0 4px var(--bg-panel),
+      0 0 0 5px color-mix(in srgb, var(--accent) 35%, transparent),
+      0 8px 24px rgb(0 0 0 / 0.35);
+  }
+  :global(:root[data-theme='matrix']) .kp-medal::before {
+    box-shadow:
+      0 0 0 4px var(--bg-panel),
+      0 0 0 5px color-mix(in srgb, var(--accent) 45%, transparent),
+      0 0 18px color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+  .kp-medal span {
+    position: relative;
+    font: italic 700 0.76rem/1 var(--font-display);
+    letter-spacing: 0.06em;
+    color: var(--accent);
+  }
+  .picked .kp-medal {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  .picked .kp-clash {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  @keyframes kp-pop {
+    from {
+      transform: scale(0.4);
+      opacity: 0;
+    }
+  }
 
-  .kp-hint { display: flex; justify-content: center; flex-wrap: wrap; gap: 1.1rem; margin-top: 1rem; font-size: 0.78rem; color: var(--ink-faint); }
-  .kp-touch { display: none; }
-  .kp-tools { display: flex; justify-content: center; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; align-items: center; }
-  .kp-tools .btn { display: inline-flex; align-items: center; gap: 0.45em; font-size: 0.82rem; text-decoration: none; }
-  .kp-tools .btn .icon { width: 15px; height: 15px; }
-  .kp-tools .btn:disabled { opacity: 0.5; cursor: default; }
+  .kp-hint {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.1rem;
+    margin-top: 1rem;
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+  }
+  .kp-touch {
+    display: none;
+  }
+  .kp-tools {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1rem;
+    align-items: center;
+  }
+  .kp-tools .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    font-size: 0.82rem;
+    text-decoration: none;
+  }
+  .kp-tools .btn .icon {
+    width: 15px;
+    height: 15px;
+  }
+  .kp-tools .btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
 
-  .kp :global(.bt) { margin-top: 1.2rem; }
+  .kp :global(.bt) {
+    margin-top: 1.2rem;
+  }
 
   @media (prefers-reduced-motion: reduce) {
-    .kp-side, .kp-medal, .won :global(.fc-poster) { animation: none; }
+    .kp-side,
+    .kp-medal,
+    .won :global(.fc-poster) {
+      animation: none;
+    }
   }
   @media (hover: none) {
-    .kp-hint > span:not(.kp-touch) { display: none; }
-    .kp-touch { display: inline; }
+    .kp-hint > span:not(.kp-touch) {
+      display: none;
+    }
+    .kp-touch {
+      display: inline;
+    }
   }
   @media (max-width: 640px) {
-    .kp { padding: 0.9rem 0.7rem 1.1rem; }
-    .kp-prog { font-size: 0.64rem; letter-spacing: 0.1em; }
-    .kp-chips .all { display: none; }
-    .kp-chips .sum { display: inline; }
-    .kp-pair { grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr); }
-    .kp-clash { width: 40px; height: 40px; }
-    .kp-clash i { height: 38px; }
-    .kp-medal { width: 26px; height: 26px; }
-    .kp-medal::before { border-radius: 4px; box-shadow: 0 0 0 3px var(--bg-panel); }
-    .kp-medal span { font-size: 0.56rem; }
-    .kp-pair :global(.fc-ledger) { font-size: 0.7rem; }
-    .kp-pair :global(.fc-ledger .k) { max-width: 4.8em; overflow: hidden; text-overflow: ellipsis; }
-    .kp-ribbon { font-size: 0.56rem; letter-spacing: 0.08em; }
-    .kp-tools { gap: 0.45rem; }
-    .kp-tools .btn { padding: 0.42em 0.7em; }
+    .kp {
+      padding: 0.9rem 0.7rem 1.1rem;
+    }
+    .kp-prog {
+      font-size: 0.64rem;
+      letter-spacing: 0.1em;
+    }
+    .kp-chips .all {
+      display: none;
+    }
+    .kp-chips .sum {
+      display: inline;
+    }
+    .kp-pair {
+      grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr);
+    }
+    .kp-clash {
+      width: 40px;
+      height: 40px;
+    }
+    .kp-clash i {
+      height: 38px;
+    }
+    .kp-medal {
+      width: 26px;
+      height: 26px;
+    }
+    .kp-medal::before {
+      border-radius: 4px;
+      box-shadow: 0 0 0 3px var(--bg-panel);
+    }
+    .kp-medal span {
+      font-size: 0.56rem;
+    }
+    .kp-pair :global(.fc-ledger) {
+      font-size: 0.7rem;
+    }
+    .kp-pair :global(.fc-ledger .k) {
+      max-width: 4.8em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .kp-ribbon {
+      font-size: 0.56rem;
+      letter-spacing: 0.08em;
+    }
+    .kp-tools {
+      gap: 0.45rem;
+    }
+    .kp-tools .btn {
+      padding: 0.42em 0.7em;
+    }
   }
 </style>

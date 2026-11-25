@@ -14,9 +14,18 @@ export const movieById = new Map(movies.map((m) => [m.id, m]));
 export function stillsFor(id) {
   const film = stillsIndex.films[id];
   if (!film) return null;
-  return film.frames.map(([n, w, h, c, g, s]) => ({ n, w, h, c: `#${c}`, g, scene: s >= 0 ? film.scenes[s] : null }));
+  return film.frames.map(([n, w, h, c, g, s]) => ({
+    n,
+    w,
+    h,
+    c: `#${c}`,
+    g,
+    scene: s >= 0 ? film.scenes[s] : null,
+  }));
 }
-export const stillCounts = Object.fromEntries(Object.entries(stillsIndex.films).map(([id, f]) => [id, f.frames.length]));
+export const stillCounts = Object.fromEntries(
+  Object.entries(stillsIndex.films).map(([id, f]) => [id, f.frames.length]),
+);
 
 const slugifyName = (s) =>
   String(s)

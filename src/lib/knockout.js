@@ -90,9 +90,14 @@ export function filterPool(list, f) {
     if (f.yearMin != null && !(m.year >= f.yearMin)) return false;
     if (f.yearMax != null && !(m.year > 0 && m.year <= f.yearMax)) return false;
     if (genres.length && !matches(genres, (g) => m.genres?.includes(g), f.genreMatch)) return false;
-    if (collections.length && !matches(collections, (set) => set.has(m.id), f.collectionMatch)) return false;
+    if (collections.length && !matches(collections, (set) => set.has(m.id), f.collectionMatch))
+      return false;
     if (f.minVotes && !(m.imdbVotes >= f.minVotes)) return false;
-    if (director && !(m.directors ?? []).some((d) => fold(typeof d === 'string' ? d : d.name).includes(director))) return false;
+    if (
+      director &&
+      !(m.directors ?? []).some((d) => fold(typeof d === 'string' ? d : d.name).includes(director))
+    )
+      return false;
     return true;
   });
 }
@@ -100,7 +105,12 @@ export function filterPool(list, f) {
 // A sorted copy, best first.
 export function rankPool(list, rankBy) {
   const second = SECONDARY[rankBy] ?? 'imdb';
-  const key = (m) => [rankValue(m, rankBy), rankValue(m, second) ?? -1, num(m.imdbVotes) ?? -1, num(m.tmdbVotes) ?? -1];
+  const key = (m) => [
+    rankValue(m, rankBy),
+    rankValue(m, second) ?? -1,
+    num(m.imdbVotes) ?? -1,
+    num(m.tmdbVotes) ?? -1,
+  ];
   return list
     .map((m) => ({ m, k: key(m) }))
     .sort((a, b) => {
@@ -118,7 +128,8 @@ export function availableSizes(poolSize) {
 // ranks (1 = best). Seeded follows seedOrder; random shuffles with the PRNG.
 export function drawSlots(ranked, size, seeding = 'seeded', seed = 1) {
   const entrants = ranked.slice(0, size).map((m) => m.id);
-  if (entrants.length !== size || !SIZES.includes(size)) throw new Error(`A ${size}-film bracket needs ${size} films.`);
+  if (entrants.length !== size || !SIZES.includes(size))
+    throw new Error(`A ${size}-film bracket needs ${size} films.`);
   if (seeding === 'seeded') return seedOrder(size).map((s) => entrants[s - 1]);
   const rand = mulberry32(seed);
   const out = entrants.slice();
@@ -135,7 +146,8 @@ export function drawSlots(ranked, size, seeding = 'seeded', seed = 1) {
 // winners: "replay these exact matchups".
 export function bracketRounds(slots, picks = [], pairsFrom = null) {
   const rounds = [];
-  for (let n = slots.length; n > 1; n /= 2) rounds.push(Array.from({ length: n / 2 }, () => ({ a: null, b: null, w: null })));
+  for (let n = slots.length; n > 1; n /= 2)
+    rounds.push(Array.from({ length: n / 2 }, () => ({ a: null, b: null, w: null })));
   if (!rounds.length) return rounds;
   rounds[0].forEach((m, i) => {
     m.a = slots[2 * i];
@@ -167,7 +179,8 @@ export function nextMatch(rounds) {
   for (let r = 0; r < rounds.length; r++) {
     for (let i = 0; i < rounds[r].length; i++) {
       const m = rounds[r][i];
-      if (m.w == null) return m.a != null && m.b != null ? { round: r, index: i, play, a: m.a, b: m.b } : null;
+      if (m.w == null)
+        return m.a != null && m.b != null ? { round: r, index: i, play, a: m.a, b: m.b } : null;
       play++;
     }
   }
@@ -244,13 +257,24 @@ export function encodeShare({ slots, picks, cup = null, pairsFrom = null }) {
 // Parses a hash (with or without '#'): { kind: 'k', slots, code } or
 // { kind: 'c', cup, code, path }, or null.
 export function parseShare(hash) {
-  const parts = String(hash ?? '').replace(/^#/, '').split('.');
-  if (parts[0] === 'c1' && /^[a-z0-9-]+$/.test(parts[1] ?? '') && (parts.length === 3 || (parts.length === 4 && parts[3] === 'path'))) {
+  const parts = String(hash ?? '')
+    .replace(/^#/, '')
+    .split('.');
+  if (
+    parts[0] === 'c1' &&
+    /^[a-z0-9-]+$/.test(parts[1] ?? '') &&
+    (parts.length === 3 || (parts.length === 4 && parts[3] === 'path'))
+  ) {
     return { kind: 'c', cup: parts[1], code: parts[2], path: parts.length === 4 };
   }
   if (parts[0] !== 'k1' || parts.length < 3) return null;
   const slots = parts.slice(1, -1).map((s) => parseInt(s, 36));
-  if (!SIZES.includes(slots.length) || slots.some((id) => !(id > 0)) || new Set(slots).size !== slots.length) return null;
+  if (
+    !SIZES.includes(slots.length) ||
+    slots.some((id) => !(id > 0)) ||
+    new Set(slots).size !== slots.length
+  )
+    return null;
   return { kind: 'k', slots, code: parts[parts.length - 1] };
 }
 
@@ -268,7 +292,7 @@ export function agreement(refRounds, mineRounds) {
       if (pair(m) !== pair(o)) return;
       both++;
       if (m.w === o.w) same++;
-    })
+    }),
   );
   const a = champion(refRounds);
   const b = champion(mineRounds);
@@ -280,7 +304,10 @@ export function agreement(refRounds, mineRounds) {
 // Each view: { id, label, rounds: [{ name, matches: [{ ...match, round, index }] }] }.
 export function bracketViews(rounds) {
   const size = rounds.length ? rounds[0].length * 2 : 0;
-  const named = rounds.map((r, ri) => ({ name: roundName(r.length * 2), matches: r.map((m, i) => ({ ...m, round: ri, index: i })) }));
+  const named = rounds.map((r, ri) => ({
+    name: roundName(r.length * 2),
+    matches: r.map((m, i) => ({ ...m, round: ri, index: i })),
+  }));
   if (size <= SECTION) return [{ id: 'all', label: 'Bracket', rounds: named }];
   const sections = size / SECTION;
   const deep = Math.log2(SECTION);
@@ -308,20 +335,26 @@ export function cupProblems(cup, fileSlug = cup?.slug) {
   const out = [];
   if (!isObjLike(cup)) return ['not an object'];
   if (cup.format !== CUP_FORMAT) out.push(`format must be ${CUP_FORMAT}`);
-  if (typeof cup.slug !== 'string' || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(cup.slug)) out.push('slug must be lowercase words joined by hyphens');
-  else if (cup.slug !== fileSlug) out.push(`slug "${cup.slug}" doesn't match the file name "${fileSlug}"`);
+  if (typeof cup.slug !== 'string' || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(cup.slug))
+    out.push('slug must be lowercase words joined by hyphens');
+  else if (cup.slug !== fileSlug)
+    out.push(`slug "${cup.slug}" doesn't match the file name "${fileSlug}"`);
   if (typeof cup.title !== 'string' || !cup.title.trim()) out.push('title is missing');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(cup.date ?? '')) out.push('date must be YYYY-MM-DD');
   if (!SIZES.includes(cup.size)) out.push(`size must be one of ${SIZES.join(', ')}`);
   const entrants = Array.isArray(cup.entrants) ? cup.entrants : [];
-  if (entrants.length !== cup.size) out.push(`entrants: expected ${cup.size}, found ${entrants.length}`);
+  if (entrants.length !== cup.size)
+    out.push(`entrants: expected ${cup.size}, found ${entrants.length}`);
   const ids = entrants.map((e) => e?.id);
-  if (!ids.every((id) => Number.isInteger(id) && id > 0) || new Set(ids).size !== ids.length) out.push('entrant ids must be unique positive integers');
+  if (!ids.every((id) => Number.isInteger(id) && id > 0) || new Set(ids).size !== ids.length)
+    out.push('entrant ids must be unique positive integers');
   const seeds = entrants.map((e) => e?.seed).sort((a, b) => a - b);
   if (!seeds.every((s, i) => s === i + 1)) out.push(`seeds must be 1 to ${cup.size}, each once`);
-  if (!entrants.every((e) => typeof e?.title === 'string' && e.title)) out.push('every entrant needs a title');
+  if (!entrants.every((e) => typeof e?.title === 'string' && e.title))
+    out.push('every entrant needs a title');
   if (out.length) return out;
-  if (!Array.isArray(cup.picks) || !isComplete(ids, cup.picks)) out.push(`picks must be ${cup.size - 1} legal winners in play order`);
+  if (!Array.isArray(cup.picks) || !isComplete(ids, cup.picks))
+    out.push(`picks must be ${cup.size - 1} legal winners in play order`);
   return out;
 }
 

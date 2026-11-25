@@ -40,7 +40,9 @@ function clip(text, max) {
 // for `days` days starting the day before `from` (so a visitor whose local
 // date is behind UTC still finds today).
 export function filmOfDaySchedule(movies, from = new Date(), days = 62) {
-  const pool = movies.filter((m) => m.myRating?.overall >= FOD_MIN_SCORE && m.backdrop).sort((a, b) => a.id - b.id);
+  const pool = movies
+    .filter((m) => m.myRating?.overall >= FOD_MIN_SCORE && m.backdrop)
+    .sort((a, b) => a.id - b.id);
   if (!pool.length) return [];
   const start = Math.floor(from.getTime() / DAY_MS) - 1;
   // As the Daily Reel: a cycle's first weeks skip films its predecessor showed
@@ -52,12 +54,21 @@ export function filmOfDaySchedule(movies, from = new Date(), days = 62) {
   const cycles = new Map();
   const order = (c) => {
     if (!cycles.has(c)) {
-      const tail = new Set(raw(c - 1).slice(-GAP).map((m) => m.id));
+      const tail = new Set(
+        raw(c - 1)
+          .slice(-GAP)
+          .map((m) => m.id),
+      );
       const list = raw(c);
       const head = list.slice(0, GAP);
       const rest = list.slice(GAP);
       const mid = Math.floor(rest.length / 2);
-      cycles.set(c, [...head.filter((m) => !tail.has(m.id)), ...rest.slice(0, mid), ...head.filter((m) => tail.has(m.id)), ...rest.slice(mid)]);
+      cycles.set(c, [
+        ...head.filter((m) => !tail.has(m.id)),
+        ...rest.slice(0, mid),
+        ...head.filter((m) => tail.has(m.id)),
+        ...rest.slice(mid),
+      ]);
     }
     return cycles.get(c);
   };

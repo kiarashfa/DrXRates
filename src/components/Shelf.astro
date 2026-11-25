@@ -1,16 +1,48 @@
 ---
 // rail: the arrows sit on a rule under the row (← ─ page dots ─ →) instead of in the head.
-const { title, note = null, noteHref = null, label = 'films', paged = true, rail = false } = Astro.props;
+const {
+  title,
+  note = null,
+  noteHref = null,
+  label = 'films',
+  paged = true,
+  rail = false,
+} = Astro.props;
 ---
 
 <section class={`shelf${rail ? ' railed' : ''}`} data-shelf>
   <div class="shelf-head">
     <h2>{title}</h2>
-    {note && <span class="shelf-note">{noteHref ? <a href={noteHref} style="color:inherit;">{note}</a> : note}</span>}
+    {note && (
+      <span class="shelf-note">
+        {noteHref ? (
+          <a href={noteHref} style="color:inherit;">
+            {note}
+          </a>
+        ) : (
+          note
+        )}
+      </span>
+    )}
     {paged && !rail && (
       <div class="shelf-arrows">
-        <button class="shelf-arrow" data-shelf-prev aria-label={`Previous ${label}`} data-testid="shelf-prev" disabled>←</button>
-        <button class="shelf-arrow" data-shelf-next aria-label={`Next ${label}`} data-testid="shelf-next">→</button>
+        <button
+          class="shelf-arrow"
+          data-shelf-prev
+          aria-label={`Previous ${label}`}
+          data-testid="shelf-prev"
+          disabled
+        >
+          ←
+        </button>
+        <button
+          class="shelf-arrow"
+          data-shelf-next
+          aria-label={`Next ${label}`}
+          data-testid="shelf-next"
+        >
+          →
+        </button>
       </div>
     )}
   </div>
@@ -19,9 +51,26 @@ const { title, note = null, noteHref = null, label = 'films', paged = true, rail
   </div>
   {paged && rail && (
     <div class="shelf-rail">
-      <button class="shelf-arrow" data-shelf-prev aria-label={`Previous ${label}`} data-testid="shelf-prev" disabled>←</button>
-      <span class="ln"></span><span class="dots" data-shelf-dots aria-hidden="true"></span><span class="ln r"></span>
-      <button class="shelf-arrow" data-shelf-next aria-label={`Next ${label}`} data-testid="shelf-next">→</button>
+      <button
+        class="shelf-arrow"
+        data-shelf-prev
+        aria-label={`Previous ${label}`}
+        data-testid="shelf-prev"
+        disabled
+      >
+        ←
+      </button>
+      <span class="ln"></span>
+      <span class="dots" data-shelf-dots aria-hidden="true"></span>
+      <span class="ln r"></span>
+      <button
+        class="shelf-arrow"
+        data-shelf-next
+        aria-label={`Next ${label}`}
+        data-testid="shelf-next"
+      >
+        →
+      </button>
     </div>
   )}
 </section>

@@ -91,29 +91,72 @@ function groupBy(items, keysOf) {
   return groups;
 }
 
-const filmRef = (m) => ({ id: m.id, slug: m.slug, title: m.title, year: m.year ?? null, poster: m.poster ?? null });
+const filmRef = (m) => ({
+  id: m.id,
+  slug: m.slug,
+  title: m.title,
+  year: m.year ?? null,
+  poster: m.poster ?? null,
+});
 
 // Crew roles set against the criterion closest to the job: writers against
 // the content half, the four form-side roles against one form criterion.
 const CREW = [
-  { role: 'w', label: 'Writers', against: 'content average', side: 'content', score: (r) => r.contentAvg },
-  { role: 'c', label: 'Directors of photography', against: 'cinematography', side: 'form', score: (r) => r.scores.cinematography },
+  {
+    role: 'w',
+    label: 'Writers',
+    against: 'content average',
+    side: 'content',
+    score: (r) => r.contentAvg,
+  },
+  {
+    role: 'c',
+    label: 'Directors of photography',
+    against: 'cinematography',
+    side: 'form',
+    score: (r) => r.scores.cinematography,
+  },
   { role: 'm', label: 'Composers', against: 'sound', side: 'form', score: (r) => r.scores.sound },
-  { role: 'e', label: 'Editors', against: 'directing & editing', side: 'form', score: (r) => r.scores.directing },
-  { role: 'p', label: 'Production designers', against: 'design', side: 'form', score: (r) => r.scores.design },
+  {
+    role: 'e',
+    label: 'Editors',
+    against: 'directing & editing',
+    side: 'form',
+    score: (r) => r.scores.directing,
+  },
+  {
+    role: 'p',
+    label: 'Production designers',
+    against: 'design',
+    side: 'form',
+    score: (r) => r.scores.design,
+  },
 ];
 
-export function computeInsights({ movies, credits, people, directorPageFor = () => null, listSize = 6 }) {
+export function computeInsights({
+  movies,
+  credits,
+  people,
+  directorPageFor = () => null,
+  listSize = 6,
+}) {
   const rated = movies.filter((m) => m.myRating);
   const overall = (m) => m.myRating.overall;
 
   // Dr. X vs the crowd (IMDb), ranked by percentile gap rather than points:
   // Dr. X's scale sits about a point lower, so raw differences mostly say that.
-  const crowd = rated.filter((m) => m.omdb?.imdb != null && (m.omdb.imdbVotes ?? 0) >= CROWD_VOTE_FLOOR);
+  const crowd = rated.filter(
+    (m) => m.omdb?.imdb != null && (m.omdb.imdbVotes ?? 0) >= CROWD_VOTE_FLOOR,
+  );
   const pX = percentileRanker(crowd.map(overall));
   const pI = percentileRanker(crowd.map((m) => m.omdb.imdb));
   const gaps = crowd
-    .map((m) => ({ ...filmRef(m), x: overall(m), imdb: m.omdb.imdb, gap: pX(overall(m)) - pI(m.omdb.imdb) }))
+    .map((m) => ({
+      ...filmRef(m),
+      x: overall(m),
+      imdb: m.omdb.imdb,
+      gap: pX(overall(m)) - pI(m.omdb.imdb),
+    }))
     .sort((a, b) => b.gap - a.gap || b.x - b.imdb - (a.x - a.imdb) || a.id - b.id);
   const withMc = rated.filter((m) => m.omdb?.metacritic != null);
   const withRt = rated.filter((m) => m.omdb?.rottenTomatoes != null);
@@ -126,8 +169,16 @@ export function computeInsights({ movies, credits, people, directorPageFor = () 
     const key = `${m.myRating.contentAvg}|${m.myRating.formAvg}`;
     cells.set(key, (cells.get(key) ?? 0) + 1);
   }
-  const lean = rated.map((m) => ({ ...filmRef(m), c: m.myRating.contentAvg, f: m.myRating.formAvg, x: overall(m) }));
-  const byLean = (dir) => [...lean].sort((a, b) => dir * (b.c - b.f - (a.c - a.f)) || b.x - a.x || a.id - b.id).slice(0, listSize);
+  const lean = rated.map((m) => ({
+    ...filmRef(m),
+    c: m.myRating.contentAvg,
+    f: m.myRating.formAvg,
+    x: overall(m),
+  }));
+  const byLean = (dir) =>
+    [...lean]
+      .sort((a, b) => dir * (b.c - b.f - (a.c - a.f)) || b.x - a.x || a.id - b.id)
+      .slice(0, listSize);
 
   // Breakdowns.
   const dist = new Map();
@@ -146,7 +197,13 @@ export function computeInsights({ movies, credits, people, directorPageFor = () 
     .filter(([, ms]) => ms.length >= MIN_FILMS)
     .map(([id, ms]) => {
       const name = ms[0].directors.find((d) => d.id === id).name;
-      return { id, name, page: directorPageFor(name), n: ms.length, mean: round2(mean(ms.map(overall))) };
+      return {
+        id,
+        name,
+        page: directorPageFor(name),
+        n: ms.length,
+        mean: round2(mean(ms.map(overall))),
+      };
     })
     .sort((a, b) => b.mean - a.mean || b.n - a.n || a.name.localeCompare(b.name))
     .slice(0, 10);
@@ -177,7 +234,12 @@ export function computeInsights({ movies, credits, people, directorPageFor = () 
     }
     const rows = [...byPerson]
       .filter(([, vals]) => vals.length >= MIN_FILMS)
-      .map(([id, vals]) => ({ id, name: people[id]?.[0] ?? `#${id}`, n: vals.length, mean: round2(mean(vals)) }))
+      .map(([id, vals]) => ({
+        id,
+        name: people[id]?.[0] ?? `#${id}`,
+        n: vals.length,
+        mean: round2(mean(vals)),
+      }))
       .sort((a, b) => b.mean - a.mean || b.n - a.n || a.name.localeCompare(b.name));
     return { role, ...rest, people: rows.length, rows: rows.slice(0, listSize) };
   });
@@ -191,13 +253,37 @@ export function computeInsights({ movies, credits, people, directorPageFor = () 
       n: crowd.length,
       medianX: median(crowd.map(overall)),
       medianImdb: median(crowd.map((m) => m.omdb.imdb)),
-      r: round2(pearson(crowd.map(overall), crowd.map((m) => m.omdb.imdb))),
+      r: round2(
+        pearson(
+          crowd.map(overall),
+          crowd.map((m) => m.omdb.imdb),
+        ),
+      ),
       points: crowd.map((m) => [m.omdb.imdb, overall(m)]),
-      curve: quantileCurve(crowd.map((m) => m.omdb.imdb), crowd.map(overall)),
+      curve: quantileCurve(
+        crowd.map((m) => m.omdb.imdb),
+        crowd.map(overall),
+      ),
       higher: gaps.slice(0, listSize),
       lower: gaps.slice(-listSize).reverse(),
-      metacritic: { n: withMc.length, r: round2(pearson(withMc.map(overall), withMc.map((m) => m.omdb.metacritic))) },
-      rottenTomatoes: { n: withRt.length, r: round2(pearson(withRt.map(overall), withRt.map((m) => m.omdb.rottenTomatoes))) },
+      metacritic: {
+        n: withMc.length,
+        r: round2(
+          pearson(
+            withMc.map(overall),
+            withMc.map((m) => m.omdb.metacritic),
+          ),
+        ),
+      },
+      rottenTomatoes: {
+        n: withRt.length,
+        r: round2(
+          pearson(
+            withRt.map(overall),
+            withRt.map((m) => m.omdb.rottenTomatoes),
+          ),
+        ),
+      },
     },
     cf: {
       medianContent: median(c),
@@ -206,7 +292,9 @@ export function computeInsights({ movies, credits, people, directorPageFor = () 
       contentAhead: lean.filter((m) => m.c > m.f).length,
       even: lean.filter((m) => m.c === m.f).length,
       cells: [...cells].map(([key, count]) => [...key.split('|').map(Number), count]),
-      criteria: Object.fromEntries(ALL_KEYS.map((k) => [k.key, round2(mean(rated.map((m) => m.myRating.scores[k.key])))])),
+      criteria: Object.fromEntries(
+        ALL_KEYS.map((k) => [k.key, round2(mean(rated.map((m) => m.myRating.scores[k.key])))]),
+      ),
       contentLed: byLean(1),
       formLed: byLean(-1),
     },

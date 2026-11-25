@@ -51,7 +51,12 @@
     const store = loadStore();
     ratings = store.ratings;
     entries = Object.entries(store.ratings)
-      .map(([id, e]) => ({ id, title: e.title ?? `#${id}`, updatedAt: e.updatedAt, totals: computeTotals(e.scores) }))
+      .map(([id, e]) => ({
+        id,
+        title: e.title ?? `#${id}`,
+        updatedAt: e.updatedAt,
+        totals: computeTotals(e.scores),
+      }))
       .sort((a, b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? ''));
     linkTitles(Object.keys(store.ratings).length);
   }
@@ -62,8 +67,14 @@
     try {
       const { ratings, watchlist, knockout } = (await importBackupFile(file)).sections;
       refresh();
-      const part = (r, one, many) => (r?.imported || r?.skipped) && `${r.imported} ${r.imported === 1 ? one : many}${r.skipped ? ` (${r.skipped} skipped)` : ''}`;
-      const parts = [part(ratings, 'rating', 'ratings'), part(watchlist, 'watchlist film', 'watchlist films'), part(knockout, 'Knockout bracket', 'Knockout brackets')].filter(Boolean);
+      const part = (r, one, many) =>
+        (r?.imported || r?.skipped) &&
+        `${r.imported} ${r.imported === 1 ? one : many}${r.skipped ? ` (${r.skipped} skipped)` : ''}`;
+      const parts = [
+        part(ratings, 'rating', 'ratings'),
+        part(watchlist, 'watchlist film', 'watchlist films'),
+        part(knockout, 'Knockout bracket', 'Knockout brackets'),
+      ].filter(Boolean);
       notice = `Imported ${parts.join(' and ') || '0 ratings'}.`;
     } catch (err) {
       notice = `Import failed: ${err.message}`;
@@ -76,51 +87,70 @@
 {#if entries == null || (ratedFilms == null && !ratedFailed)}
   <div class="panel"><p class="muted">Loading…</p></div>
 {:else}
-<div class="panel-stack">
-{#if ratedFilms}<TasteMatch {ratings} films={ratedFilms} />{/if}
-<div class="panel">
-  <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap; margin-bottom:1rem;">
-    <button class="btn" onclick={exportBackup} data-testid="export-btn">Export my data</button>
-    <button class="btn" onclick={() => fileInput?.click()} data-testid="import-btn">Import data</button>
-    <input type="file" accept=".json,application/json" style="display:none" bind:this={fileInput} onchange={onImportFile} />
-    {#if notice}<span class="small" style="color:var(--accent);" data-testid="notice">{notice}</span>{/if}
-  </div>
+  <div class="panel-stack">
+    {#if ratedFilms}<TasteMatch {ratings} films={ratedFilms} />{/if}
+    <div class="panel">
+      <div
+        style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap; margin-bottom:1rem;"
+      >
+        <button class="btn" onclick={exportBackup} data-testid="export-btn">Export my data</button>
+        <button class="btn" onclick={() => fileInput?.click()} data-testid="import-btn"
+          >Import data</button
+        >
+        <input
+          type="file"
+          accept=".json,application/json"
+          style="display:none"
+          bind:this={fileInput}
+          onchange={onImportFile}
+        />
+        {#if notice}<span class="small" style="color:var(--accent);" data-testid="notice"
+            >{notice}</span
+          >{/if}
+      </div>
 
-  {#if entries.length === 0}
-    <p class="muted" data-testid="empty-state">
-      You haven't rated anything yet. Open any film and use "Rate it yourself"; your scores stay in this browser.
-    </p>
-  {:else}
-    <!-- Five columns don't fit a phone: the table scrolls inside its panel. -->
-    <div style="overflow-x:auto;">
-    <table class="data-table" data-testid="ratings-table">
-      <thead>
-        <tr><th>Film</th><th>Content</th><th>Form</th><th>Overall</th><th>Rated on</th></tr>
-      </thead>
-      <tbody>
-        {#each entries as e (e.id)}
-          <tr>
-            <td>
-              {#if catalogById?.get(e.id)}
-                <a href={`${base}/movie/${catalogById.get(e.id).slug}`}>{e.title}</a>
-              {:else}
-                {e.title}
-              {/if}
-            </td>
-            <td class="num" style="color:var(--content-c);">{e.totals ? f1(e.totals.contentAvg) : '–'}</td>
-            <td class="num" style="color:var(--form-c);">{e.totals ? f1(e.totals.formAvg) : '–'}</td>
-            <td class="num">{e.totals ? f1(e.totals.overall) : '–'}</td>
-            <td class="num faint">{e.updatedAt ? e.updatedAt.slice(0, 10) : '–'}</td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
+      {#if entries.length === 0}
+        <p class="muted" data-testid="empty-state">
+          You haven't rated anything yet. Open any film and use "Rate it yourself"; your scores stay
+          in this browser.
+        </p>
+      {:else}
+        <!-- Five columns don't fit a phone: the table scrolls inside its panel. -->
+        <div style="overflow-x:auto;">
+          <table class="data-table" data-testid="ratings-table">
+            <thead>
+              <tr><th>Film</th><th>Content</th><th>Form</th><th>Overall</th><th>Rated on</th></tr>
+            </thead>
+            <tbody>
+              {#each entries as e (e.id)}
+                <tr>
+                  <td>
+                    {#if catalogById?.get(e.id)}
+                      <a href={`${base}/movie/${catalogById.get(e.id).slug}`}>{e.title}</a>
+                    {:else}
+                      {e.title}
+                    {/if}
+                  </td>
+                  <td class="num" style="color:var(--content-c);"
+                    >{e.totals ? f1(e.totals.contentAvg) : '–'}</td
+                  >
+                  <td class="num" style="color:var(--form-c);"
+                    >{e.totals ? f1(e.totals.formAvg) : '–'}</td
+                  >
+                  <td class="num">{e.totals ? f1(e.totals.overall) : '–'}</td>
+                  <td class="num faint">{e.updatedAt ? e.updatedAt.slice(0, 10) : '–'}</td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      {/if}
+      <p class="small faint" style="margin-top:1rem;">
+        These ratings live only in this browser's local storage. There's no account, and they're
+        never sent to this site, so export the JSON backup (it also holds your watchlist) or connect
+        a cloud save on <a href={`${base}/user`} style="color:var(--accent);">your profile</a> before
+        clearing your browser data or switching machines.
+      </p>
     </div>
-  {/if}
-  <p class="small faint" style="margin-top:1rem;">
-    These ratings live only in this browser's local storage. There's no account, and they're never sent to this site,
-    so export the JSON backup (it also holds your watchlist) or connect a cloud save on <a href={`${base}/user`} style="color:var(--accent);">your profile</a> before clearing your browser data or switching machines.
-  </p>
-</div>
-</div>
+  </div>
 {/if}

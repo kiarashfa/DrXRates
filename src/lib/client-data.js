@@ -14,20 +14,26 @@ import { ALL_KEYS } from '../../shared/rating-meta.mjs';
 // slug that can't be rebuilt must fail the build rather than break a link.
 for (const m of movies) {
   if (m.slug !== movieSlug(m.title, m.year, m.id)) {
-    throw new Error(`client-data: slug for movie ${m.id} can't be rebuilt from title/year/id ("${m.slug}")`);
+    throw new Error(
+      `client-data: slug for movie ${m.id} can't be rebuilt from title/year/id ("${m.slug}")`,
+    );
   }
 }
 
 // Column files (films, scores, posters) share this row order and carry the
 // same rev, so the loader can refuse to join rows from different builds.
 const rows = [...movies].sort((a, b) => a.id - b.id);
-const rev = createHash('sha1').update(rows.map((m) => m.id).join(',')).digest('hex').slice(0, 10);
+const rev = createHash('sha1')
+  .update(rows.map((m) => m.id).join(','))
+  .digest('hex')
+  .slice(0, 10);
 
 const genreNames = [...new Set(rows.flatMap((m) => m.genres))].sort();
 const genreBit = new Map(genreNames.map((g, i) => [g, 1 << i]));
 
 const directorById = new Map();
-for (const m of rows) for (const d of m.directors) if (!directorById.has(d.id)) directorById.set(d.id, d.name);
+for (const m of rows)
+  for (const d of m.directors) if (!directorById.has(d.id)) directorById.set(d.id, d.name);
 const directorIds = [...directorById.keys()].sort((a, b) => a - b);
 const directorIndex = new Map(directorIds.map((id, i) => [id, i]));
 
@@ -43,13 +49,16 @@ function netGraph(films, minFilms) {
   const count = new Map();
   for (const m of films) {
     const c = credits.films[m.id] ?? {};
-    for (const p of new Set(NET_ROLES.flatMap((r) => c[r] ?? []))) count.set(p, (count.get(p) ?? 0) + 1);
+    for (const p of new Set(NET_ROLES.flatMap((r) => c[r] ?? [])))
+      count.set(p, (count.get(p) ?? 0) + 1);
   }
   const ids = [...count.keys()].filter((p) => count.get(p) >= minFilms).sort((a, b) => a - b);
   const index = new Map(ids.map((p, i) => [p, i]));
   const filmCredits = films.map((m) => {
     const c = credits.films[m.id] ?? {};
-    const out = NET_ROLES.map((r) => (c[r] ?? []).filter((p) => index.has(p)).map((p) => index.get(p)));
+    const out = NET_ROLES.map((r) =>
+      (c[r] ?? []).filter((p) => index.has(p)).map((p) => index.get(p)),
+    );
     while (out.length && !out.at(-1).length) out.pop();
     return out;
   });
@@ -57,14 +66,41 @@ function netGraph(films, minFilms) {
   return { ids, credits: filmCredits, rev: netRev };
 }
 let ratedNet = null;
-const ratedGraph = () => (ratedNet ??= netGraph(rows.filter((m) => m.myRating), 1));
+const ratedGraph = () =>
+  (ratedNet ??= netGraph(
+    rows.filter((m) => m.myRating),
+    1,
+  ));
 
 // Card rows: what a film card, Tonight or Compare shows for one film, as
 // arrays in CARD_KEYS order (directors as [id, name], at most two).
-const CARD_KEYS = ['id', 'title', 'year', 'directors', 'genres', 'runtime', 'tmdb', 'imdb', 'imdbVotes', 'rt', 'metacritic', 'poster'];
+const CARD_KEYS = [
+  'id',
+  'title',
+  'year',
+  'directors',
+  'genres',
+  'runtime',
+  'tmdb',
+  'imdb',
+  'imdbVotes',
+  'rt',
+  'metacritic',
+  'poster',
+];
 const cardRow = (m) => [
-  m.id, m.title, m.year ?? null, m.directors.slice(0, 2).map((d) => [d.id, d.name]), m.genres, m.runtime ?? null,
-  m.tmdbRating?.score ?? null, m.omdb?.imdb ?? null, m.omdb?.imdbVotes ?? null, m.omdb?.rottenTomatoes ?? null, m.omdb?.metacritic ?? null, m.poster ?? null,
+  m.id,
+  m.title,
+  m.year ?? null,
+  m.directors.slice(0, 2).map((d) => [d.id, d.name]),
+  m.genres,
+  m.runtime ?? null,
+  m.tmdbRating?.score ?? null,
+  m.omdb?.imdb ?? null,
+  m.omdb?.imdbVotes ?? null,
+  m.omdb?.rottenTomatoes ?? null,
+  m.omdb?.metacritic ?? null,
+  m.poster ?? null,
 ];
 
 // Poster lookups for a handful of films (search results, cards) come from
@@ -141,7 +177,9 @@ const files = {
   posters: () => ({ rev, poster: col((m) => m.poster) }),
   // Original titles, only where they differ from the title (search).
   'original-titles': () => ({
-    byId: Object.fromEntries(rows.filter((m) => m.originalTitle).map((m) => [m.id, m.originalTitle])),
+    byId: Object.fromEntries(
+      rows.filter((m) => m.originalTitle).map((m) => [m.id, m.originalTitle]),
+    ),
   }),
   // Dr. X's ten sub-scores per rated film, in ALL_KEYS order; totals are
   // recomputed client-side with computeTotals. Small, and the only file that
@@ -149,7 +187,11 @@ const files = {
   // frames each film has (films without frames are left out), for card tags.
   rated: () => ({
     keys: ALL_KEYS.map((k) => k.key),
-    byId: Object.fromEntries(rows.filter((m) => m.myRating).map((m) => [m.id, ALL_KEYS.map((k) => m.myRating.scores[k.key])])),
+    byId: Object.fromEntries(
+      rows
+        .filter((m) => m.myRating)
+        .map((m) => [m.id, ALL_KEYS.map((k) => m.myRating.scores[k.key])]),
+    ),
     stills: stillCounts,
   }),
   // Dr. X's films as card rows minus the poster (posters are high-entropy and
@@ -188,7 +230,10 @@ const files = {
     let col = '';
     for (const m of frameFilms) {
       stillsFor(m.id).forEach((f, i) => {
-        if (f.n !== i + 1 || !/^#[0-9a-f]{6}$/.test(f.c)) throw new Error(`client-data: frame ${f.n} of film ${m.id} breaks the wall's layout (numbering or colour)`);
+        if (f.n !== i + 1 || !/^#[0-9a-f]{6}$/.test(f.c))
+          throw new Error(
+            `client-data: frame ${f.n} of film ${m.id} breaks the wall's layout (numbering or colour)`,
+          );
         ar.push(Math.round((100 * f.w) / f.h));
         col += f.c.slice(1);
       });
@@ -197,7 +242,12 @@ const files = {
   },
   // Search's non-film entries: directors with a page and collections.
   'search-extra': () => ({
-    directors: directors.map((d) => ({ slug: d.slug, name: d.name, photo: d.profile ?? d.portraitUrl ?? null, rated: d.myCount })),
+    directors: directors.map((d) => ({
+      slug: d.slug,
+      name: d.name,
+      photo: d.profile ?? d.portraitUrl ?? null,
+      rated: d.myCount,
+    })),
     collections: collections.map((c) => ({ slug: c.slug, title: c.title })),
   }),
   // Dr. X Net over Dr. X's films: the films (ids delta-encoded; pop as in
@@ -235,7 +285,8 @@ const files = {
     const count = new Map();
     for (const m of films) {
       const c = credits.films[m.id] ?? {};
-      for (const p of new Set(NET_ROLES.flatMap((r) => c[r] ?? []))) count.set(p, (count.get(p) ?? 0) + 1);
+      for (const p of new Set(NET_ROLES.flatMap((r) => c[r] ?? [])))
+        count.set(p, (count.get(p) ?? 0) + 1);
     }
     return {
       people: [...count]
@@ -249,7 +300,12 @@ const files = {
   // credit shards). Films are the rows of `films` (same rev).
   'net-archive': () => {
     const g = netGraph(rows, 2);
-    return { rev, roles: NET_ROLES, people: { id: delta(g.ids), name: g.ids.map((p) => people[p]?.[0] ?? '') }, credits: g.credits };
+    return {
+      rev,
+      roles: NET_ROLES,
+      people: { id: delta(g.ids), name: g.ids.map((p) => people[p]?.[0] ?? '') },
+      credits: g.credits,
+    };
   },
   // The archive catalog's first view: a fixed, evenly spread ~1/35 of the
   // archive with everything a card shows, so the page doesn't need the full
@@ -272,14 +328,20 @@ export const CLIENT_FILES = files;
 
 // One poster shard: { [id]: poster } for films with id % POSTER_SHARDS === shard.
 export function posterShard(shard) {
-  return Object.fromEntries(rows.filter((m) => m.id % POSTER_SHARDS === shard && m.poster).map((m) => [m.id, m.poster]));
+  return Object.fromEntries(
+    rows.filter((m) => m.id % POSTER_SHARDS === shard && m.poster).map((m) => [m.id, m.poster]),
+  );
 }
 
 // Backdrop shards, the same way: /data/backdrops/<n>.json holds { [id]: backdrop }
 // (the profile page's cover is the backdrop of the visitor's highest-rated film).
 export const BACKDROP_SHARDS = 64;
 export function backdropShard(shard) {
-  return Object.fromEntries(rows.filter((m) => m.id % BACKDROP_SHARDS === shard && m.backdrop).map((m) => [m.id, m.backdrop]));
+  return Object.fromEntries(
+    rows
+      .filter((m) => m.id % BACKDROP_SHARDS === shard && m.backdrop)
+      .map((m) => [m.id, m.backdrop]),
+  );
 }
 
 // Credits for a few films (compare, later the graph): /data/credits/<n>.json
@@ -292,7 +354,8 @@ export const PEOPLE_SHARDS = 512;
 
 export function creditShard(shard) {
   const films = {};
-  for (const [id, roles] of Object.entries(credits.films)) if (Number(id) % CREDIT_SHARDS === shard) films[id] = roles;
+  for (const [id, roles] of Object.entries(credits.films))
+    if (Number(id) % CREDIT_SHARDS === shard) films[id] = roles;
   return { roles: credits.roles, films };
 }
 
@@ -302,7 +365,8 @@ let peopleBuckets = null;
 export function peopleShard(shard) {
   if (!peopleBuckets) {
     peopleBuckets = Array.from({ length: PEOPLE_SHARDS }, () => ({}));
-    for (const [id, entry] of Object.entries(people)) peopleBuckets[Number(id) % PEOPLE_SHARDS][id] = entry;
+    for (const [id, entry] of Object.entries(people))
+      peopleBuckets[Number(id) % PEOPLE_SHARDS][id] = entry;
   }
   return peopleBuckets[shard];
 }
@@ -326,5 +390,9 @@ function clipOverview(text) {
   return `${cut.slice(0, cut.lastIndexOf(' '))}…`;
 }
 export function overviewShard(shard) {
-  return Object.fromEntries(rows.filter((m) => m.id % OVERVIEW_SHARDS === shard && m.overview).map((m) => [m.id, clipOverview(m.overview)]));
+  return Object.fromEntries(
+    rows
+      .filter((m) => m.id % OVERVIEW_SHARDS === shard && m.overview)
+      .map((m) => [m.id, clipOverview(m.overview)]),
+  );
 }

@@ -5,17 +5,46 @@
 // shows the visitor's picture instead. The `profile` group sits under the
 // profile circle at the end of the wide header, not in the text menus.
 export const NAV = [
-  { id: 'archive', label: 'Archive', href: '/archive', icon: 'archive', desc: 'Browse, filter and sort every film' },
+  {
+    id: 'archive',
+    label: 'Archive',
+    href: '/archive',
+    icon: 'archive',
+    desc: 'Browse, filter and sort every film',
+  },
   {
     id: 'explore',
     label: 'Explore',
     icon: 'explore',
     items: [
-      { label: 'Dr. X Net', href: '/net', icon: 'net', desc: 'Films and the people who made them, connected' },
-      { label: 'Frame wall', href: '/frame-wall', icon: 'stills', desc: "Every frame Dr. X has captured, to wander" },
+      {
+        label: 'Dr. X Net',
+        href: '/net',
+        icon: 'net',
+        desc: 'Films and the people who made them, connected',
+      },
+      {
+        label: 'Frame wall',
+        href: '/frame-wall',
+        icon: 'stills',
+        desc: 'Every frame Dr. X has captured, to wander',
+      },
       { label: 'Insights', href: '/insights', icon: 'chart', desc: "Dr. X's ratings in numbers" },
-      { label: 'Collections', href: '/collections', also: '/collection/', icon: 'shelf', desc: 'Filmographies and franchises' },
-      { label: 'Directors', href: '/directors', also: '/director/', icon: 'chair', desc: 'Shot length, director by director', footer: false },
+      {
+        label: 'Collections',
+        href: '/collections',
+        also: '/collection/',
+        icon: 'shelf',
+        desc: 'Filmographies and franchises',
+      },
+      {
+        label: 'Directors',
+        href: '/directors',
+        also: '/director/',
+        icon: 'chair',
+        desc: 'Shot length, director by director',
+        footer: false,
+      },
     ],
   },
   {
@@ -23,10 +52,35 @@ export const NAV = [
     label: 'Play',
     icon: 'dice',
     items: [
-      { label: 'Name the Frame', href: '/name-the-frame', icon: 'stills', desc: "Name the film from one of Dr. X's frames", footer: false },
-      { label: 'Knockout', href: '/knockout', also: '/knockout/', icon: 'trophy', desc: "Head-to-head brackets and Dr. X's Cup", footer: false },
-      { label: 'Tonight', href: '/tonight', icon: 'dice', desc: 'Let the ledger pick a film for tonight', footer: false },
-      { label: 'Compare', href: '/compare', icon: 'compare', desc: 'Two films side by side', footer: false },
+      {
+        label: 'Name the Frame',
+        href: '/name-the-frame',
+        icon: 'stills',
+        desc: "Name the film from one of Dr. X's frames",
+        footer: false,
+      },
+      {
+        label: 'Knockout',
+        href: '/knockout',
+        also: '/knockout/',
+        icon: 'trophy',
+        desc: "Head-to-head brackets and Dr. X's Cup",
+        footer: false,
+      },
+      {
+        label: 'Tonight',
+        href: '/tonight',
+        icon: 'dice',
+        desc: 'Let the ledger pick a film for tonight',
+        footer: false,
+      },
+      {
+        label: 'Compare',
+        href: '/compare',
+        icon: 'compare',
+        desc: 'Two films side by side',
+        footer: false,
+      },
     ],
   },
   {
@@ -35,17 +89,49 @@ export const NAV = [
     icon: 'user',
     profile: true,
     items: [
-      { label: 'Profile', href: '/user', icon: 'user', avatar: true, desc: 'Your picture, your numbers, your save', footer: false },
-      { label: 'Your ratings', href: '/your-ratings', icon: 'star', desc: 'Your scores, kept in this browser', footer: false },
-      { label: 'Watchlist', href: '/watchlist', icon: 'bookmark', desc: 'Films you mean to see', footer: false },
-      { label: 'Taste match', href: '/your-ratings#taste-match', icon: 'match', desc: "Your scores against Dr. X's" },
+      {
+        label: 'Profile',
+        href: '/user',
+        icon: 'user',
+        avatar: true,
+        desc: 'Your picture, your numbers, your save',
+        footer: false,
+      },
+      {
+        label: 'Your ratings',
+        href: '/your-ratings',
+        icon: 'star',
+        desc: 'Your scores, kept in this browser',
+        footer: false,
+      },
+      {
+        label: 'Watchlist',
+        href: '/watchlist',
+        icon: 'bookmark',
+        desc: 'Films you mean to see',
+        footer: false,
+      },
+      {
+        label: 'Taste match',
+        href: '/your-ratings#taste-match',
+        icon: 'match',
+        desc: "Your scores against Dr. X's",
+      },
     ],
   },
-  { id: 'about', label: 'About', href: '/about', icon: 'info', desc: 'The ten-part system and the data' },
+  {
+    id: 'about',
+    label: 'About',
+    href: '/about',
+    icon: 'info',
+    desc: 'The ten-part system and the data',
+  },
 ];
 
 // Groups of one collapse to their entry (keeping the group's id).
-export const NAV_ENTRIES = NAV.map((n) => (n.items?.length === 1 ? { ...n.items[0], id: n.id } : n));
+export const NAV_ENTRIES = NAV.map((n) =>
+  n.items?.length === 1 ? { ...n.items[0], id: n.id } : n,
+);
 
 // Every page link, flattened (footer, search).
 export const NAV_LINKS = NAV.flatMap((n) => n.items ?? [n]);
@@ -59,5 +145,9 @@ export function isCurrent(item, path, base) {
   const root = base.replace(/\/$/, '');
   const p = path.replace(/\/$/, '');
   const target = root + clean;
-  return p === target || p.startsWith(`${target}/`) || (item.also != null && p.startsWith(root + item.also));
+  return (
+    p === target ||
+    p.startsWith(`${target}/`) ||
+    (item.also != null && p.startsWith(root + item.also))
+  );
 }

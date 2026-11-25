@@ -17,8 +17,16 @@
   const icon = (name) => `${withBase('/icons.svg')}#i-${name}`;
 </script>
 
-<button class="watch-pill" type="button" aria-pressed={saved} onclick={() => (saved = toggleWatchlist(id, title))} data-testid="watch-btn">
-  <svg class="icon" aria-hidden="true"><use href={icon(saved ? 'bookmarked' : 'bookmark')}></use></svg>
+<button
+  class="watch-pill"
+  type="button"
+  aria-pressed={saved}
+  onclick={() => (saved = toggleWatchlist(id, title))}
+  data-testid="watch-btn"
+>
+  <svg class="icon" aria-hidden="true"
+    ><use href={icon(saved ? 'bookmarked' : 'bookmark')}></use></svg
+  >
   <span class="watch-labels">
     <span class:off={saved}>Add to watchlist</span>
     <span class:off={!saved}>On your watchlist</span>

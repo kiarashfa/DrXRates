@@ -1,9 +1,19 @@
 <script>
-  import { CONTENT_KEYS, FORM_KEYS, computeTotals, fmtScore } from '../../../shared/rating-meta.mjs';
+  import {
+    CONTENT_KEYS,
+    FORM_KEYS,
+    computeTotals,
+    fmtScore,
+  } from '../../../shared/rating-meta.mjs';
 
   // Two films side by side: pass pair = { a, b } labels (e.g. "A", "B"); mine is
   // then film A (solid) and visitor film B (dashed), and both totals show.
-  let { mine = null, visitor = null, pair = null, legend = 'solid: my score · dashed: yours' } = $props();
+  let {
+    mine = null,
+    visitor = null,
+    pair = null,
+    legend = 'solid: my score · dashed: yours',
+  } = $props();
 
   const primary = $derived(mine ?? visitor);
   const overlay = $derived(mine && visitor ? visitor : null);
@@ -22,11 +32,19 @@
     return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
   }
   function ring(cx, cy, frac) {
-    return Array.from({ length: 5 }, (_, i) => vertex(cx, cy, i, R * frac).map((v) => v.toFixed(1)).join(',')).join(' ');
+    return Array.from({ length: 5 }, (_, i) =>
+      vertex(cx, cy, i, R * frac)
+        .map((v) => v.toFixed(1))
+        .join(','),
+    ).join(' ');
   }
   function shape(cx, cy, keys, scores) {
     return keys
-      .map((k, i) => vertex(cx, cy, i, (Math.max(scores[k.key], 0.08) / 5) * R).map((v) => v.toFixed(1)).join(','))
+      .map((k, i) =>
+        vertex(cx, cy, i, (Math.max(scores[k.key], 0.08) / 5) * R)
+          .map((v) => v.toFixed(1))
+          .join(','),
+      )
       .join(' ');
   }
   function labelPos(cx, cy, i) {
@@ -36,48 +54,110 @@
   }
 </script>
 
-<svg viewBox="0 0 660 320" width="100%" role="img" aria-label="Rating breakdown as two radar pentagons, content and form">
+<svg
+  viewBox="0 0 660 320"
+  width="100%"
+  role="img"
+  aria-label="Rating breakdown as two radar pentagons, content and form"
+>
   {#each [{ cx: C1, keys: CONTENT_KEYS, color: 'var(--content-c)', label: 'Content', avg: primaryTotals?.contentAvg, avg2: overlayTotals?.contentAvg }, { cx: C2, keys: FORM_KEYS, color: 'var(--form-c)', label: 'Form', avg: primaryTotals?.formAvg, avg2: overlayTotals?.formAvg }] as p}
     {#each [1, 0.6, 0.2] as frac}
-      <polygon points={ring(p.cx, CY, frac)} style={`fill: none; stroke: var(--border); stroke-width: ${frac === 1 ? 1.2 : 0.7};`} />
+      <polygon
+        points={ring(p.cx, CY, frac)}
+        style={`fill: none; stroke: var(--border); stroke-width: ${frac === 1 ? 1.2 : 0.7};`}
+      />
     {/each}
     {#each [0, 1, 2, 3, 4] as i}
       <line
-        x1={p.cx} y1={CY}
-        x2={vertex(p.cx, CY, i, R)[0].toFixed(1)} y2={vertex(p.cx, CY, i, R)[1].toFixed(1)}
+        x1={p.cx}
+        y1={CY}
+        x2={vertex(p.cx, CY, i, R)[0].toFixed(1)}
+        y2={vertex(p.cx, CY, i, R)[1].toFixed(1)}
         style="stroke: var(--border); stroke-width: 0.7;"
       />
-      <text x={labelPos(p.cx, CY, i).x} y={labelPos(p.cx, CY, i).y} text-anchor={labelPos(p.cx, CY, i).anchor}
-        style="fill: var(--ink-muted); font-family: var(--font-ui); font-size: 11.5px;">{p.keys[i].short}</text>
+      <text
+        x={labelPos(p.cx, CY, i).x}
+        y={labelPos(p.cx, CY, i).y}
+        text-anchor={labelPos(p.cx, CY, i).anchor}
+        style="fill: var(--ink-muted); font-family: var(--font-ui); font-size: 11.5px;"
+        >{p.keys[i].short}</text
+      >
     {/each}
     {#if primary}
-      <polygon points={shape(p.cx, CY, p.keys, primary)} style={`fill: ${p.color}; fill-opacity: 0.22; stroke: ${p.color}; stroke-width: 2;`} />
+      <polygon
+        points={shape(p.cx, CY, p.keys, primary)}
+        style={`fill: ${p.color}; fill-opacity: 0.22; stroke: ${p.color}; stroke-width: 2;`}
+      />
       {#each p.keys as k, i}
         <circle
           cx={vertex(p.cx, CY, i, (Math.max(primary[k.key], 0.08) / 5) * R)[0].toFixed(1)}
           cy={vertex(p.cx, CY, i, (Math.max(primary[k.key], 0.08) / 5) * R)[1].toFixed(1)}
-          r="3" style={`fill: ${p.color};`}
+          r="3"
+          style={`fill: ${p.color};`}
         />
       {/each}
     {/if}
     {#if overlay}
-      <polygon points={shape(p.cx, CY, p.keys, overlay)} style={`fill: none; stroke: ${p.color}; stroke-width: 1.4; stroke-dasharray: 4 3;`} />
+      <polygon
+        points={shape(p.cx, CY, p.keys, overlay)}
+        style={`fill: none; stroke: ${p.color}; stroke-width: 1.4; stroke-dasharray: 4 3;`}
+      />
     {/if}
-    <text x={p.cx} y="290" text-anchor="middle" style="fill: var(--ink); font-family: var(--font-ui); font-size: 13px; font-weight: 600;">
-      {#if pair && overlay}{p.label} · {pair.a} {f1(p.avg)} · {pair.b} {f1(p.avg2)}{:else}{p.label}{p.avg != null ? ` · ${f1(p.avg)}` : ''}{/if}
+    <text
+      x={p.cx}
+      y="290"
+      text-anchor="middle"
+      style="fill: var(--ink); font-family: var(--font-ui); font-size: 13px; font-weight: 600;"
+    >
+      {#if pair && overlay}{p.label} · {pair.a}
+        {f1(p.avg)} · {pair.b}
+        {f1(p.avg2)}{:else}{p.label}{p.avg != null ? ` · ${f1(p.avg)}` : ''}{/if}
     </text>
   {/each}
   {#if pair && overlay}
-    <text x="305" y="140" text-anchor="middle" style="fill: var(--ink); font-family: var(--font-numeral); font-size: 24px; font-weight: 600;">{f1(primaryTotals?.overall)}</text>
-    <text x="305" y="165" text-anchor="middle" style="fill: var(--ink-muted); font-family: var(--font-numeral); font-size: 18px; font-weight: 600;">{f1(overlayTotals?.overall)}</text>
-    <text x="305" y="185" text-anchor="middle" style="fill: var(--ink-faint); font-family: var(--font-ui); font-size: 11px;">{pair.a} · {pair.b} / 10</text>
+    <text
+      x="305"
+      y="140"
+      text-anchor="middle"
+      style="fill: var(--ink); font-family: var(--font-numeral); font-size: 24px; font-weight: 600;"
+      >{f1(primaryTotals?.overall)}</text
+    >
+    <text
+      x="305"
+      y="165"
+      text-anchor="middle"
+      style="fill: var(--ink-muted); font-family: var(--font-numeral); font-size: 18px; font-weight: 600;"
+      >{f1(overlayTotals?.overall)}</text
+    >
+    <text
+      x="305"
+      y="185"
+      text-anchor="middle"
+      style="fill: var(--ink-faint); font-family: var(--font-ui); font-size: 11px;"
+      >{pair.a} · {pair.b} / 10</text
+    >
   {:else}
-    <text x="305" y="150" text-anchor="middle" style="fill: var(--ink); font-family: var(--font-numeral); font-size: 26px; font-weight: 600;">
+    <text
+      x="305"
+      y="150"
+      text-anchor="middle"
+      style="fill: var(--ink); font-family: var(--font-numeral); font-size: 26px; font-weight: 600;"
+    >
       {primaryTotals ? f1(primaryTotals.overall) : '–'}
     </text>
-    <text x="305" y="170" text-anchor="middle" style="fill: var(--ink-muted); font-family: var(--font-ui); font-size: 12px;">/ 10</text>
+    <text
+      x="305"
+      y="170"
+      text-anchor="middle"
+      style="fill: var(--ink-muted); font-family: var(--font-ui); font-size: 12px;">/ 10</text
+    >
   {/if}
   {#if overlay && legend}
-    <text x="305" y="308" text-anchor="middle" style="fill: var(--ink-muted); font-family: var(--font-ui); font-size: 11.5px;">{legend}</text>
+    <text
+      x="305"
+      y="308"
+      text-anchor="middle"
+      style="fill: var(--ink-muted); font-family: var(--font-ui); font-size: 11.5px;">{legend}</text
+    >
   {/if}
 </svg>

@@ -12,16 +12,35 @@ import { dailyPool, dailySchedule, dailyNumber } from '../lib/frame-game.js';
 const years = frameFilms.map((m) => m.year).filter(Boolean);
 const frameIds = new Set(frameFilms.map((m) => m.id));
 const directorCounts = new Map();
-for (const m of frameFilms) for (const d of m.directors) directorCounts.set(d.name, (directorCounts.get(d.name) ?? 0) + 1);
-const directors = [...directorCounts].filter(([, n]) => n >= 3).map(([name]) => name).sort((a, b) => a.localeCompare(b));
+for (const m of frameFilms)
+  for (const d of m.directors) directorCounts.set(d.name, (directorCounts.get(d.name) ?? 0) + 1);
+const directors = [...directorCounts]
+  .filter(([, n]) => n >= 3)
+  .map(([name]) => name)
+  .sort((a, b) => a.localeCompare(b));
 const collectionList = collections
   .map((c) => ({ slug: c.slug, title: c.title, ids: c.movieIds.filter((id) => frameIds.has(id)) }))
   .filter((c) => c.ids.length >= 4);
-const schedule = dailySchedule(dailyPool(frameFilms.map((m) => ({ id: m.id, frames: stillCounts[m.id], votes: m.omdb?.imdbVotes ?? 0 })))).map((d) => ({ ...d, number: dailyNumber(d.date) }));
+const schedule = dailySchedule(
+  dailyPool(
+    frameFilms.map((m) => ({ id: m.id, frames: stillCounts[m.id], votes: m.omdb?.imdbVotes ?? 0 })),
+  ),
+).map((d) => ({ ...d, number: dailyNumber(d.date) }));
 ---
 
-<Base title="Name the Frame" description="A frame from one of Dr. X's films: name it before the lights go out. Survival, Sprint, typed answers, a Daily Reel and party play.">
+<Base
+  title="Name the Frame"
+  description="A frame from one of Dr. X's films: name it before the lights go out. Survival, Sprint, typed answers, a Daily Reel and party play."
+>
   <section class="wrap" style="padding-top:2.4rem; padding-bottom:1rem;">
-    <NameTheFrame client:load {directors} collections={collectionList} {schedule} yearMin={Math.min(...years)} yearMax={Math.max(...years)} filmCount={movies.length} />
+    <NameTheFrame
+      client:load
+      {directors}
+      collections={collectionList}
+      {schedule}
+      yearMin={Math.min(...years)}
+      yearMax={Math.max(...years)}
+      filmCount={movies.length}
+    />
   </section>
 </Base>

@@ -15,13 +15,24 @@ const isObj = (v) => v != null && typeof v === 'object' && !Array.isArray(v);
 const isIds = (v) => Array.isArray(v) && v.every((id) => Number.isInteger(id) && id > 0);
 
 function validBracket(b) {
-  return isObj(b) && isIds(b.slots) && isIds(b.picks) && b.picks.length < b.slots.length && isObj(b.films);
+  return (
+    isObj(b) &&
+    isIds(b.slots) &&
+    isIds(b.picks) &&
+    b.picks.length < b.slots.length &&
+    isObj(b.films)
+  );
 }
 function validCupPlay(c) {
   return isObj(c) && isIds(c.picks) && (c.mode === 'free' || c.mode === 'path');
 }
 function validHistory(h) {
-  return isObj(h) && isObj(h.champion) && Number.isInteger(h.champion.id) && typeof h.finishedAt === 'string';
+  return (
+    isObj(h) &&
+    isObj(h.champion) &&
+    Number.isInteger(h.champion.id) &&
+    typeof h.finishedAt === 'string'
+  );
 }
 
 function load() {
@@ -30,7 +41,9 @@ function load() {
     version: 1,
     current: validBracket(p?.current) ? p.current : null,
     history: Array.isArray(p?.history) ? p.history.filter(validHistory) : [],
-    cups: isObj(p?.cups) ? Object.fromEntries(Object.entries(p.cups).filter(([, c]) => validCupPlay(c))) : {},
+    cups: isObj(p?.cups)
+      ? Object.fromEntries(Object.entries(p.cups).filter(([, c]) => validCupPlay(c)))
+      : {},
   };
 }
 
@@ -56,7 +69,12 @@ export function clearCurrent() {
 
 export function addHistory(entry) {
   const store = load();
-  store.history = [entry, ...store.history.filter((h) => !(h.finishedAt === entry.finishedAt && h.champion.id === entry.champion.id))].slice(0, HISTORY_CAP);
+  store.history = [
+    entry,
+    ...store.history.filter(
+      (h) => !(h.finishedAt === entry.finishedAt && h.champion.id === entry.champion.id),
+    ),
+  ].slice(0, HISTORY_CAP);
   save(store);
 }
 
@@ -84,7 +102,9 @@ export function mergeKnockout(incoming) {
       skipped++;
       continue;
     }
-    if (!store.history.some((x) => x.finishedAt === h.finishedAt && x.champion.id === h.champion.id)) {
+    if (
+      !store.history.some((x) => x.finishedAt === h.finishedAt && x.champion.id === h.champion.id)
+    ) {
       store.history.push(h);
       imported++;
     }

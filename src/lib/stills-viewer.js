@@ -16,10 +16,12 @@ export function initStills() {
     b.addEventListener('click', () => {
       section.dataset.view = b.dataset.setView;
       writeJson(VIEW_KEY, b.dataset.setView);
-      for (const x of section.querySelectorAll('[data-set-view]')) x.setAttribute('aria-pressed', String(x === b));
+      for (const x of section.querySelectorAll('[data-set-view]'))
+        x.setAttribute('aria-pressed', String(x === b));
     });
   }
-  if (readJson(VIEW_KEY) === 'posts' && section.dataset.view !== 'posts') section.querySelector('[data-set-view="posts"]')?.click();
+  if (readJson(VIEW_KEY) === 'posts' && section.dataset.view !== 'posts')
+    section.querySelector('[data-set-view="posts"]')?.click();
 
   // Frames load when they come within 600px of the screen (hidden views never do).
   const io = new IntersectionObserver(
@@ -31,7 +33,7 @@ export function initStills() {
         io.unobserve(e.target);
       }
     },
-    { rootMargin: '600px 0px' }
+    { rootMargin: '600px 0px' },
   );
   for (const img of section.querySelectorAll('img[data-src]')) io.observe(img);
 
@@ -40,11 +42,22 @@ export function initStills() {
   const byN = new Map();
   for (const a of section.querySelectorAll('a.still[data-w]')) {
     const n = Number(a.dataset.frame);
-    if (!byN.has(n)) byN.set(n, { n, href: a.href, w: Number(a.dataset.w), h: Number(a.dataset.h), c: a.style.getPropertyValue('--c'), scene: a.dataset.scene || null, alt: a.querySelector('img')?.alt ?? '' });
+    if (!byN.has(n))
+      byN.set(n, {
+        n,
+        href: a.href,
+        w: Number(a.dataset.w),
+        h: Number(a.dataset.h),
+        c: a.style.getPropertyValue('--c'),
+        scene: a.dataset.scene || null,
+        alt: a.querySelector('img')?.alt ?? '',
+      });
   }
   const frames = [...byN.values()].sort((a, b) => a.n - b.n);
   const title = section.dataset.film;
-  let dialog = null, index = 0, opener = null;
+  let dialog = null,
+    index = 0,
+    opener = null;
 
   section.addEventListener('click', (e) => {
     const a = e.target.closest('a.still[data-frame]');
@@ -55,7 +68,8 @@ export function initStills() {
   });
 
   function build() {
-    const icon = (name) => `<svg class="icon" aria-hidden="true"><use href="${withBase('/icons.svg')}#i-${name}"></use></svg>`;
+    const icon = (name) =>
+      `<svg class="icon" aria-hidden="true"><use href="${withBase('/icons.svg')}#i-${name}"></use></svg>`;
     dialog = document.createElement('dialog');
     dialog.className = 'still-viewer';
     dialog.setAttribute('aria-label', `Stills from ${title}`);
@@ -76,8 +90,13 @@ export function initStills() {
       else if (act === 'copy') copyLink(e.target.closest('[data-act]'));
     });
     dialog.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
-      else if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        step(-1);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        step(1);
+      }
     });
     let x0 = null;
     const stage = dialog.querySelector('.sv-stage');
@@ -106,11 +125,14 @@ export function initStills() {
     img.height = f.h;
     img.alt = f.alt;
     img.src = f.href;
-    dialog.querySelector('.sv-title i').textContent = f.n === 1 ? 'the lead frame' : f.scene ?? '';
+    dialog.querySelector('.sv-title i').textContent =
+      f.n === 1 ? 'the lead frame' : (f.scene ?? '');
     dialog.querySelector('.sv-count').textContent = `${f.n} / ${frames.at(-1).n}`;
-    for (const b of dialog.querySelectorAll('[data-act="prev"], [data-act="next"]')) b.hidden = frames.length < 2;
+    for (const b of dialog.querySelectorAll('[data-act="prev"], [data-act="next"]'))
+      b.hidden = frames.length < 2;
     history.replaceState(history.state, '', `#still-${f.n}`);
-    for (const d of [-1, 1]) new Image().src = frames[(index + d + frames.length) % frames.length].href;
+    for (const d of [-1, 1])
+      new Image().src = frames[(index + d + frames.length) % frames.length].href;
   }
 
   function open(i) {

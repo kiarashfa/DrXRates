@@ -73,7 +73,12 @@ export async function parseRatings(path) {
     }
 
     if (missing > 0) {
-      warnings.push({ row: rowNumber, title, kind: 'missing-subscores', detail: `${missing} of 10 sub-scores unreadable` });
+      warnings.push({
+        row: rowNumber,
+        title,
+        kind: 'missing-subscores',
+        detail: `${missing} of 10 sub-scores unreadable`,
+      });
       return;
     }
 
@@ -87,13 +92,23 @@ export async function parseRatings(path) {
       ['overall', totals.overall, sheetOverall],
     ]) {
       if (sheet != null && Math.abs(mine - sheet) > 0.051) {
-        warnings.push({ row: rowNumber, title, kind: 'avg-mismatch', detail: `${label}: computed ${mine} vs sheet ${sheet}` });
+        warnings.push({
+          row: rowNumber,
+          title,
+          kind: 'avg-mismatch',
+          detail: `${label}: computed ${mine} vs sheet ${sheet}`,
+        });
       }
     }
 
     const dupKey = `${title.toLowerCase()}|${year}`;
     if (seen.has(dupKey)) {
-      warnings.push({ row: rowNumber, title, kind: 'duplicate', detail: `same title+year as row ${seen.get(dupKey)}; keeping the first` });
+      warnings.push({
+        row: rowNumber,
+        title,
+        kind: 'duplicate',
+        detail: `same title+year as row ${seen.get(dupKey)}; keeping the first`,
+      });
       return;
     }
     seen.set(dupKey, rowNumber);
@@ -131,7 +146,13 @@ export async function parseAsl(path) {
     const asl = asNumber(cellVal(row, 7));
     const marker = asString(cellVal(row, 9));
     if (asl == null) {
-      skipped.push({ row: rowNumber, director: currentDirector, title, year, raw: asString(cellVal(row, 7)) });
+      skipped.push({
+        row: rowNumber,
+        director: currentDirector,
+        title,
+        year,
+        raw: asString(cellVal(row, 7)),
+      });
       return;
     }
     rows.push({ excelRow: rowNumber, director: currentDirector, title, year, asl, marker });

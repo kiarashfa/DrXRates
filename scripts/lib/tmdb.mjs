@@ -18,7 +18,8 @@ export function fetchStats() {
 
 function token() {
   const t = process.env.TMDB_TOKEN;
-  if (!t) throw new Error('TMDB_TOKEN missing: put TMDB_TOKEN (and TMDB_API_KEY, OMDB_API_KEY) in .env');
+  if (!t)
+    throw new Error('TMDB_TOKEN missing: put TMDB_TOKEN (and TMDB_API_KEY, OMDB_API_KEY) in .env');
   return t;
 }
 
@@ -129,7 +130,11 @@ export const topRated = (page, opts) => tmdbGet('/movie/top_rated', { page: Stri
 // Most-voted films via /discover. `maxVotes` (vote_count.lte) lets callers walk
 // the universe downward in bands, past the 500-page cap of a single sorted list.
 export const mostVoted = (page, { minVotes, maxVotes, ...opts } = {}) => {
-  const params = { sort_by: 'vote_count.desc', 'vote_count.gte': String(minVotes), page: String(page) };
+  const params = {
+    sort_by: 'vote_count.desc',
+    'vote_count.gte': String(minVotes),
+    page: String(page),
+  };
   if (maxVotes != null) params['vote_count.lte'] = String(maxVotes);
   return tmdbGet('/discover/movie', params, opts);
 };

@@ -4,11 +4,16 @@ import CatalogBrowser from '../components/CatalogBrowser.svelte';
 import { movies, meta } from '../lib/data.js';
 
 // Filter menus and totals are known at build time, so they are right before the archive loads.
-const decades = [...new Set(movies.filter((m) => m.year).map((m) => Math.floor(m.year / 10) * 10))].sort((a, b) => b - a);
+const decades = [
+  ...new Set(movies.filter((m) => m.year).map((m) => Math.floor(m.year / 10) * 10)),
+].sort((a, b) => b - a);
 const genres = [...new Set(movies.flatMap((m) => m.genres))].sort();
 ---
 
-<Base title="The archive" description="Every film on the shelf, rated or not: search, filter by decade or genre, and sort by any score.">
+<Base
+  title="The archive"
+  description="Every film on the shelf, rated or not: search, filter by decade or genre, and sort by any score."
+>
   <section class="wrap" style="padding-top:2.4rem; padding-bottom:1rem;">
     <div class="archive-head">
       <div>
@@ -16,9 +21,18 @@ const genres = [...new Set(movies.flatMap((m) => m.genres))].sort();
         <p class="muted">Every film on the shelf, rated or not. Search, filter, sort.</p>
       </div>
       <dl class="stats">
-        <div><dt>films</dt><dd>{meta.counts.movies.toLocaleString()}</dd></div>
-        <div><dt>rated by Dr. X</dt><dd>{meta.counts.rated.toLocaleString()}</dd></div>
-        <div><dt>with frames</dt><dd>{meta.counts.withStills.toLocaleString()}</dd></div>
+        <div>
+          <dt>films</dt>
+          <dd>{meta.counts.movies.toLocaleString()}</dd>
+        </div>
+        <div>
+          <dt>rated by Dr. X</dt>
+          <dd>{meta.counts.rated.toLocaleString()}</dd>
+        </div>
+        <div>
+          <dt>with frames</dt>
+          <dd>{meta.counts.withStills.toLocaleString()}</dd>
+        </div>
       </dl>
     </div>
     <div class="catalog-slot">
@@ -28,14 +42,44 @@ const genres = [...new Set(movies.flatMap((m) => m.genres))].sort();
 </Base>
 
 <style>
-  .archive-head { display: flex; align-items: end; gap: 1rem 2rem; flex-wrap: wrap; padding-bottom: 1.2rem; }
-  h1 { font-size: clamp(2rem, 4.5vw, 3rem); margin: 0; }
-  p { margin: 0.2rem 0 0; }
-  .stats { display: flex; gap: 1.6rem; margin: 0 0 0 auto; }
-  .stats div { display: flex; flex-direction: column-reverse; }
-  dt { font-size: 0.74rem; color: var(--ink-faint); }
-  dd { margin: 0; font: 560 1.6rem/1 var(--font-numeral); }
+  .archive-head {
+    display: flex;
+    align-items: end;
+    gap: 1rem 2rem;
+    flex-wrap: wrap;
+    padding-bottom: 1.2rem;
+  }
+  h1 {
+    font-size: clamp(2rem, 4.5vw, 3rem);
+    margin: 0;
+  }
+  p {
+    margin: 0.2rem 0 0;
+  }
+  .stats {
+    display: flex;
+    gap: 1.6rem;
+    margin: 0 0 0 auto;
+  }
+  .stats div {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+  dt {
+    font-size: 0.74rem;
+    color: var(--ink-faint);
+  }
+  dd {
+    margin: 0;
+    font: 560 1.6rem/1 var(--font-numeral);
+  }
   /* The catalog only exists once its island has loaded; hold its place so the footer doesn't jump. */
-  .catalog-slot { min-height: max(80svh, 560px); }
-  @media (max-width: 600px) { .stats { margin-left: 0; } }
+  .catalog-slot {
+    min-height: max(80svh, 560px);
+  }
+  @media (max-width: 600px) {
+    .stats {
+      margin-left: 0;
+    }
+  }
 </style>

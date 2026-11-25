@@ -3,7 +3,10 @@ import Base from '../layouts/Base.astro';
 import Profile from '../components/Profile.svelte';
 ---
 
-<Base title="Your profile" description="Your picture, your numbers and your save: everything you keep on Dr. X Rates, in this browser or your own cloud.">
+<Base
+  title="Your profile"
+  description="Your picture, your numbers and your save: everything you keep on Dr. X Rates, in this browser or your own cloud."
+>
   <div class="profile-page">
     <Profile client:only="svelte" />
   </div>
@@ -11,5 +14,8 @@ import Profile from '../components/Profile.svelte';
 
 <style>
   /* Reserves the page while the island (which reads this browser's storage) renders, so the footer never moves into view. */
-  .profile-page { min-height: 100vh; padding-bottom: 3rem; }
+  .profile-page {
+    min-height: 100vh;
+    padding-bottom: 3rem;
+  }
 </style>

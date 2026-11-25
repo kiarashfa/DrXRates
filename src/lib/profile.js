@@ -20,12 +20,26 @@ export const MONO_COLORS = ['accent', 'content', 'form', 'sage', 'plum', 'amber'
 const PICTURE_MAX = 200_000;
 
 const isObj = (v) => v != null && typeof v === 'object' && !Array.isArray(v);
-const validPicture = (p) => typeof p === 'string' && p.length <= PICTURE_MAX && /^data:image\/(webp|jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(p);
-const validMono = (m) => isObj(m) && typeof m.letters === 'string' && m.letters.trim().length > 0 && m.letters.length <= 2 && MONO_COLORS.includes(m.color);
+const validPicture = (p) =>
+  typeof p === 'string' &&
+  p.length <= PICTURE_MAX &&
+  /^data:image\/(webp|jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(p);
+const validMono = (m) =>
+  isObj(m) &&
+  typeof m.letters === 'string' &&
+  m.letters.trim().length > 0 &&
+  m.letters.length <= 2 &&
+  MONO_COLORS.includes(m.color);
 function validSource(s) {
   if (!isObj(s)) return false;
   if (s.kind === 'upload') return true;
-  return s.kind === 'frame' && Number.isInteger(s.film) && s.film > 0 && Number.isInteger(s.frame) && s.frame > 0;
+  return (
+    s.kind === 'frame' &&
+    Number.isInteger(s.film) &&
+    s.film > 0 &&
+    Number.isInteger(s.frame) &&
+    s.frame > 0
+  );
 }
 
 function clean(p) {
@@ -35,7 +49,10 @@ function clean(p) {
     version: 1,
     name: typeof p.name === 'string' ? p.name.trim().slice(0, NAME_MAX) : '',
     picture,
-    mono: !picture && validMono(p.mono) ? { letters: p.mono.letters.trim(), color: p.mono.color } : null,
+    mono:
+      !picture && validMono(p.mono)
+        ? { letters: p.mono.letters.trim(), color: p.mono.color }
+        : null,
     source: picture && validSource(p.source) ? p.source : null,
     createdAt: typeof p.createdAt === 'string' ? p.createdAt : null,
     updatedAt: typeof p.updatedAt === 'string' ? p.updatedAt : null,
@@ -57,7 +74,13 @@ function announce() {
 // profile as stored.
 export function updateProfile(patch) {
   const now = new Date().toISOString();
-  const prev = loadProfile() ?? { name: '', picture: null, mono: null, source: null, createdAt: now };
+  const prev = loadProfile() ?? {
+    name: '',
+    picture: null,
+    mono: null,
+    source: null,
+    createdAt: now,
+  };
   const next = clean({ ...prev, ...patch, updatedAt: now });
   writeJson(PROFILE_KEY, next);
   announce();
@@ -71,9 +94,13 @@ export function clearProfile() {
 
 // Two letters from a name ("Sara Moradi" → "SM", "Sara" → "SA").
 export function initials(name) {
-  const words = String(name ?? '').trim().split(/\s+/).filter(Boolean);
+  const words = String(name ?? '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
   if (!words.length) return '';
-  const letters = words.length > 1 ? words[0][0] + words[words.length - 1][0] : words[0].slice(0, 2);
+  const letters =
+    words.length > 1 ? words[0][0] + words[words.length - 1][0] : words[0].slice(0, 2);
   return letters.toUpperCase();
 }
 
@@ -97,9 +124,13 @@ export function mergeProfile(incoming) {
   const theirs = clean(incoming);
   if (!theirs) return { imported: 0, skipped: 1 };
   const mine = loadProfile();
-  const newer = !mine || (theirs.updatedAt && (!mine.updatedAt || theirs.updatedAt > mine.updatedAt));
+  const newer =
+    !mine || (theirs.updatedAt && (!mine.updatedAt || theirs.updatedAt > mine.updatedAt));
   if (!newer) return { imported: 0, skipped: 0 };
-  writeJson(PROFILE_KEY, { ...theirs, createdAt: [mine?.createdAt, theirs.createdAt].filter(Boolean).sort()[0] ?? theirs.updatedAt });
+  writeJson(PROFILE_KEY, {
+    ...theirs,
+    createdAt: [mine?.createdAt, theirs.createdAt].filter(Boolean).sort()[0] ?? theirs.updatedAt,
+  });
   announce();
   return { imported: 1, skipped: 0 };
 }

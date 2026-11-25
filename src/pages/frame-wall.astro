@@ -5,18 +5,26 @@ import { stillCounts } from '../lib/data.js';
 import { frameFilms } from '../lib/client-data.js';
 
 // Menus and totals are known at build time, so the controls render with the page.
-const decades = [...new Set(frameFilms.filter((m) => m.year).map((m) => Math.floor(m.year / 10) * 10))].sort((a, b) => b - a);
+const decades = [
+  ...new Set(frameFilms.filter((m) => m.year).map((m) => Math.floor(m.year / 10) * 10)),
+].sort((a, b) => b - a);
 const genres = [...new Set(frameFilms.flatMap((m) => m.genres))].sort();
 const frameCount = frameFilms.reduce((n, m) => n + stillCounts[m.id], 0);
 ---
 
-<Base title="The frame wall" description="Every frame Dr. X has captured, to wander as a gallery, a colour spectrum or an endless board. Click a frame to open its film.">
+<Base
+  title="The frame wall"
+  description="Every frame Dr. X has captured, to wander as a gallery, a colour spectrum or an endless board. Click a frame to open its film."
+>
   <section class="wrap" style="padding-top:2.4rem; padding-bottom:1rem;">
     <div class="wall-head">
       <div>
         <p class="eyebrow">Explore</p>
         <h1>The frame wall</h1>
-        <p class="lede">Every frame Dr. X has captured, from {frameFilms.length.toLocaleString()} films. Wander, and open any film from one of its frames.</p>
+        <p class="lede">
+          Every frame Dr. X has captured, from {frameFilms.length.toLocaleString()} films. Wander,
+          and open any film from one of its frames.
+        </p>
       </div>
     </div>
     <FrameWall client:load {decades} {genres} filmCount={frameFilms.length} {frameCount} />
@@ -24,8 +32,23 @@ const frameCount = frameFilms.reduce((n, m) => n + stillCounts[m.id], 0);
 </Base>
 
 <style>
-  .wall-head { padding-bottom: 1rem; }
-  h1 { font-size: clamp(2rem, 4.5vw, 3rem); margin: 0; }
-  .lede { margin: 0.3rem 0 0; color: var(--ink-muted); max-width: 40rem; }
-  .eyebrow { font: 600 0.66rem/1.3 var(--font-ui); letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin: 0 0 0.35rem; }
+  .wall-head {
+    padding-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(2rem, 4.5vw, 3rem);
+    margin: 0;
+  }
+  .lede {
+    margin: 0.3rem 0 0;
+    color: var(--ink-muted);
+    max-width: 40rem;
+  }
+  .eyebrow {
+    font: 600 0.66rem/1.3 var(--font-ui);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 0.35rem;
+  }
 </style>

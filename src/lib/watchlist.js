@@ -9,7 +9,10 @@ export const WATCHLIST_EVENT = 'cinema:watchlist';
 
 function load() {
   const parsed = readJson(KEY);
-  const items = parsed && typeof parsed === 'object' && parsed.items && typeof parsed.items === 'object' ? parsed.items : {};
+  const items =
+    parsed && typeof parsed === 'object' && parsed.items && typeof parsed.items === 'object'
+      ? parsed.items
+      : {};
   return { version: 1, items };
 }
 
@@ -83,7 +86,10 @@ export function mergeWatchlist(incoming) {
     const addedAt = typeof entry.addedAt === 'string' ? entry.addedAt : null;
     const prev = store.items[id];
     const earlier = prev?.addedAt && (!addedAt || prev.addedAt < addedAt) ? prev.addedAt : addedAt;
-    store.items[id] = { title: typeof entry.title === 'string' ? entry.title : (prev?.title ?? null), addedAt: earlier ?? new Date().toISOString() };
+    store.items[id] = {
+      title: typeof entry.title === 'string' ? entry.title : (prev?.title ?? null),
+      addedAt: earlier ?? new Date().toISOString(),
+    };
     imported++;
   }
   save(store);

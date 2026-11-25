@@ -59,16 +59,38 @@
         href: movie.imdbId ? `https://www.imdb.com/title/${movie.imdbId}/` : null,
       });
     } else if (movie.imdbId) {
-      list.push({ id: 'imdb', label: 'IMDb', value: '↗', suffix: '', sub: 'no score cached', href: `https://www.imdb.com/title/${movie.imdbId}/` });
+      list.push({
+        id: 'imdb',
+        label: 'IMDb',
+        value: '↗',
+        suffix: '',
+        sub: 'no score cached',
+        href: `https://www.imdb.com/title/${movie.imdbId}/`,
+      });
     }
     if (movie.omdb?.metacritic != null) {
-      list.push({ id: 'metacritic', label: 'Metacritic', value: String(movie.omdb.metacritic), suffix: '/ 100' });
+      list.push({
+        id: 'metacritic',
+        label: 'Metacritic',
+        value: String(movie.omdb.metacritic),
+        suffix: '/ 100',
+      });
     }
     if (movie.omdb?.rottenTomatoes != null) {
-      list.push({ id: 'rt', label: 'Rotten Tomatoes', value: `${movie.omdb.rottenTomatoes}%`, suffix: '' });
+      list.push({
+        id: 'rt',
+        label: 'Rotten Tomatoes',
+        value: `${movie.omdb.rottenTomatoes}%`,
+        suffix: '',
+      });
     }
     if (visitorTotals) {
-      list.push({ id: 'you', label: 'Your score', value: f1(visitorTotals.overall), suffix: '/ 10' });
+      list.push({
+        id: 'you',
+        label: 'Your score',
+        value: f1(visitorTotals.overall),
+        suffix: '/ 10',
+      });
     }
     return list;
   });
@@ -88,23 +110,41 @@
           {#if s.id === 'tmdb'}
             <img
               src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_short-8e7b30f73a4020692ccca9c88bafe5dcb6f8a62a4c6bc55cd9ba82bb2cd95f6c.svg"
-              alt="" width="69" height="9" style="height:9px; width:auto;" loading="lazy"
+              alt=""
+              width="69"
+              height="9"
+              style="height:9px; width:auto;"
+              loading="lazy"
             />
           {:else if s.id === 'imdb'}
-            <span style="background:#f5c518; color:#0d0d0d; font-weight:700; font-size:9px; line-height:1; padding:2.5px 4px; border-radius:3px;" aria-hidden="true">IMDb</span>
+            <span
+              style="background:#f5c518; color:#0d0d0d; font-weight:700; font-size:9px; line-height:1; padding:2.5px 4px; border-radius:3px;"
+              aria-hidden="true">IMDb</span
+            >
           {:else if s.id === 'metacritic'}
-            <span style="display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; background:#0e0e0e; color:#ffcc33; font-weight:700; font-size:11px; line-height:1; border:1px solid var(--border-strong);" aria-hidden="true">m</span>
+            <span
+              style="display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; background:#0e0e0e; color:#ffcc33; font-weight:700; font-size:11px; line-height:1; border:1px solid var(--border-strong);"
+              aria-hidden="true">m</span
+            >
           {:else if s.id === 'rt'}
             <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true">
               <circle cx="8" cy="9.6" r="5.9" fill="#fa320a" />
-              <path d="M8 4.2 C 6.8 2.2, 4.4 2.4, 3.6 3.6 C 5.2 4.1, 6.4 3.8, 8 4.2 C 9.6 3.8, 10.8 4.1, 12.4 3.6 C 11.6 2.4, 9.2 2.2, 8 4.2 Z" fill="#00912d" />
+              <path
+                d="M8 4.2 C 6.8 2.2, 4.4 2.4, 3.6 3.6 C 5.2 4.1, 6.4 3.8, 8 4.2 C 9.6 3.8, 10.8 4.1, 12.4 3.6 C 11.6 2.4, 9.2 2.2, 8 4.2 Z"
+                fill="#00912d"
+              />
             </svg>
           {/if}
           {s.label}
         </div>
         <div class="score-badge" style={s.accent ? '' : 'color: var(--ink);'}>
           {#if s.href}
-            <a href={s.href} target="_blank" rel="noopener" style="color:inherit; text-decoration:none;">{s.value}</a>
+            <a
+              href={s.href}
+              target="_blank"
+              rel="noopener"
+              style="color:inherit; text-decoration:none;">{s.value}</a
+            >
           {:else}
             {s.value}
           {/if}

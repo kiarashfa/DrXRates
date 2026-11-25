@@ -53,11 +53,15 @@ async function main() {
   log('• Parsing Excel sources…');
   const [{ movies: rated, warnings: excelWarnings }, { rows: aslRows, skipped: aslSkipped }] =
     await Promise.all([parseRatings('Rating_DB.xlsx'), parseAsl('ASL_DB.xlsx')]);
-  log(`  ${rated.length} rated films, ${aslRows.length} ASL rows (${aslSkipped.length} skipped: NA/?/avg rows)`);
+  log(
+    `  ${rated.length} rated films, ${aslRows.length} ASL rows (${aslSkipped.length} skipped: NA/?/avg rows)`,
+  );
 
   const config = await loadJson('data/collections.config.json', { collections: [] });
   const overridesRaw = await loadJson('data/overrides.json', {});
-  const overrides = Object.fromEntries(Object.entries(overridesRaw).filter(([k]) => k !== '_readme'));
+  const overrides = Object.fromEntries(
+    Object.entries(overridesRaw).filter(([k]) => k !== '_readme'),
+  );
 
   const review = { unmatched: [], ambiguous: [], loose: [], resolutionNotes: [] };
 
@@ -70,7 +74,12 @@ async function main() {
   rated.forEach((m, i) => {
     const res = matches[i];
     if (res.review) {
-      const bucket = res.status === 'unmatched' ? 'unmatched' : res.status === 'ambiguous' ? 'ambiguous' : 'loose';
+      const bucket =
+        res.status === 'unmatched'
+          ? 'unmatched'
+          : res.status === 'ambiguous'
+            ? 'ambiguous'
+            : 'loose';
       review[bucket].push({ source: 'ratings', excelRow: m.excelRow, ...res.review });
     }
     if (res.id != null) matchedCount++;
@@ -91,7 +100,9 @@ async function main() {
       }
     }
   });
-  log(`  matched ${matchedCount}/${rated.length} (${review.unmatched.length} unmatched, ${review.ambiguous.length} ambiguous, ${review.loose.length} loose; see data/review/)`);
+  log(
+    `  matched ${matchedCount}/${rated.length} (${review.unmatched.length} unmatched, ${review.ambiguous.length} ambiguous, ${review.loose.length} loose; see data/review/)`,
+  );
 
   log('• Resolving collections…');
   const collections = [];
@@ -105,13 +116,18 @@ async function main() {
           ? { results: [{ id: c.tmdbPersonId, name: c.person }] }
           : await searchPerson(c.person, { offline });
         const results = found?.results ?? [];
-        const exact = results.find((p) => normalizeTitle(p.name) === normalizeTitle(c.person)) ?? results[0];
+        const exact =
+          results.find((p) => normalizeTitle(p.name) === normalizeTitle(c.person)) ?? results[0];
         if (!exact) {
-          review.resolutionNotes.push(`director '${c.person}': no TMDB person found; collection skipped`);
+          review.resolutionNotes.push(
+            `director '${c.person}': no TMDB person found; collection skipped`,
+          );
           continue;
         }
         if (normalizeTitle(exact.name) !== normalizeTitle(c.person)) {
-          review.resolutionNotes.push(`director '${c.person}': matched TMDB person '${exact.name}' (${exact.id}); verify`);
+          review.resolutionNotes.push(
+            `director '${c.person}': matched TMDB person '${exact.name}' (${exact.id}); verify`,
+          );
         }
         const person = await personDetails(exact.id, { offline });
         if (!person) continue;
@@ -142,18 +158,23 @@ async function main() {
             const pick = results.find((r) => normalizeTitle(r.name).startsWith(norm)) ?? results[0];
             if (pick) {
               colIds.push(pick.id);
-              review.resolutionNotes.push(`franchise '${c.title}': using TMDB collection '${pick.name}' (${pick.id})`);
+              review.resolutionNotes.push(
+                `franchise '${c.title}': using TMDB collection '${pick.name}' (${pick.id})`,
+              );
             }
           }
         }
         if (!colIds.length) {
-          review.resolutionNotes.push(`franchise '${c.title}': could not resolve a TMDB collection; skipped`);
+          review.resolutionNotes.push(
+            `franchise '${c.title}': could not resolve a TMDB collection; skipped`,
+          );
           continue;
         }
         const parts = [];
         for (const colId of colIds) {
           const col = await collectionDetails(colId, { offline });
-          if (col && !col.__notFound) parts.push(...(col.parts ?? []).filter((p) => p.release_date));
+          if (col && !col.__notFound)
+            parts.push(...(col.parts ?? []).filter((p) => p.release_date));
         }
         parts.sort((a, b) => a.release_date.localeCompare(b.release_date));
         const ids = [...new Set(parts.map((p) => p.id))];
@@ -193,7 +214,9 @@ async function main() {
   }
   for (let i = collections.length - 1; i >= 0; i--) {
     if (collections[i].movieIds.length < MIN_COLLECTION_FILMS) {
-      review.resolutionNotes.push(`collection '${collections[i].slug}': only ${collections[i].movieIds.length} films (minimum ${MIN_COLLECTION_FILMS}); skipped`);
+      review.resolutionNotes.push(
+        `collection '${collections[i].slug}': only ${collections[i].movieIds.length} films (minimum ${MIN_COLLECTION_FILMS}); skipped`,
+      );
       collections.splice(i, 1);
     }
   }
@@ -202,10 +225,14 @@ async function main() {
   log(`• Base layer: TMDB top rated ×${TOP_RATED_PAGES} pages + popular ×${POPULAR_PAGES} pages…`);
   await Promise.all([
     ...Array.from({ length: TOP_RATED_PAGES }, (_, i) =>
-      topRated(i + 1, { offline }).then((page) => (page?.results ?? []).forEach((m) => wantedIds.add(m.id)))
+      topRated(i + 1, { offline }).then((page) =>
+        (page?.results ?? []).forEach((m) => wantedIds.add(m.id)),
+      ),
     ),
     ...Array.from({ length: POPULAR_PAGES }, (_, i) =>
-      popular(i + 1, { offline }).then((page) => (page?.results ?? []).forEach((m) => wantedIds.add(m.id)))
+      popular(i + 1, { offline }).then((page) =>
+        (page?.results ?? []).forEach((m) => wantedIds.add(m.id)),
+      ),
     ),
   ]);
   log(`  ${wantedIds.size} unique after list pages`);
@@ -233,8 +260,8 @@ async function main() {
     for (let p = 2; p <= totalPages && wantedIds.size < TARGET_MOVIES; p += CHUNK_PAGES) {
       await Promise.all(
         Array.from({ length: Math.min(CHUNK_PAGES, totalPages - p + 1) }, (_, i) =>
-          mostVoted(p + i, bandOpts).then(absorb)
-        )
+          mostVoted(p + i, bandOpts).then(absorb),
+        ),
       );
     }
     log(`  band ${band}: down to ${floor} votes, ${wantedIds.size} unique`);
@@ -246,7 +273,9 @@ async function main() {
   const tmdbConfig = await configuration({ offline });
   const imageBase = tmdbConfig?.images?.secure_base_url ?? FALLBACK_IMG_BASE;
   if (!tmdbConfig?.images?.secure_base_url) {
-    review.resolutionNotes.push(`TMDB /configuration unavailable; falling back to ${FALLBACK_IMG_BASE}`);
+    review.resolutionNotes.push(
+      `TMDB /configuration unavailable; falling back to ${FALLBACK_IMG_BASE}`,
+    );
   }
 
   log('• Fetching movie details (cached after first run)…');
@@ -280,7 +309,12 @@ async function main() {
         poster: d.poster_path,
         backdrop: d.backdrop_path,
         directors,
-        cast: (d.credits?.cast ?? []).slice(0, 12).map((c) => ({ id: c.id, name: c.name, character: c.character, profile: c.profile_path })),
+        cast: (d.credits?.cast ?? []).slice(0, 12).map((c) => ({
+          id: c.id,
+          name: c.name,
+          character: c.character,
+          profile: c.profile_path,
+        })),
         imdbId: d.external_ids?.imdb_id ?? d.imdb_id ?? null,
         tmdbRating: d.vote_count ? { score: round1(d.vote_average), votes: d.vote_count } : null,
         omdb: null,
@@ -288,7 +322,7 @@ async function main() {
         asl: null,
         hashtag: null,
       });
-    })
+    }),
   );
   log(`  ${records.size} movie records built`);
 
@@ -309,7 +343,11 @@ async function main() {
   // layer by vote count. Cached answers survive across runs, so coverage grows daily.
   const omdbQueue = [...records.values()]
     .filter((r) => r.imdbId)
-    .sort((a, b) => (b.myRating ? 1 : 0) - (a.myRating ? 1 : 0) || (b.tmdbRating?.votes ?? 0) - (a.tmdbRating?.votes ?? 0));
+    .sort(
+      (a, b) =>
+        (b.myRating ? 1 : 0) - (a.myRating ? 1 : 0) ||
+        (b.tmdbRating?.votes ?? 0) - (a.tmdbRating?.votes ?? 0),
+    );
   let omdbHave = 0;
   let omdbFetchedNow = 0;
   let omdbPosterFilled = 0;
@@ -347,7 +385,9 @@ async function main() {
   }
   const withImdbId = [...records.values()].filter((r) => r.imdbId).length;
   const ratedWithOmdb = [...records.values()].filter((r) => r.myRating && r.omdb).length;
-  log(`  OMDb ratings on ${omdbHave}/${withImdbId} films (${omdbFetchedNow} fetched this run, ${omdbPosterFilled} missing posters filled from OMDb)${omdbLimitHit() ? '. DAILY LIMIT HIT: rerun tomorrow to extend coverage' : ''}`);
+  log(
+    `  OMDb ratings on ${omdbHave}/${withImdbId} films (${omdbFetchedNow} fetched this run, ${omdbPosterFilled} missing posters filled from OMDb)${omdbLimitHit() ? '. DAILY LIMIT HIT: rerun tomorrow to extend coverage' : ''}`,
+  );
 
   log('• Joining ASL data…');
   const aslIndex = new Map();
@@ -369,12 +409,16 @@ async function main() {
         break;
       }
       if (rows && rows.length > 1) {
-        const byDir = rows.find((r) => rec.directors.some((d) => normalizeTitle(d.name) === normalizeTitle(r.director)));
+        const byDir = rows.find((r) =>
+          rec.directors.some((d) => normalizeTitle(d.name) === normalizeTitle(r.director)),
+        );
         if (byDir) {
           rec.asl = { value: byDir.asl, director: byDir.director };
           aslAttached++;
         } else {
-          review.resolutionNotes.push(`ASL: multiple rows for '${rec.title}' (${rec.year}), none with matching director; not attached`);
+          review.resolutionNotes.push(
+            `ASL: multiple rows for '${rec.title}' (${rec.year}), none with matching director; not attached`,
+          );
         }
         break;
       }
@@ -392,7 +436,12 @@ async function main() {
   // ('Alejandro G. Iñárritu' vs 'Alejandro González Iñárritu'). Compound acts like
   // 'Coen Brothers' fall through to Wikipedia.
   const nameNorm = (s) =>
-    String(s).toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+    String(s)
+      .toLowerCase()
+      .normalize('NFKD')
+      .replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
   const samePerson = (a, b) => {
     const na = nameNorm(a);
     const nb = nameNorm(b);
@@ -415,11 +464,15 @@ async function main() {
         if (hit) {
           person = await personDetails(hit.id, { offline });
           if (person && nameNorm(person.name) !== nameNorm(name)) {
-            review.resolutionNotes.push(`director '${name}': using TMDB person '${person.name}' (${person.id})`);
+            review.resolutionNotes.push(
+              `director '${name}': using TMDB person '${person.name}' (${person.id})`,
+            );
           }
         }
       } catch (err) {
-        review.resolutionNotes.push(`director '${name}': TMDB person lookup failed: ${err.message}`);
+        review.resolutionNotes.push(
+          `director '${name}': TMDB person lookup failed: ${err.message}`,
+        );
       }
     }
 
@@ -442,14 +495,19 @@ async function main() {
     }
     const films = rows
       .map((r) => {
-        const movieId = r.year != null ? movieIdByTitleYear.get(`${normalizeTitle(r.title)}|${r.year}`) ?? null : null;
+        const movieId =
+          r.year != null
+            ? (movieIdByTitleYear.get(`${normalizeTitle(r.title)}|${r.year}`) ?? null)
+            : null;
         return { title: r.title, year: r.year, asl: r.asl, movieId };
       })
       .sort((a, b) => (a.year ?? 9999) - (b.year ?? 9999));
     const ratedFilms = films
       .map((f) => (f.movieId != null ? records.get(f.movieId) : null))
       .filter((rec) => rec?.myRating);
-    const collection = collections.find((c) => c.type === 'director' && slugify(c.personName ?? '') === slug);
+    const collection = collections.find(
+      (c) => c.type === 'director' && slugify(c.personName ?? '') === slug,
+    );
     if (collection) {
       for (const id of collection.movieIds) {
         const rec = records.get(id);
@@ -462,12 +520,16 @@ async function main() {
     // simply excluded from each average.
     const filmSet = new Map();
     for (const f of films) {
-      if (f.movieId != null && records.has(f.movieId)) filmSet.set(f.movieId, records.get(f.movieId));
+      if (f.movieId != null && records.has(f.movieId))
+        filmSet.set(f.movieId, records.get(f.movieId));
     }
     for (const id of collection?.movieIds ?? []) {
       if (records.has(id)) filmSet.set(id, records.get(id));
     }
-    const avgOf = (vals) => (vals.length ? { avg: round1(vals.reduce((a, b) => a + b, 0) / vals.length), count: vals.length } : null);
+    const avgOf = (vals) =>
+      vals.length
+        ? { avg: round1(vals.reduce((a, b) => a + b, 0) / vals.length), count: vals.length }
+        : null;
     const filmRecs = [...filmSet.values()];
     const sourceAvgs = {
       tmdb: avgOf(filmRecs.map((r) => r.tmdbRating?.score).filter((v) => v != null)),
@@ -479,7 +541,9 @@ async function main() {
       name,
       aslAvg,
       aslCount: rows.length,
-      myAvg: ratedFilms.length ? round1(ratedFilms.reduce((a, r) => a + r.myRating.overall, 0) / ratedFilms.length) : null,
+      myAvg: ratedFilms.length
+        ? round1(ratedFilms.reduce((a, r) => a + r.myRating.overall, 0) / ratedFilms.length)
+        : null,
       myCount: ratedFilms.length,
       sourceAvgs,
       films,
@@ -498,16 +562,25 @@ async function main() {
 
   // Id breaks title ties: records arrive in fetch-completion order, which
   // varies between runs and would otherwise reshuffle same-title films.
-  const movies = [...records.values()].sort((a, b) => a.title.localeCompare(b.title) || a.id - b.id);
+  const movies = [...records.values()].sort(
+    (a, b) => a.title.localeCompare(b.title) || a.id - b.id,
+  );
   // The data the browser downloads is derived from these files at site build
   // time (src/pages/data/*), so nothing here is copied into public/.
   const { credits, people } = buildPeople(creditsByMovie);
-  log(`  credits for ${Object.keys(credits.films).length} films, ${Object.keys(people).length} people`);
+  log(
+    `  credits for ${Object.keys(credits.films).length} films, ${Object.keys(people).length} people`,
+  );
 
   await mkdir(OUT_DIR, { recursive: true });
   const stills = await importStills(new Set(records.keys()), path.join(OUT_DIR, 'stills.json'));
-  log(`• Stills: ${stills.frames} frames for ${stills.films} films${stills.imported ? ' (from ../DrXMedia/stills.json)' : ' (no ../DrXMedia checkout; kept the committed file)'}`);
-  for (const id of stills.unknown) review.resolutionNotes.push(`stills: film ${id} in DrXMedia's stills.json is not in the archive; its frames are not shown`);
+  log(
+    `• Stills: ${stills.frames} frames for ${stills.films} films${stills.imported ? ' (from ../DrXMedia/stills.json)' : ' (no ../DrXMedia checkout; kept the committed file)'}`,
+  );
+  for (const id of stills.unknown)
+    review.resolutionNotes.push(
+      `stills: film ${id} in DrXMedia's stills.json is not in the archive; its frames are not shown`,
+    );
 
   const meta = {
     generatedAt: new Date().toISOString(),
@@ -537,16 +610,27 @@ async function main() {
   await writeFile(path.join(OUT_DIR, 'movies.json'), JSON.stringify(movies), 'utf8');
   await writeFile(path.join(OUT_DIR, 'credits.json'), JSON.stringify(credits), 'utf8');
   await writeFile(path.join(OUT_DIR, 'people.json'), JSON.stringify(people), 'utf8');
-  await writeFile(path.join(OUT_DIR, 'collections.json'), JSON.stringify(collections, null, 2), 'utf8');
+  await writeFile(
+    path.join(OUT_DIR, 'collections.json'),
+    JSON.stringify(collections, null, 2),
+    'utf8',
+  );
   await writeFile(path.join(OUT_DIR, 'directors.json'), JSON.stringify(directors), 'utf8');
   await writeFile(path.join(OUT_DIR, 'meta.json'), JSON.stringify(meta, null, 2), 'utf8');
 
   const reviewJson = { generatedAt: meta.generatedAt, ...review, excelWarnings, aslSkipped };
-  await writeFile(path.join(REVIEW_DIR, 'match-review.json'), JSON.stringify(reviewJson, null, 2), 'utf8');
+  await writeFile(
+    path.join(REVIEW_DIR, 'match-review.json'),
+    JSON.stringify(reviewJson, null, 2),
+    'utf8',
+  );
 
   const md = [];
   md.push(`# Match review (${meta.generatedAt})`, '');
-  md.push(`Fix entries by adding overrides to \`data/overrides.json\` ("Title|Year": tmdbId, [ids], or "skip"), then re-run \`npm run data\`.`, '');
+  md.push(
+    `Fix entries by adding overrides to \`data/overrides.json\` ("Title|Year": tmdbId, [ids], or "skip"), then re-run \`npm run data\`.`,
+    '',
+  );
   const section = (title, items, fmt) => {
     md.push(`## ${title} (${items.length})`, '');
     if (!items.length) md.push('_none_', '');
@@ -555,22 +639,55 @@ async function main() {
       md.push('');
     }
   };
-  const fmtCand = (c) => `${c.title}${c.originalTitle && c.originalTitle !== c.title ? ` / ${c.originalTitle}` : ''} (${c.year ?? '?'}, id ${c.id})`;
-  section('Unmatched: needs a manual override', review.unmatched, (i) =>
-    `- **${i.title}** (${i.year}) [${i.source}]: ${i.reason}${i.candidates.length ? `; nearest: ${i.candidates.map(fmtCand).join('; ')}` : ''}`);
-  section('Ambiguous: picked a candidate, verify it', review.ambiguous, (i) =>
-    `- **${i.title}** (${i.year}) [${i.source}] → ${i.chosen ? fmtCand(i.chosen) : '–'}: ${i.reason}${i.candidates.length > 1 ? `; others: ${i.candidates.filter((c) => c.id !== i.chosen?.id).map(fmtCand).join('; ')}` : ''}`);
-  section('Loose matches: likely fine, skim these', review.loose, (i) =>
-    `- **${i.title}** (${i.year}) [${i.source}] → ${i.chosen ? fmtCand(i.chosen) : '–'}: ${i.reason}`);
+  const fmtCand = (c) =>
+    `${c.title}${c.originalTitle && c.originalTitle !== c.title ? ` / ${c.originalTitle}` : ''} (${c.year ?? '?'}, id ${c.id})`;
+  section(
+    'Unmatched: needs a manual override',
+    review.unmatched,
+    (i) =>
+      `- **${i.title}** (${i.year}) [${i.source}]: ${i.reason}${i.candidates.length ? `; nearest: ${i.candidates.map(fmtCand).join('; ')}` : ''}`,
+  );
+  section(
+    'Ambiguous: picked a candidate, verify it',
+    review.ambiguous,
+    (i) =>
+      `- **${i.title}** (${i.year}) [${i.source}] → ${i.chosen ? fmtCand(i.chosen) : '–'}: ${i.reason}${
+        i.candidates.length > 1
+          ? `; others: ${i.candidates
+              .filter((c) => c.id !== i.chosen?.id)
+              .map(fmtCand)
+              .join('; ')}`
+          : ''
+      }`,
+  );
+  section(
+    'Loose matches: likely fine, skim these',
+    review.loose,
+    (i) =>
+      `- **${i.title}** (${i.year}) [${i.source}] → ${i.chosen ? fmtCand(i.chosen) : '–'}: ${i.reason}`,
+  );
   section('Resolution notes', review.resolutionNotes, (i) => `- ${i}`);
-  section('Excel warnings', excelWarnings, (i) => `- row ${i.row}: **${i.title}** (${i.kind}): ${i.detail}`);
-  md.push(`## ASL rows skipped (${aslSkipped.length})`, '', `Placeholder values (NA / ? / _) and embedded avg rows. Informational only; full list in match-review.json.`, '');
+  section(
+    'Excel warnings',
+    excelWarnings,
+    (i) => `- row ${i.row}: **${i.title}** (${i.kind}): ${i.detail}`,
+  );
+  md.push(
+    `## ASL rows skipped (${aslSkipped.length})`,
+    '',
+    `Placeholder values (NA / ? / _) and embedded avg rows. Informational only; full list in match-review.json.`,
+    '',
+  );
   await writeFile(path.join(REVIEW_DIR, 'match-review.md'), md.join('\n'), 'utf8');
 
   const stats = fetchStats();
   log('');
-  log(`Done in ${Math.round((Date.now() - t0) / 1000)}s: ${stats.network} network calls, ${stats.cacheHits} cache hits`);
-  log(`  movies: ${meta.counts.movies} (${meta.counts.rated} rated by you, ${meta.counts.withAsl} with ASL)`);
+  log(
+    `Done in ${Math.round((Date.now() - t0) / 1000)}s: ${stats.network} network calls, ${stats.cacheHits} cache hits`,
+  );
+  log(
+    `  movies: ${meta.counts.movies} (${meta.counts.rated} rated by you, ${meta.counts.withAsl} with ASL)`,
+  );
   log(`  review file: data/review/match-review.md`);
 }
 

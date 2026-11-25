@@ -18,7 +18,10 @@ function withStills(item) {
 // workflow (e.g. SITE=https://<user>.github.io BASE_PATH=/<repo>). Local builds
 // default to root.
 export default defineConfig({
-  integrations: [svelte(), sitemap({ filter: (page) => !/\/404\/?$/.test(page), serialize: withStills })],
+  integrations: [
+    svelte(),
+    sitemap({ filter: (page) => !/\/404\/?$/.test(page), serialize: withStills }),
+  ],
   site: process.env.SITE || 'http://localhost:4321',
   base: process.env.BASE_PATH || '/',
 });

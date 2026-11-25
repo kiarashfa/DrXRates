@@ -4,7 +4,9 @@ import type { APIRoute } from 'astro';
 import { POSTER_SHARDS, posterShard } from '../../../lib/client-data.js';
 
 export function getStaticPaths() {
-  return Array.from({ length: POSTER_SHARDS }, (_, shard) => ({ params: { shard: String(shard) } }));
+  return Array.from({ length: POSTER_SHARDS }, (_, shard) => ({
+    params: { shard: String(shard) },
+  }));
 }
 
 export const GET: APIRoute = ({ params }) =>

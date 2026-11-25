@@ -45,14 +45,21 @@ export async function omdbByImdbId(imdbId, { offline = false } = {}) {
     offline: offline || limitHit,
     // Never cache rate-limit or auth errors, only real answers (incl. not-found).
     shouldCache: (d) =>
-      d.__notFound === true || d.Response === 'True' || (d.Response === 'False' && /not found/i.test(d.Error ?? '')),
+      d.__notFound === true ||
+      d.Response === 'True' ||
+      (d.Response === 'False' && /not found/i.test(d.Error ?? '')),
   });
-  if (data && data.Response === 'False' && /limit|exceeded|invalid api key|unauthorized/i.test(data.Error ?? '')) {
+  if (
+    data &&
+    data.Response === 'False' &&
+    /limit|exceeded|invalid api key|unauthorized/i.test(data.Error ?? '')
+  ) {
     if (!limitHit) console.log(`  OMDb stopped: ${data.Error}`);
     limitHit = true;
     return { ratings: null, poster: null, fetched: false };
   }
   // Poster is independent of ratings: some obscure films have artwork but no scores.
-  const poster = data?.Response === 'True' && data.Poster && data.Poster !== 'N/A' ? data.Poster : null;
+  const poster =
+    data?.Response === 'True' && data.Poster && data.Poster !== 'N/A' ? data.Poster : null;
   return { ratings: parseOmdb(data), poster, fetched: !fromCache && data != null };
 }

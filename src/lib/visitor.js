@@ -10,7 +10,12 @@ function emptyStore() {
 
 export function loadStore() {
   const parsed = readJson(KEY);
-  if (parsed && typeof parsed === 'object' && parsed.ratings && typeof parsed.ratings === 'object') {
+  if (
+    parsed &&
+    typeof parsed === 'object' &&
+    parsed.ratings &&
+    typeof parsed.ratings === 'object'
+  ) {
     return { version: 1, ratings: parsed.ratings };
   }
   return emptyStore();

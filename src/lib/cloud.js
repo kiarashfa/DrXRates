@@ -40,7 +40,11 @@ function persist(s) {
   announce();
 }
 
-const b64url = (bytes) => btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const b64url = (bytes) =>
+  btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
 const expiresAt = (seconds) => Date.now() + Math.max(60, (Number(seconds) || 3600) - 120) * 1000;
 
 /* ── Google Drive ─────────────────────────────────────────────────────── */
@@ -61,7 +65,11 @@ export function loadGoogle() {
     script.onload = () => resolve(window.google.accounts.oauth2);
     script.onerror = () => {
       gis = null;
-      reject(new CloudError("Google's sign-in couldn't load. Check the connection (or a blocker) and try again."));
+      reject(
+        new CloudError(
+          "Google's sign-in couldn't load. Check the connection (or a blocker) and try again.",
+        ),
+      );
     };
     document.head.append(script);
   });
@@ -78,23 +86,41 @@ async function googleToken(prompt) {
       scope: GOOGLE_SCOPE,
       prompt,
       callback: (r) => {
-        if (r.error) return reject(new CloudError('Google sign-in did not finish.', { auth: true }));
+        if (r.error)
+          return reject(new CloudError('Google sign-in did not finish.', { auth: true }));
         if (!oauth2.hasGrantedAllScopes(r, GOOGLE_SCOPE)) {
-          return reject(new CloudError('Google Drive access was not allowed, so nothing can be saved there. Connect again and tick the Drive box.', { auth: true }));
+          return reject(
+            new CloudError(
+              'Google Drive access was not allowed, so nothing can be saved there. Connect again and tick the Drive box.',
+              { auth: true },
+            ),
+          );
         }
         resolve({ access: r.access_token, expires: expiresAt(r.expires_in) });
       },
       error_callback: (e) =>
-        reject(new CloudError(e?.type === 'popup_closed' ? 'The Google window closed before it finished.' : "Google's sign-in window couldn't open. Allow pop-ups for this site and try again.", { auth: true })),
+        reject(
+          new CloudError(
+            e?.type === 'popup_closed'
+              ? 'The Google window closed before it finished.'
+              : "Google's sign-in window couldn't open. Allow pop-ups for this site and try again.",
+            { auth: true },
+          ),
+        ),
     });
     client.requestAccessToken();
   });
 }
 
 async function gfetch(s, url, init = {}) {
-  const res = await fetch(url, { ...init, headers: { ...init.headers, Authorization: `Bearer ${s.token.access}` } });
-  if (res.status === 401) throw new CloudError('Google needs you to sign in again.', { auth: true });
-  if (!res.ok) throw new CloudError(`Google Drive answered with an error (${res.status}). Try again later.`);
+  const res = await fetch(url, {
+    ...init,
+    headers: { ...init.headers, Authorization: `Bearer ${s.token.access}` },
+  });
+  if (res.status === 401)
+    throw new CloudError('Google needs you to sign in again.', { auth: true });
+  if (!res.ok)
+    throw new CloudError(`Google Drive answered with an error (${res.status}). Try again later.`);
   return res;
 }
 
@@ -105,12 +131,19 @@ const google = {
     return { ...s, token: await googleToken('') };
   },
   async account(s) {
-    const r = await (await gfetch(s, `${DRIVE}/about?fields=user(displayName,emailAddress)`)).json();
+    const r = await (
+      await gfetch(s, `${DRIVE}/about?fields=user(displayName,emailAddress)`)
+    ).json();
     return { name: r.user?.displayName ?? '', email: r.user?.emailAddress ?? '' };
   },
   async stat(s) {
     const q = encodeURIComponent(`name='${FILE}' and trashed=false`);
-    const r = await (await gfetch(s, `${DRIVE}/files?spaces=appDataFolder&q=${q}&fields=files(id,version)&pageSize=1`)).json();
+    const r = await (
+      await gfetch(
+        s,
+        `${DRIVE}/files?spaces=appDataFolder&q=${q}&fields=files(id,version)&pageSize=1`,
+      )
+    ).json();
     const f = r.files?.[0];
     return f ? { id: f.id, rev: String(f.version) } : null;
   },
@@ -120,14 +153,22 @@ const google = {
   async upload(s, body, remote) {
     let res;
     if (remote) {
-      res = await gfetch(s, `${DRIVE_UPLOAD}/files/${remote.id}?uploadType=media&fields=id,version`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body,
-      });
+      res = await gfetch(
+        s,
+        `${DRIVE_UPLOAD}/files/${remote.id}?uploadType=media&fields=id,version`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body,
+        },
+      );
     } else {
       const boundary = `cinema-${b64url(crypto.getRandomValues(new Uint8Array(12)))}`;
-      const meta = JSON.stringify({ name: FILE, parents: ['appDataFolder'], mimeType: 'application/json' });
+      const meta = JSON.stringify({
+        name: FILE,
+        parents: ['appDataFolder'],
+        mimeType: 'application/json',
+      });
       res = await gfetch(s, `${DRIVE_UPLOAD}/files?uploadType=multipart&fields=id,version`, {
         method: 'POST',
         headers: { 'Content-Type': `multipart/related; boundary=${boundary}` },
@@ -159,9 +200,13 @@ const PKCE_KEY = 'cinema.cloud.pkce';
 const redirectUri = () => new URL(withBase('/user/'), location.origin).href;
 
 async function dropboxToken(params) {
-  const res = await fetch(DBX_TOKEN, { method: 'POST', body: new URLSearchParams({ client_id: DROPBOX_KEY, ...params }) });
+  const res = await fetch(DBX_TOKEN, {
+    method: 'POST',
+    body: new URLSearchParams({ client_id: DROPBOX_KEY, ...params }),
+  });
   const r = await res.json().catch(() => ({}));
-  if (!res.ok || !r.access_token) throw new CloudError('Dropbox needs you to connect again.', { auth: true });
+  if (!res.ok || !r.access_token)
+    throw new CloudError('Dropbox needs you to connect again.', { auth: true });
   return r;
 }
 
@@ -170,11 +215,17 @@ async function dfetch(s, url, { arg, body, json } = {}) {
   if (arg) headers['Dropbox-API-Arg'] = JSON.stringify(arg);
   if (json !== undefined) headers['Content-Type'] = 'application/json';
   else if (body !== undefined) headers['Content-Type'] = 'application/octet-stream';
-  const res = await fetch(url, { method: 'POST', headers, body: json !== undefined ? JSON.stringify(json) : body });
-  if (res.status === 401) throw new CloudError('Dropbox needs you to connect again.', { auth: true });
+  const res = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: json !== undefined ? JSON.stringify(json) : body,
+  });
+  if (res.status === 401)
+    throw new CloudError('Dropbox needs you to connect again.', { auth: true });
   return res;
 }
-const dropboxFailed = (res) => new CloudError(`Dropbox answered with an error (${res.status}). Try again later.`);
+const dropboxFailed = (res) =>
+  new CloudError(`Dropbox answered with an error (${res.status}). Try again later.`);
 
 const dropbox = {
   async access(s) {
@@ -203,13 +254,18 @@ const dropbox = {
     // "update" only writes over the version this browser saw; anything newer
     // answers 409 and the save starts over with that version merged in.
     const mode = remote ? { '.tag': 'update', update: remote.rev } : { '.tag': 'add' };
-    const res = await dfetch(s, `${DBX_CONTENT}/files/upload`, { arg: { path: DBX_PATH, mode, autorename: false, mute: true }, body });
-    if (res.status === 409) throw new CloudError('Someone saved at the same moment.', { conflict: true });
+    const res = await dfetch(s, `${DBX_CONTENT}/files/upload`, {
+      arg: { path: DBX_PATH, mode, autorename: false, mute: true },
+      body,
+    });
+    if (res.status === 409)
+      throw new CloudError('Someone saved at the same moment.', { conflict: true });
     if (!res.ok) throw dropboxFailed(res);
     return { rev: (await res.json()).rev };
   },
   async revoke(s) {
-    if (s.token?.access && s.token.expires > Date.now()) await dfetch(s, `${DBX_API}/auth/token/revoke`);
+    if (s.token?.access && s.token.expires > Date.now())
+      await dfetch(s, `${DBX_API}/auth/token/revoke`);
   },
 };
 
@@ -220,7 +276,9 @@ const API = { google, dropbox };
 // Starts the Dropbox round trip (this page is left for Dropbox's).
 export async function connectDropbox() {
   const verifier = b64url(crypto.getRandomValues(new Uint8Array(48)));
-  const challenge = b64url(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier))));
+  const challenge = b64url(
+    new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier))),
+  );
   const state = b64url(crypto.getRandomValues(new Uint8Array(16)));
   try {
     sessionStorage.setItem(PKCE_KEY, JSON.stringify({ verifier, state }));
@@ -252,11 +310,27 @@ export async function finishDropbox() {
   } catch {}
   history.replaceState(history.state, '', location.pathname + location.hash);
   if (params.has('error')) {
-    throw new CloudError(params.get('error') === 'access_denied' ? 'Dropbox access was not allowed, so nothing was connected.' : 'Dropbox did not finish connecting.');
+    throw new CloudError(
+      params.get('error') === 'access_denied'
+        ? 'Dropbox access was not allowed, so nothing was connected.'
+        : 'Dropbox did not finish connecting.',
+    );
   }
-  if (!pkce || pkce.state !== params.get('state')) throw new CloudError("That Dropbox answer doesn't belong to this browser. Connect again from here.");
-  const r = await dropboxToken({ grant_type: 'authorization_code', code: params.get('code'), code_verifier: pkce.verifier, redirect_uri: redirectUri() });
-  return connected({ provider: 'dropbox', refresh: r.refresh_token, token: { access: r.access_token, expires: expiresAt(r.expires_in) } });
+  if (!pkce || pkce.state !== params.get('state'))
+    throw new CloudError(
+      "That Dropbox answer doesn't belong to this browser. Connect again from here.",
+    );
+  const r = await dropboxToken({
+    grant_type: 'authorization_code',
+    code: params.get('code'),
+    code_verifier: pkce.verifier,
+    redirect_uri: redirectUri(),
+  });
+  return connected({
+    provider: 'dropbox',
+    refresh: r.refresh_token,
+    token: { access: r.access_token, expires: expiresAt(r.expires_in) },
+  });
 }
 
 export async function connectGoogle() {
@@ -307,7 +381,9 @@ async function run({ interactive = false, retry = true } = {}) {
       try {
         parsed = JSON.parse(await api.download(s, remote));
       } catch {
-        throw new CloudError(`The save in your ${PROVIDERS[s.provider]} isn't readable. Remove ${FILE} there to start a new one.`);
+        throw new CloudError(
+          `The save in your ${PROVIDERS[s.provider]} isn't readable. Remove ${FILE} there to start a new one.`,
+        );
       }
       imported = importBackupData(parsed).sections;
     }
@@ -344,6 +420,9 @@ export function startAutoSave() {
     timer = setTimeout(() => cloudState() && unsaved() && sync().catch(() => {}), delay);
   };
   window.addEventListener(CHANGED_EVENT, () => kick(4000));
-  document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && kick(0));
+  document.addEventListener(
+    'visibilitychange',
+    () => document.visibilityState === 'hidden' && kick(0),
+  );
   if (unsaved()) kick(1500);
 }

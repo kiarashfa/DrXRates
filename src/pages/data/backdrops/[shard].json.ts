@@ -4,7 +4,9 @@ import type { APIRoute } from 'astro';
 import { BACKDROP_SHARDS, backdropShard } from '../../../lib/client-data.js';
 
 export function getStaticPaths() {
-  return Array.from({ length: BACKDROP_SHARDS }, (_, shard) => ({ params: { shard: String(shard) } }));
+  return Array.from({ length: BACKDROP_SHARDS }, (_, shard) => ({
+    params: { shard: String(shard) },
+  }));
 }
 
 export const GET: APIRoute = ({ params }) =>

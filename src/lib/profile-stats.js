@@ -9,11 +9,18 @@ const mean = (vals) => vals.reduce((a, b) => a + b, 0) / vals.length;
 // Returns the rated films newest first, the averages and the highest score.
 export function ratingStats(ratings) {
   const list = Object.entries(ratings ?? {})
-    .map(([id, e]) => ({ id: Number(id), title: e?.title ?? null, updatedAt: e?.updatedAt ?? '', totals: e?.scores ? computeTotals(e.scores) : null }))
+    .map(([id, e]) => ({
+      id: Number(id),
+      title: e?.title ?? null,
+      updatedAt: e?.updatedAt ?? '',
+      totals: e?.scores ? computeTotals(e.scores) : null,
+    }))
     .filter((r) => r.totals)
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt) || a.id - b.id);
   if (!list.length) return { n: 0, list, avg: null, avgC: null, avgF: null, top: null };
-  const top = [...list].sort((a, b) => b.totals.overall - a.totals.overall || b.updatedAt.localeCompare(a.updatedAt))[0];
+  const top = [...list].sort(
+    (a, b) => b.totals.overall - a.totals.overall || b.updatedAt.localeCompare(a.updatedAt),
+  )[0];
   return {
     n: list.length,
     list,
@@ -38,12 +45,18 @@ export function peopleStats(list, films) {
         groups.set(k.id, g);
       }
     }
-    const best = [...groups.values()].sort((a, b) => b.n - a.n || b.sum / b.n - a.sum / a.n || String(a.id).localeCompare(String(b.id)))[0];
+    const best = [...groups.values()].sort(
+      (a, b) => b.n - a.n || b.sum / b.n - a.sum / a.n || String(a.id).localeCompare(String(b.id)),
+    )[0];
     return best && best.n >= 2 ? { ...best, avg: best.sum / best.n } : null;
   };
   return {
     director: tally((f) => (f.directors ?? []).map((d) => ({ id: d.id, name: d.name }))),
-    decade: tally((f) => (f.year ? [{ id: Math.floor(f.year / 10) * 10, name: `${Math.floor(f.year / 10) * 10}s` }] : [])),
+    decade: tally((f) =>
+      f.year
+        ? [{ id: Math.floor(f.year / 10) * 10, name: `${Math.floor(f.year / 10) * 10}s` }]
+        : [],
+    ),
   };
 }
 
@@ -64,12 +77,12 @@ export function memberSince({ ratings, watchlist, knockout, frames, profile }) {
 export function hasAnything({ ratings, watchlist, knockout, frames, profile }) {
   return Boolean(
     profile ||
-      Object.keys(ratings ?? {}).length ||
-      Object.keys(watchlist ?? {}).length ||
-      knockout?.history?.length ||
-      knockout?.current ||
-      Object.keys(knockout?.cups ?? {}).length ||
-      Object.keys(frames?.best ?? {}).length ||
-      Object.keys(frames?.daily ?? {}).length
+    Object.keys(ratings ?? {}).length ||
+    Object.keys(watchlist ?? {}).length ||
+    knockout?.history?.length ||
+    knockout?.current ||
+    Object.keys(knockout?.cups ?? {}).length ||
+    Object.keys(frames?.best ?? {}).length ||
+    Object.keys(frames?.daily ?? {}).length,
   );
 }

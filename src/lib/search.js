@@ -30,7 +30,14 @@ function tier(p, q, year) {
   if (!p) return Infinity;
   if (p.t === q.t || p.bare === q.bare) return 0;
   if (p.t.startsWith(q.t) || p.bare.startsWith(q.bare)) return 1;
-  if (q.words.every((w) => p.words.some((pw) => pw.startsWith(w)) || (year != null && YEAR.test(w) && Number(w) === year))) return 2;
+  if (
+    q.words.every(
+      (w) =>
+        p.words.some((pw) => pw.startsWith(w)) ||
+        (year != null && YEAR.test(w) && Number(w) === year),
+    )
+  )
+    return 2;
   if (q.t.length >= 3 && p.t.includes(q.t)) return 3;
   return Infinity;
 }
@@ -40,12 +47,26 @@ function tier(p, q, year) {
 // pages: [{ label, href }]; people: [{ id, name, rated }] (Dr. X Net).
 export function buildIndex(films, extra, pages, people = []) {
   return {
-    films: films.map((f) => ({ f, title: prepText(f.title), orig: f.originalTitle ? prepText(f.originalTitle) : null })),
+    films: films.map((f) => ({
+      f,
+      title: prepText(f.title),
+      orig: f.originalTitle ? prepText(f.originalTitle) : null,
+    })),
     directors: (extra?.directors ?? []).map((d) => ({ d, name: prepText(d.name) })),
     people: people.map((p) => ({ p, name: prepText(p.name) })),
     places: [
-      ...(extra?.collections ?? []).map((c) => ({ kind: 'Collection', label: c.title, href: `/collection/${c.slug}`, text: prepText(c.title) })),
-      ...pages.map((p) => ({ kind: 'Page', label: p.label, href: p.href, text: prepText(p.label) })),
+      ...(extra?.collections ?? []).map((c) => ({
+        kind: 'Collection',
+        label: c.title,
+        href: `/collection/${c.slug}`,
+        text: prepText(c.title),
+      })),
+      ...pages.map((p) => ({
+        kind: 'Page',
+        label: p.label,
+        href: p.href,
+        text: prepText(p.label),
+      })),
     ],
   };
 }
@@ -54,7 +75,11 @@ export const MIN_QUERY = 2;
 
 // Returns { films, directors, people, places } (each best first), or null
 // when the query is too short to search.
-export function search(index, query, { films: nFilms = 12, directors: nDirectors = 6, people: nPeople = 6, places: nPlaces = 6 } = {}) {
+export function search(
+  index,
+  query,
+  { films: nFilms = 12, directors: nDirectors = 6, people: nPeople = 6, places: nPlaces = 6 } = {},
+) {
   const q = prepText(query);
   if (q.t.length < MIN_QUERY) return null;
 
@@ -71,7 +96,10 @@ export function search(index, query, { films: nFilms = 12, directors: nDirectors
   const directors = index.directors
     .map((e) => ({ d: e.d, t: tier(e.name, q, null) }))
     .filter((e) => e.t !== Infinity)
-    .sort((a, b) => a.t - b.t || (b.d.rated ?? 0) - (a.d.rated ?? 0) || a.d.name.localeCompare(b.d.name));
+    .sort(
+      (a, b) =>
+        a.t - b.t || (b.d.rated ?? 0) - (a.d.rated ?? 0) || a.d.name.localeCompare(b.d.name),
+    );
 
   const people = (index.people ?? [])
     .map((e) => ({ p: e.p, t: tier(e.name, q, null) }))

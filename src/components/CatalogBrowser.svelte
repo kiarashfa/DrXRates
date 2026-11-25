@@ -42,9 +42,14 @@
     fullLoad ??= loadArchive({ scores: true, posters: true, rated: true })
       .then(({ list }) => {
         const shown = new Map((catalog ?? []).slice(0, visible).map((m, i) => [m.id, i]));
-        const first = list.filter((m) => shown.has(m.id)).sort((a, b) => shown.get(a.id) - shown.get(b.id));
+        const first = list
+          .filter((m) => shown.has(m.id))
+          .sort((a, b) => shown.get(a.id) - shown.get(b.id));
         const rest = shuffle(list.filter((m) => !shown.has(m.id)));
-        catalog = [...first, ...rest].map((m) => ({ ...m, directors: m.directors.slice(0, 2).map((d) => d.name) }));
+        catalog = [...first, ...rest].map((m) => ({
+          ...m,
+          directors: m.directors.slice(0, 2).map((d) => d.name),
+        }));
         full = true;
       })
       .catch((err) => {
@@ -71,7 +76,7 @@
           load();
         }
       },
-      { rootMargin: '800px 0px' }
+      { rootMargin: '800px 0px' },
     );
     io.observe(root);
     return () => io.disconnect();
@@ -102,13 +107,19 @@
       if (genre !== 'all') p.set('genre', genre);
       if (sort !== 'shuffle') p.set('sort', sort);
       const qs = p.toString();
-      history.replaceState(history.state, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
+      history.replaceState(
+        history.state,
+        '',
+        location.pathname + (qs ? '?' + qs : '') + location.hash,
+      );
     });
   }
 
   // Any search/filter/sort needs the full archive; the sample is only ever
   // shown unfiltered, in its shuffled order.
-  const active = $derived(q.trim() !== '' || rated !== 'all' || decade !== 'all' || genre !== 'all' || sort !== 'shuffle');
+  const active = $derived(
+    q.trim() !== '' || rated !== 'all' || decade !== 'all' || genre !== 'all' || sort !== 'shuffle',
+  );
   const waiting = $derived(active && !full);
 
   const filtered = $derived.by(() => {
@@ -120,7 +131,8 @@
       if (rated === 'rated' && m.my == null) return false;
       if (rated === 'unrated' && m.my != null) return false;
       if (rated === 'frames' && !m.stills) return false;
-      if (decade !== 'all' && (m.year == null || Math.floor(m.year / 10) * 10 !== Number(decade))) return false;
+      if (decade !== 'all' && (m.year == null || Math.floor(m.year / 10) * 10 !== Number(decade)))
+        return false;
       if (genre !== 'all' && !m.genres.includes(genre)) return false;
       return true;
     });
@@ -130,7 +142,11 @@
 
   $effect(() => {
     // reset pagination whenever filters change
-    q; rated; decade; genre; sort;
+    q;
+    rated;
+    decade;
+    genre;
+    sort;
     visible = 60;
   });
 
@@ -157,7 +173,13 @@
     onpointerenter={() => catalog && loadFull()}
     onfocusin={() => catalog && loadFull()}
   >
-    <input type="search" placeholder="Search the archive…" bind:value={q} style="flex:1; min-width:180px;" data-testid="catalog-search" />
+    <input
+      type="search"
+      placeholder="Search the archive…"
+      bind:value={q}
+      style="flex:1; min-width:180px;"
+      data-testid="catalog-search"
+    />
     <select bind:value={rated} aria-label="Rated filter" data-testid="filter-rated">
       <option value="all">All films</option>
       <option value="rated">Rated by me</option>
@@ -186,7 +208,9 @@
   {:else}
     <p class="small faint" style="margin:0 0 1rem;" data-testid="catalog-count">
       {count.toLocaleString()} film{count === 1 ? '' : 's'}{#if SORTS[sort]?.ratingSort}
-        <span data-testid="nulls-note"> (films without a {SORTS[sort].ratingSort} are listed last)</span>
+        <span data-testid="nulls-note">
+          (films without a {SORTS[sort].ratingSort} are listed last)</span
+        >
       {/if}
     </p>
     <div class="poster-grid" data-testid="catalog-grid">
@@ -199,16 +223,26 @@
               <div class="no-poster">{m.title}</div>
             {/if}
             {#if m.my != null}<span class="rating-tag">{f1(m.my)}</span>{/if}
-            {#if m.stills}<span class="stills-tag" role="img" aria-label={`${m.stills} stills by Dr. X`} title={`${m.stills} stills`}><svg aria-hidden="true"><use href={`${base}/icons.svg#i-stills`}></use></svg></span>{/if}
+            {#if m.stills}<span
+                class="stills-tag"
+                role="img"
+                aria-label={`${m.stills} stills by Dr. X`}
+                title={`${m.stills} stills`}
+                ><svg aria-hidden="true"><use href={`${base}/icons.svg#i-stills`}></use></svg></span
+              >{/if}
           </div>
           <div class="card-title">{m.title}</div>
-          <div class="card-sub">{m.year ?? ''}{m.directors?.length ? ` · ${m.directors.join(', ')}` : ''}</div>
+          <div class="card-sub">
+            {m.year ?? ''}{m.directors?.length ? ` · ${m.directors.join(', ')}` : ''}
+          </div>
         </a>
       {/each}
     </div>
     {#if count > visible}
       <div style="text-align:center; margin-top:1.6rem;">
-        <button class="btn" onclick={showMore}>Show more ({(count - visible).toLocaleString()} remaining)</button>
+        <button class="btn" onclick={showMore}
+          >Show more ({(count - visible).toLocaleString()} remaining)</button
+        >
       </div>
     {/if}
   {/if}
@@ -216,7 +250,12 @@
 
 <style>
   .tools.sticky {
-    position: sticky; top: var(--header-h); z-index: 10; margin-bottom: 0.4rem !important;
-    padding: 0.8rem 0; background: var(--bg); border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: var(--header-h);
+    z-index: 10;
+    margin-bottom: 0.4rem !important;
+    padding: 0.8rem 0;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
   }
 </style>

@@ -32,25 +32,64 @@
     {@const cx = L + band * i + band / 2}
     {@const faint = r.n != null && r.n < thin}
     <g>
-      <title>{r.tip ?? `${r.label}: ${fmtScore(r.value)}${unit}${r.n != null ? ` (${r.n} ${r.n === 1 ? 'film' : 'films'})` : ''}`}</title>
+      <title
+        >{r.tip ??
+          `${r.label}: ${fmtScore(r.value)}${unit}${r.n != null ? ` (${r.n} ${r.n === 1 ? 'film' : 'films'})` : ''}`}</title
+      >
       <rect x={cx - band / 2} y={T} width={band} height={H - T - B} class="hit" />
       <path d={col(cx, r.value)} class={faint ? 'col thin' : 'col'} />
     </g>
-    {#if values}<text x={cx} y={y(r.value) - 6} text-anchor="middle" class={faint ? 'val thin' : 'val'}>{fmtScore(r.value)}</text>{/if}
-    {#if r.tick !== false}<text x={cx} y={H - B + 16} text-anchor="middle" class="tick">{r.label}</text>{/if}
+    {#if values}<text
+        x={cx}
+        y={y(r.value) - 6}
+        text-anchor="middle"
+        class={faint ? 'val thin' : 'val'}>{fmtScore(r.value)}</text
+      >{/if}
+    {#if r.tick !== false}<text x={cx} y={H - B + 16} text-anchor="middle" class="tick"
+        >{r.label}</text
+      >{/if}
     {#if r.n != null}<text x={cx} y={H - B + 31} text-anchor="middle" class="n">n {r.n}</text>{/if}
   {/each}
 </svg>
 
 <style>
-  .chart { width: 100%; height: auto; display: block; overflow: visible; }
-  .grid { stroke: var(--border); stroke-width: 1; }
-  .tick { fill: var(--ink-faint); font: 11px var(--font-ui); }
-  .n { fill: var(--ink-faint); font: 10px var(--font-mono); }
-  .val { fill: var(--ink); font: 11px var(--font-mono); }
-  .val.thin { fill: var(--ink-faint); }
-  .hit { fill: transparent; }
-  .col { fill: var(--accent); fill-opacity: 0.85; }
-  .col.thin { fill: var(--ink-faint); fill-opacity: 0.45; }
-  g:hover .col { fill-opacity: 1; }
+  .chart {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+  .grid {
+    stroke: var(--border);
+    stroke-width: 1;
+  }
+  .tick {
+    fill: var(--ink-faint);
+    font: 11px var(--font-ui);
+  }
+  .n {
+    fill: var(--ink-faint);
+    font: 10px var(--font-mono);
+  }
+  .val {
+    fill: var(--ink);
+    font: 11px var(--font-mono);
+  }
+  .val.thin {
+    fill: var(--ink-faint);
+  }
+  .hit {
+    fill: transparent;
+  }
+  .col {
+    fill: var(--accent);
+    fill-opacity: 0.85;
+  }
+  .col.thin {
+    fill: var(--ink-faint);
+    fill-opacity: 0.45;
+  }
+  g:hover .col {
+    fill-opacity: 1;
+  }
 </style>

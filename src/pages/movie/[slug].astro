@@ -41,10 +41,22 @@ const panelProps = {
     {backdrop && <div class="backdrop" style={`background-image:url('${backdrop}')`}></div>}
     <div class="backdrop-fade"></div>
     <div class="wrap hero-inner">
-      {poster && <img class="hero-poster" src={poster} alt={`${movie.title} poster`} width="200" height="300" />}
+      {poster && (
+        <img
+          class="hero-poster"
+          src={poster}
+          alt={`${movie.title} poster`}
+          width="200"
+          height="300"
+        />
+      )}
       <div>
         <h1>{movie.title}</h1>
-        {movie.originalTitle && <p class="hero-meta" style="margin-top:-0.3rem;">{movie.originalTitle}</p>}
+        {movie.originalTitle && (
+          <p class="hero-meta" style="margin-top:-0.3rem;">
+            {movie.originalTitle}
+          </p>
+        )}
         <div class="hero-meta">
           {movie.year && <span>{movie.year}</span>}
           {movie.runtime && <span>{fmtRuntime(movie.runtime)}</span>}
@@ -53,21 +65,34 @@ const panelProps = {
         <div class="hero-meta" style="margin-top:0.4rem;">
           {directorLinks.map((d) => (
             <span>
-              directed by {d.page ? <a href={withBase(`/director/${d.page}`)} style="color:inherit;">{d.name}</a> : d.name}
+              directed by{' '}
+              {d.page ? (
+                <a href={withBase(`/director/${d.page}`)} style="color:inherit;">
+                  {d.name}
+                </a>
+              ) : (
+                d.name
+              )}
             </span>
           ))}
         </div>
         {movie.tagline && <p class="tagline">“{movie.tagline}”</p>}
         <div style="margin-top:1rem; display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
           {movie.myRating ? (
-            <span class="score-badge">{fmt1(movie.myRating.overall)} <small style="color:var(--hero-ink-muted);">/ 10</small></span>
+            <span class="score-badge">
+              {fmt1(movie.myRating.overall)}{' '}
+              <small style="color:var(--hero-ink-muted);">/ 10</small>
+            </span>
           ) : (
             <span class="status-badge">Not yet rated</span>
           )}
           <FilmActions client:load id={movie.id} title={movie.title} />
           {stills && (
             <a class="quiet-link" href="#stills" data-testid="stills-link">
-              <svg class="icon" aria-hidden="true"><use href={withBase('/icons.svg#i-stills')}></use></svg>{stills.length} {stills.length === 1 ? 'still' : 'stills'}
+              <svg class="icon" aria-hidden="true">
+                <use href={withBase('/icons.svg#i-stills')}></use>
+              </svg>
+              {stills.length} {stills.length === 1 ? 'still' : 'stills'}
             </a>
           )}
         </div>
@@ -90,7 +115,9 @@ const panelProps = {
       {movie.overview && (
         <div class="panel" data-testid="synopsis-panel">
           <h3>Synopsis</h3>
-          <p class="muted" style="margin:0;">{movie.overview}</p>
+          <p class="muted" style="margin:0;">
+            {movie.overview}
+          </p>
         </div>
       )}
       {movie.cast.length > 0 && (
@@ -109,13 +136,19 @@ const panelProps = {
         <div class="panel">
           <h3>Average shot length</h3>
           <p style="margin:0;">
-            <span class="mono" style="font-size:1.5rem; color:var(--accent);">{movie.asl.value}s</span>
+            <span class="mono" style="font-size:1.5rem; color:var(--accent);">
+              {movie.asl.value}s
+            </span>
             <span class="muted small"> per shot</span>
           </p>
           {aslDirector && (
             <p class="small muted" style="margin:0.4rem 0 0;">
-              {aslDirector.name}'s career average is {aslDirector.aslAvg}s across {aslDirector.aslCount} measured films.
-              <a href={withBase(`/director/${aslDirector.slug}`)} style="color:var(--accent);">See the full picture</a>.
+              {aslDirector.name}'s career average is {aslDirector.aslAvg}s across{' '}
+              {aslDirector.aslCount} measured films.
+              <a href={withBase(`/director/${aslDirector.slug}`)} style="color:var(--accent);">
+                See the full picture
+              </a>
+              .
             </p>
           )}
         </div>

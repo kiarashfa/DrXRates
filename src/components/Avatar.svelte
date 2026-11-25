@@ -7,7 +7,12 @@
   const kind = $derived(profile?.picture ? 'picture' : profile?.mono ? 'mono' : undefined);
 </script>
 
-<span class={`avatar ${cls}`} style={`--av:${size}px`} data-kind={kind} data-mono={kind === 'mono' ? profile.mono.color : undefined}>
+<span
+  class={`avatar ${cls}`}
+  style={`--av:${size}px`}
+  data-kind={kind}
+  data-mono={kind === 'mono' ? profile.mono.color : undefined}
+>
   <svg class="avatar-icon" aria-hidden="true"><use href={withBase('/icons.svg#i-user')} /></svg>
   {#if kind === 'picture'}
     <img class="avatar-img" src={profile.picture} alt="" width={size} height={size} />

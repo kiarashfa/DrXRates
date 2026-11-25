@@ -11,19 +11,76 @@ export { mulberry32 };
 // the whole run) or null; answer: 'choices' | 'typing' | 'frames' (pick the
 // frame for a title); score: what the result line counts.
 export const MODES = {
-  survival: { label: 'Survival', lives: 5, clock: 'frame', answer: 'choices', tag: '5 tickets', blurb: 'Ten seconds a frame; wrong or late costs a ticket. Gets harder.' },
-  sprint: { label: 'Sprint', lives: 0, clock: 'run', answer: 'choices', tag: '60 sec', blurb: 'One minute, as many frames as you can. A miss costs 3 s.' },
-  cinephile: { label: 'Cinephile', lives: 5, clock: 'frame', answer: 'typing', tag: 'Typing', blurb: 'No choices: type the title. Any film in the archive is a valid guess; original titles count.' },
-  reverse: { label: 'Find the frame', lives: 5, clock: 'frame', answer: 'frames', tag: 'Reverse', blurb: 'You get the title; pick its frame out of four.' },
-  slow: { label: 'Slow reveal', lives: 5, clock: 'frame', answer: 'choices', reveal: 'zoom', tag: 'Zoom out', blurb: 'Starts as a detail and pulls back. The sooner you know, the more it pays.' },
-  party: { label: 'Party', lives: 0, clock: 'frame', answer: 'choices', tag: '2–4 players', blurb: 'One screen, a buzzer key each. For movie nights.' },
-  practice: { label: 'Practice', lives: 0, clock: null, answer: 'choices', tag: 'No clock', blurb: 'No tickets, no clock. Pick a director, a collection, your watchlist.' },
+  survival: {
+    label: 'Survival',
+    lives: 5,
+    clock: 'frame',
+    answer: 'choices',
+    tag: '5 tickets',
+    blurb: 'Ten seconds a frame; wrong or late costs a ticket. Gets harder.',
+  },
+  sprint: {
+    label: 'Sprint',
+    lives: 0,
+    clock: 'run',
+    answer: 'choices',
+    tag: '60 sec',
+    blurb: 'One minute, as many frames as you can. A miss costs 3 s.',
+  },
+  cinephile: {
+    label: 'Cinephile',
+    lives: 5,
+    clock: 'frame',
+    answer: 'typing',
+    tag: 'Typing',
+    blurb:
+      'No choices: type the title. Any film in the archive is a valid guess; original titles count.',
+  },
+  reverse: {
+    label: 'Find the frame',
+    lives: 5,
+    clock: 'frame',
+    answer: 'frames',
+    tag: 'Reverse',
+    blurb: 'You get the title; pick its frame out of four.',
+  },
+  slow: {
+    label: 'Slow reveal',
+    lives: 5,
+    clock: 'frame',
+    answer: 'choices',
+    reveal: 'zoom',
+    tag: 'Zoom out',
+    blurb: 'Starts as a detail and pulls back. The sooner you know, the more it pays.',
+  },
+  party: {
+    label: 'Party',
+    lives: 0,
+    clock: 'frame',
+    answer: 'choices',
+    tag: '2–4 players',
+    blurb: 'One screen, a buzzer key each. For movie nights.',
+  },
+  practice: {
+    label: 'Practice',
+    lives: 0,
+    clock: null,
+    answer: 'choices',
+    tag: 'No clock',
+    blurb: 'No tickets, no clock. Pick a director, a collection, your watchlist.',
+  },
 };
 export const SPRINT_SECONDS = 60;
 export const SPRINT_PENALTY = 3;
 export const PARTY_ROUNDS = 15;
 export const PARTY_KEYS = ['q', 'p', 'b', 'm'];
-export const REVEALS = { full: 'Whole frame', zoom: 'Zoom out', key: 'Keyhole', spot: 'Spotlight', pix: 'Pixels' };
+export const REVEALS = {
+  full: 'Whole frame',
+  zoom: 'Zoom out',
+  key: 'Keyhole',
+  spot: 'Spotlight',
+  pix: 'Pixels',
+};
 export const DIFFICULTIES = { rising: 'Rising (easy first)', easy: 'Easy only', hard: 'Hard only' };
 export const HINTS = { clue: 2, frame: 2, skip: 1 };
 
@@ -54,7 +111,7 @@ export function filterPool(films, opts, { ids = null } = {}) {
       (opts.yearFrom == null || (f.year ?? 0) >= opts.yearFrom) &&
       (opts.yearTo == null || (f.year ?? 9999) <= opts.yearTo) &&
       (!opts.minVotes || f.votes >= opts.minVotes) &&
-      (opts.source !== 'director' || !opts.director || f.directors.includes(opts.director))
+      (opts.source !== 'director' || !opts.director || f.directors.includes(opts.director)),
   );
 }
 
@@ -65,10 +122,20 @@ export function filterPool(films, opts, { ids = null } = {}) {
 const W = { votes: 0.4, imdb: 0.1, star: 0.15, dir: 0.1, frame: 0.25 };
 export const frameEase = (n) => (n === 1 ? 1 : 0.4);
 export function ease(film, n) {
-  return W.votes * film.e.votes + W.imdb * film.e.imdb + W.star * film.e.star + W.dir * film.e.dir + W.frame * frameEase(n);
+  return (
+    W.votes * film.e.votes +
+    W.imdb * film.e.imdb +
+    W.star * film.e.star +
+    W.dir * film.e.dir +
+    W.frame * frameEase(n)
+  );
 }
 export const TIERS = ['Easy', 'Medium', 'Hard'];
-const BANDS = [[0.74, 1], [0.55, 0.82], [0, 0.66]];
+const BANDS = [
+  [0.74, 1],
+  [0.55, 0.82],
+  [0, 0.66],
+];
 export function tierFor(round, difficulty) {
   if (difficulty === 'easy') return 0;
   if (difficulty === 'hard') return 2;
@@ -82,16 +149,44 @@ export function easeFormula(film, n) {
 // A clue names something the answer shares with exactly one other option, so
 // it narrows four to two and never gives the answer away.
 const decade = (y) => Math.floor((y ?? 0) / 10) * 10;
-const band = (s) => (s >= 8.5 ? '8.5 or more' : s >= 8 ? 'from 8 to 8.5' : s >= 7 ? 'from 7 to 8' : s >= 6 ? 'from 6 to 7' : 'under 6');
+const band = (s) =>
+  s >= 8.5
+    ? '8.5 or more'
+    : s >= 8
+      ? 'from 8 to 8.5'
+      : s >= 7
+        ? 'from 7 to 8'
+        : s >= 6
+          ? 'from 6 to 7'
+          : 'under 6';
 const CLUES = {
-  decade: { ok: (a) => a.year, same: (a, b) => b.year && decade(a.year) === decade(b.year), text: (a) => `It came out in the ${decade(a.year)}s.` },
-  genre: { ok: (a) => a.genres.length, same: (a, b) => b.genres.includes(a.genres[0]), text: (a) => `It is filed under ${a.genres[0]}.` },
-  director: { ok: (a) => a.directors.length, same: (a, b) => b.directors.some((d) => a.directors.includes(d)), text: (a) => `Directed by ${a.directors.join(' and ')}.` },
-  score: { ok: (a) => a.my != null, same: (a, b) => b.my != null && band(b.my) === band(a.my), text: (a) => `Dr. X scored it ${band(a.my)}.` },
+  decade: {
+    ok: (a) => a.year,
+    same: (a, b) => b.year && decade(a.year) === decade(b.year),
+    text: (a) => `It came out in the ${decade(a.year)}s.`,
+  },
+  genre: {
+    ok: (a) => a.genres.length,
+    same: (a, b) => b.genres.includes(a.genres[0]),
+    text: (a) => `It is filed under ${a.genres[0]}.`,
+  },
+  director: {
+    ok: (a) => a.directors.length,
+    same: (a, b) => b.directors.some((d) => a.directors.includes(d)),
+    text: (a) => `Directed by ${a.directors.join(' and ')}.`,
+  },
+  score: {
+    ok: (a) => a.my != null,
+    same: (a, b) => b.my != null && band(b.my) === band(a.my),
+    text: (a) => `Dr. X scored it ${band(a.my)}.`,
+  },
 };
 // A text clue on its own (typing mode): any fact, no elimination.
 export function textClue(film, r) {
-  const k = pick(Object.keys(CLUES).filter((key) => CLUES[key].ok(film)), r);
+  const k = pick(
+    Object.keys(CLUES).filter((key) => CLUES[key].ok(film)),
+    r,
+  );
   return k ? CLUES[k].text(film) : null;
 }
 
@@ -113,7 +208,8 @@ export const frameKey = (id, n) => `${id}:${n}`;
 function pickAnswer(r, { pool, tier, used, avoid, retake }) {
   if (retake) {
     const f = pool.find((x) => x.id === retake[0]);
-    if (f && !used.has(f.id) && retake[1] <= f.frames) return { film: f, n: retake[1], retake: true };
+    if (f && !used.has(f.id) && retake[1] <= f.frames)
+      return { film: f, n: retake[1], retake: true };
   }
   const [lo, hi] = BANDS[tier];
   const candidates = (fits) => {
@@ -140,7 +236,9 @@ function pickAnswer(r, { pool, tier, used, avoid, retake }) {
 // medium and hard rounds share a genre, hard ones the era too. Titles stay
 // distinct. One of them shares the clue's fact (the "twin").
 function others(r, answer, all, tier, count = 3) {
-  const rest = all.filter((f) => f.id !== answer.id && f.title.toLowerCase() !== answer.title.toLowerCase());
+  const rest = all.filter(
+    (f) => f.id !== answer.id && f.title.toLowerCase() !== answer.title.toLowerCase(),
+  );
   const near = (f, w) => Math.abs(f.e.votes - answer.e.votes) < w;
   let pool = rest.filter((f) => near(f, [0.25, 0.2, 0.25][tier]));
   if (tier >= 1) pool = pool.filter((f) => f.genres.some((g) => answer.genres.includes(g)));
@@ -178,7 +276,19 @@ function others(r, answer, all, tier, count = 3) {
 // One question: { film, n, tier, ease, retake, options: [film ×4], clue,
 // focus: [x%, y%] (where zoom and keyhole reveals centre) }. `frames` mode
 // (Find the frame) adds choices: [{ film, n } ×4] instead of title options.
-export function makeQuestion(r, { pool, all, round, difficulty = 'rising', used, avoid = null, retake = null, answer = 'choices' }) {
+export function makeQuestion(
+  r,
+  {
+    pool,
+    all,
+    round,
+    difficulty = 'rising',
+    used,
+    avoid = null,
+    retake = null,
+    answer = 'choices',
+  },
+) {
   const tier = tierFor(round, difficulty);
   const a = pickAnswer(r, { pool, tier, used, avoid, retake });
   if (!a) return null;
@@ -195,7 +305,12 @@ export function makeQuestion(r, { pool, all, round, difficulty = 'rising', used,
   };
   if (answer === 'frames') {
     // Hard rounds avoid lead frames, which give a film away.
-    const frameOf = (f) => (tier === 2 && f.frames > 1 ? 2 + Math.floor(r() * (f.frames - 1)) : f.frames > 1 && r() < 0.5 ? 2 + Math.floor(r() * (f.frames - 1)) : 1);
+    const frameOf = (f) =>
+      tier === 2 && f.frames > 1
+        ? 2 + Math.floor(r() * (f.frames - 1))
+        : f.frames > 1 && r() < 0.5
+          ? 2 + Math.floor(r() * (f.frames - 1))
+          : 1;
     q.choices = q.options.map((f) => ({ film: f, n: f.id === a.film.id ? a.n : frameOf(f) }));
   }
   return q;
@@ -210,7 +325,8 @@ export function points({ left = 0, seconds = 10, hinted = false, streak = 1, clo
 
 // Bonus round: guess Dr. X's score; within 0.5 doubles the frame's points.
 export const BONUS_RANGE = 0.5;
-export const bonusHit = (guess, actual) => guess != null && actual != null && Math.abs(guess - actual) <= BONUS_RANGE + 1e-9;
+export const bonusHit = (guess, actual) =>
+  guess != null && actual != null && Math.abs(guess - actual) <= BONUS_RANGE + 1e-9;
 
 // ---------- Daily Reel ----------
 // One film a day, the same for everyone: Dr. X's films with six or more
@@ -222,7 +338,9 @@ const DAY_MS = 86400000;
 const dayNumber = (iso) => Math.floor(Date.parse(`${iso}T00:00:00Z`) / DAY_MS);
 export const dailyNumber = (iso) => dayNumber(iso) - dayNumber(DAILY_EPOCH) + 1;
 export function dailyPool(films) {
-  return films.filter((f) => f.frames >= DAILY_FRAMES && f.votes >= 100000).sort((a, b) => a.id - b.id);
+  return films
+    .filter((f) => f.frames >= DAILY_FRAMES && f.votes >= 100000)
+    .sort((a, b) => a.id - b.id);
 }
 // [{ date, id, frames: [n ×6] }] for `days` days from the day before `from`.
 export function dailySchedule(pool, from = new Date(), days = 62) {
@@ -237,12 +355,21 @@ export function dailySchedule(pool, from = new Date(), days = 62) {
   const cycles = new Map();
   const order = (c) => {
     if (!cycles.has(c)) {
-      const tail = new Set(raw(c - 1).slice(-GAP).map((f) => f.id));
+      const tail = new Set(
+        raw(c - 1)
+          .slice(-GAP)
+          .map((f) => f.id),
+      );
       const list = raw(c);
       const head = list.slice(0, GAP);
       const rest = list.slice(GAP);
       const mid = Math.floor(rest.length / 2);
-      cycles.set(c, [...head.filter((f) => !tail.has(f.id)), ...rest.slice(0, mid), ...head.filter((f) => tail.has(f.id)), ...rest.slice(mid)]);
+      cycles.set(c, [
+        ...head.filter((f) => !tail.has(f.id)),
+        ...rest.slice(0, mid),
+        ...head.filter((f) => tail.has(f.id)),
+        ...rest.slice(mid),
+      ]);
     }
     return cycles.get(c);
   };
@@ -251,8 +378,15 @@ export function dailySchedule(pool, from = new Date(), days = 62) {
     const cycle = Math.floor(day / pool.length);
     const f = order(cycle)[day % pool.length];
     const r = mulberry32(day * 40503 + f.id);
-    const rest = shuffle(Array.from({ length: f.frames - 1 }, (_, i) => i + 2), r).slice(0, DAILY_FRAMES - 1);
-    out.push({ date: new Date(day * DAY_MS).toISOString().slice(0, 10), id: f.id, frames: [...rest, 1] });
+    const rest = shuffle(
+      Array.from({ length: f.frames - 1 }, (_, i) => i + 2),
+      r,
+    ).slice(0, DAILY_FRAMES - 1);
+    out.push({
+      date: new Date(day * DAY_MS).toISOString().slice(0, 10),
+      id: f.id,
+      frames: [...rest, 1],
+    });
   }
   return out;
 }
@@ -263,7 +397,8 @@ export function nearMiss(guess, answer) {
   if (!guess) return null;
   const gd = (guess.directors ?? []).map((d) => (typeof d === 'string' ? d : d.name));
   if (gd.some((d) => answer.directors.includes(d))) return 'same director';
-  if (guess.year && answer.year && decade(guess.year) === decade(answer.year)) return 'right decade';
+  if (guess.year && answer.year && decade(guess.year) === decade(answer.year))
+    return 'right decade';
   if ((guess.genres ?? []).some((g) => answer.genres.includes(g))) return 'same genre';
   return null;
 }
@@ -272,12 +407,19 @@ export function nearMiss(guess, answer) {
 // Plain share text (no coloured squares).
 export function shareText({ mode, score, named, total, marks, url }) {
   const what = MODES[mode]?.label ?? mode;
-  const tally = mode === 'sprint' || mode === 'practice' ? `${named} frames named` : `${score.toLocaleString('en-US')} points · ${named} of ${total} frames named`;
+  const tally =
+    mode === 'sprint' || mode === 'practice'
+      ? `${named} frames named`
+      : `${score.toLocaleString('en-US')} points · ${named} of ${total} frames named`;
   return `Name the Frame · ${what}\n${tally}\n${marks}\n${url}`;
 }
 export function dailyShareText({ number, solvedAt, guesses, url }) {
-  const marks = Array.from({ length: DAILY_FRAMES }, (_, i) => (i < guesses ? (i === solvedAt - 1 ? '✓' : '✗') : '·')).join(' ');
-  const line = solvedAt ? `Named on frame ${solvedAt} of ${DAILY_FRAMES}` : `Not named in ${DAILY_FRAMES} frames`;
+  const marks = Array.from({ length: DAILY_FRAMES }, (_, i) =>
+    i < guesses ? (i === solvedAt - 1 ? '✓' : '✗') : '·',
+  ).join(' ');
+  const line = solvedAt
+    ? `Named on frame ${solvedAt} of ${DAILY_FRAMES}`
+    : `Not named in ${DAILY_FRAMES} frames`;
   return `Name the Frame · Daily Reel #${number}\n${line}   ${marks}\n${url}`;
 }
 
@@ -285,7 +427,11 @@ export function dailyShareText({ number, solvedAt, guesses, url }) {
 // #c1.<base64url JSON>: mode, seed, the rules that shape the questions, and
 // the challenger's result. Only pools anyone can rebuild are shareable (Dr.
 // X's films, a director or a collection; not a visitor's own lists).
-const b64 = (s) => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const b64 = (s) =>
+  btoa(unescape(encodeURIComponent(s)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
 const unb64 = (s) => decodeURIComponent(escape(atob(s.replace(/-/g, '+').replace(/_/g, '/'))));
 export const SHAREABLE_SOURCES = ['drx', 'director', 'collection'];
 export function encodeChallenge({ opts, seed, score, named }) {
@@ -297,7 +443,13 @@ export function parseChallenge(hash) {
   if (!m) return null;
   try {
     const c = JSON.parse(unb64(m[1]));
-    if (!MODES[c.m] || c.m === 'party' || !Number.isInteger(c.s) || !SHAREABLE_SOURCES.includes(c.src)) return null;
+    if (
+      !MODES[c.m] ||
+      c.m === 'party' ||
+      !Number.isInteger(c.s) ||
+      !SHAREABLE_SOURCES.includes(c.src)
+    )
+      return null;
     return {
       seed: c.s >>> 0,
       score: Number(c.p) || 0,

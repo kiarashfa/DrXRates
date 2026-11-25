@@ -15,9 +15,19 @@ const icon = (name: string) => `${withBase('/icons.svg')}#i-${name}`;
 ---
 
 <div class="nav-group" data-menu>
-  <button type="button" class="icon-btn" aria-expanded="false" aria-controls={id} aria-label="Theme" title="Theme" data-menu-trigger>
+  <button
+    type="button"
+    class="icon-btn"
+    aria-expanded="false"
+    aria-controls={id}
+    aria-label="Theme"
+    title="Theme"
+    data-menu-trigger
+  >
     {THEMES.map((t) => (
-      <svg class={`icon theme-icon theme-icon-${t.id}`} aria-hidden="true"><use href={icon(t.id)} /></svg>
+      <svg class={`icon theme-icon theme-icon-${t.id}`} aria-hidden="true">
+        <use href={icon(t.id)} />
+      </svg>
     ))}
   </button>
   <div class="pop pop-right" id={id} data-menu-pop>
@@ -25,7 +35,9 @@ const icon = (name: string) => `${withBase('/icons.svg')}#i-${name}`;
       {THEMES.map((t) => (
         <li>
           <button type="button" data-theme-option={t.id} aria-pressed="false">
-            <svg class="icon" aria-hidden="true"><use href={icon(t.id)} /></svg>
+            <svg class="icon" aria-hidden="true">
+              <use href={icon(t.id)} />
+            </svg>
             {t.label}
           </button>
         </li>

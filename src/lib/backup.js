@@ -72,7 +72,9 @@ export async function importBackupFile(file) {
 
 // The same for backup data already parsed (a file, or a cloud save).
 export function importBackupData(parsed) {
-  const present = Object.keys(SECTIONS).filter((name) => parsed?.[name] && typeof parsed[name] === 'object');
+  const present = Object.keys(SECTIONS).filter(
+    (name) => parsed?.[name] && typeof parsed[name] === 'object',
+  );
   if (!present.length) {
     throw new Error('Not a Dr. X Rates backup: no ratings or other saved data found.');
   }
@@ -83,7 +85,13 @@ export function importBackupData(parsed) {
 
 // "Sign out": removes everything the backup holds from this browser (the
 // stores' keys), leaving preferences such as the theme.
-const KEYS = ['cinema.visitor.v1', 'cinema.watchlist.v1', 'cinema.knockout.v1', 'cinema.frames.v1', PROFILE_KEY];
+const KEYS = [
+  'cinema.visitor.v1',
+  'cinema.watchlist.v1',
+  'cinema.knockout.v1',
+  'cinema.frames.v1',
+  PROFILE_KEY,
+];
 export function clearBackupData() {
   for (const key of KEYS) removeKey(key);
   removeKey(CHANGED_KEY);

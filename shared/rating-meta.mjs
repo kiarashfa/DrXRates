@@ -2,19 +2,64 @@
 // Imported by both the Node build scripts and the Astro/Svelte site.
 
 export const CONTENT_KEYS = [
-  { key: 'originality', label: 'Uniqueness & originality', short: 'Originality', hint: 'something not seen before' },
-  { key: 'character', label: 'Character development', short: 'Character', hint: 'people who change, or reveal themselves' },
-  { key: 'continuity', label: 'Continuity & coherence', short: 'Continuity', hint: 'a story that holds together' },
-  { key: 'suspense', label: 'Suspense & tension', short: 'Suspense', hint: 'what keeps you leaning in' },
-  { key: 'message', label: 'Message & meaning', short: 'Message', hint: 'what stays after the credits' },
+  {
+    key: 'originality',
+    label: 'Uniqueness & originality',
+    short: 'Originality',
+    hint: 'something not seen before',
+  },
+  {
+    key: 'character',
+    label: 'Character development',
+    short: 'Character',
+    hint: 'people who change, or reveal themselves',
+  },
+  {
+    key: 'continuity',
+    label: 'Continuity & coherence',
+    short: 'Continuity',
+    hint: 'a story that holds together',
+  },
+  {
+    key: 'suspense',
+    label: 'Suspense & tension',
+    short: 'Suspense',
+    hint: 'what keeps you leaning in',
+  },
+  {
+    key: 'message',
+    label: 'Message & meaning',
+    short: 'Message',
+    hint: 'what stays after the credits',
+  },
 ];
 
 export const FORM_KEYS = [
   { key: 'acting', label: 'Casting & acting', short: 'Acting', hint: 'who plays whom, and how' },
-  { key: 'cinematography', label: 'Cinematography & visual effects', short: 'Cinematography', hint: 'the image, the camera, the effects' },
-  { key: 'sound', label: 'Sound engineering & score', short: 'Sound', hint: 'the mix, the silence, the music' },
-  { key: 'directing', label: 'Directing & editing', short: 'Directing', hint: 'the hand on the whole, and the cut' },
-  { key: 'design', label: 'Production design & costume', short: 'Design', hint: 'sets, costume, the made world' },
+  {
+    key: 'cinematography',
+    label: 'Cinematography & visual effects',
+    short: 'Cinematography',
+    hint: 'the image, the camera, the effects',
+  },
+  {
+    key: 'sound',
+    label: 'Sound engineering & score',
+    short: 'Sound',
+    hint: 'the mix, the silence, the music',
+  },
+  {
+    key: 'directing',
+    label: 'Directing & editing',
+    short: 'Directing',
+    hint: 'the hand on the whole, and the cut',
+  },
+  {
+    key: 'design',
+    label: 'Production design & costume',
+    short: 'Design',
+    hint: 'sets, costume, the made world',
+  },
 ];
 
 export const ALL_KEYS = [...CONTENT_KEYS, ...FORM_KEYS];
@@ -38,5 +83,9 @@ export function computeTotals(scores) {
   const formAvg = halfAverage(scores, FORM_KEYS);
   if (contentAvg == null || formAvg == null) return null;
   const round = (n) => Math.round(n * 100) / 100;
-  return { contentAvg: round(contentAvg), formAvg: round(formAvg), overall: round(contentAvg + formAvg) };
+  return {
+    contentAvg: round(contentAvg),
+    formAvg: round(formAvg),
+    overall: round(contentAvg + formAvg),
+  };
 }

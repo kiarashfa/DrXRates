@@ -14,7 +14,8 @@ const clamp = (v) => Math.max(-1, Math.min(1, v));
 const STRENGTH = [0.03, 0.02]; // view shift at full tilt, in parts of the picture (x, y)
 const FOCUS = 0.5; // the depth that stays put
 
-const VS = 'attribute vec2 p;varying vec2 vUv;void main(){vUv=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}';
+const VS =
+  'attribute vec2 p;varying vec2 vUv;void main(){vUv=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}';
 const FS = `precision highp float;
 varying vec2 vUv;
 uniform sampler2D uFig, uDep;
@@ -75,7 +76,11 @@ const loadImage = (src) =>
 
 // The depth-mapped figure. Returns { draw(params) } or null when WebGL is unavailable.
 async function makeLens(canvas, still, cfg) {
-  const gl = canvas.getContext('webgl', { premultipliedAlpha: true, alpha: true, antialias: false });
+  const gl = canvas.getContext('webgl', {
+    premultipliedAlpha: true,
+    alpha: true,
+    antialias: false,
+  });
   if (!gl) return null;
   const shader = (type, text) => {
     const s = gl.createShader(type);
@@ -95,7 +100,23 @@ async function makeLens(canvas, still, cfg) {
   gl.enableVertexAttribArray(loc);
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
   const U = {};
-  for (const n of ['uFig', 'uDep', 'uRect', 'uOff', 'uPR', 'uPB', 'uPD', 'uTex', 'uHot', 'uLR', 'uFocus', 'uAsp', 'uT', 'uMode']) U[n] = gl.getUniformLocation(prog, n);
+  for (const n of [
+    'uFig',
+    'uDep',
+    'uRect',
+    'uOff',
+    'uPR',
+    'uPB',
+    'uPD',
+    'uTex',
+    'uHot',
+    'uLR',
+    'uFocus',
+    'uAsp',
+    'uT',
+    'uMode',
+  ])
+    U[n] = gl.getUniformLocation(prog, n);
   const texture = (unit, img) => {
     gl.activeTexture(gl.TEXTURE0 + unit);
     gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
@@ -106,8 +127,12 @@ async function makeLens(canvas, still, cfg) {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
   };
   // The figure texture is whichever size the still <img> picked, so nothing loads twice.
-  if (!still.complete) await new Promise((ok) => still.addEventListener('load', ok, { once: true }));
-  const [fig, dep] = await Promise.all([loadImage(still.currentSrc || still.src), loadImage(cfg.depth)]);
+  if (!still.complete)
+    await new Promise((ok) => still.addEventListener('load', ok, { once: true }));
+  const [fig, dep] = await Promise.all([
+    loadImage(still.currentSrc || still.src),
+    loadImage(cfg.depth),
+  ]);
   gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
   texture(0, fig);
   texture(1, dep);
@@ -136,7 +161,13 @@ async function makeLens(canvas, still, cfg) {
         canvas.height = H;
         gl.viewport(0, 0, W, H);
       }
-      gl.uniform4f(U.uRect, (ir.left - cr.left) / cr.width, (ir.top - cr.top) / cr.height, ir.width / cr.width, ir.height / cr.height);
+      gl.uniform4f(
+        U.uRect,
+        (ir.left - cr.left) / cr.width,
+        (ir.top - cr.top) / cr.height,
+        ir.width / cr.width,
+        ir.height / cr.height,
+      );
       gl.uniform2f(U.uOff, off[0], off[1]);
       gl.uniform2f(U.uHot, hot[0], hot[1]);
       gl.uniform2f(U.uLR, gels[0], gels[1]);
@@ -160,7 +191,10 @@ function startRain(canvas, isOn) {
   const size = () => {
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
-    cols = Array.from({ length: Math.ceil(canvas.width / fs) }, () => (Math.random() * canvas.height) / fs);
+    cols = Array.from(
+      { length: Math.ceil(canvas.width / fs) },
+      () => (Math.random() * canvas.height) / fs,
+    );
   };
   const step = (t) => {
     requestAnimationFrame(step);
@@ -187,8 +221,14 @@ export function initHero(root) {
   const still = root.querySelector('.hx-still');
   const canvas = root.querySelector('.hx-fig');
   const leads = root.querySelector('.hx-leads');
-  const planes = [...root.querySelectorAll('.hx-pl')].map((el) => ({ el, d: Number(el.dataset.d) }));
-  const pills = { form: root.querySelector('.hx-pill.form'), content: root.querySelector('.hx-pill.content') };
+  const planes = [...root.querySelectorAll('.hx-pl')].map((el) => ({
+    el,
+    d: Number(el.dataset.d),
+  }));
+  const pills = {
+    form: root.querySelector('.hx-pill.form'),
+    content: root.querySelector('.hx-pill.content'),
+  };
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   const theme = () => document.documentElement.dataset.theme || 'dark';
 
@@ -211,10 +251,10 @@ export function initHero(root) {
     b.addEventListener('click', () => ((open = open === k ? '' : k), sync()));
   }
   document.addEventListener('click', (e) => {
-    if (open && !e.target.closest('.hx-pill, .hx-ann')) (open = ''), sync();
+    if (open && !e.target.closest('.hx-pill, .hx-ann')) ((open = ''), sync());
   });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && open) (open = ''), sync();
+    if (e.key === 'Escape' && open) ((open = ''), sync());
   });
 
   // ── pointer, smoothed; a slow drift when there is no mouse ──
@@ -248,7 +288,10 @@ export function initHero(root) {
       .then((l) => (lens = l))
       .catch(() => (lens = null));
   };
-  const idle = () => ('requestIdleCallback' in window ? requestIdleCallback(startLens, { timeout: 2000 }) : setTimeout(startLens, 300));
+  const idle = () =>
+    'requestIdleCallback' in window
+      ? requestIdleCallback(startLens, { timeout: 2000 })
+      : setTimeout(startLens, 300);
   if (document.readyState === 'complete') idle();
   else addEventListener('load', idle, { once: true });
 
@@ -272,7 +315,8 @@ export function initHero(root) {
     const off = [-x * STRENGTH[0], -y * STRENGTH[1]];
     const W = photo.clientWidth;
     const H = photo.clientHeight;
-    for (const p of planes) p.el.style.transform = `translate3d(${(off[0] * W * (p.d - FOCUS)).toFixed(2)}px, ${(off[1] * H * (p.d - FOCUS)).toFixed(2)}px, 0)`;
+    for (const p of planes)
+      p.el.style.transform = `translate3d(${(off[0] * W * (p.d - FOCUS)).toFixed(2)}px, ${(off[1] * H * (p.d - FOCUS)).toFixed(2)}px, 0)`;
 
     // The pills' hit areas (and the leader lines) follow the hands: a point at depth d moves by off * (d - focus).
     const sr = stage.getBoundingClientRect();
@@ -280,7 +324,10 @@ export function initHero(root) {
     const at = {};
     for (const k of ['form', 'content']) {
       const [px, py, d] = cfg[k];
-      at[k] = [(px / 100 + off[0] * (d - FOCUS)) * ir.width + ir.left - sr.left, (py / 100 + off[1] * (d - FOCUS)) * ir.height + ir.top - sr.top];
+      at[k] = [
+        (px / 100 + off[0] * (d - FOCUS)) * ir.width + ir.left - sr.left,
+        (py / 100 + off[1] * (d - FOCUS)) * ir.height + ir.top - sr.top,
+      ];
       pills[k].style.left = `${at[k][0].toFixed(1)}px`;
       pills[k].style.top = `${at[k][1].toFixed(1)}px`;
     }
@@ -292,7 +339,12 @@ export function initHero(root) {
       const ay = a.top + a.height / 2 - sr.top;
       const ex = lit === 'form' ? ax + 24 : ax - 24;
       const [px, py] = at[lit];
-      leads.querySelector(`path.${lit}`).setAttribute('d', `M${px.toFixed(1)} ${py.toFixed(1)} L${ex.toFixed(1)} ${ay.toFixed(1)} L${ax.toFixed(1)} ${ay.toFixed(1)}`);
+      leads
+        .querySelector(`path.${lit}`)
+        .setAttribute(
+          'd',
+          `M${px.toFixed(1)} ${py.toFixed(1)} L${ex.toFixed(1)} ${ay.toFixed(1)} L${ax.toFixed(1)} ${ay.toFixed(1)}`,
+        );
       const c = leads.querySelector(`circle.${lit}`);
       c.setAttribute('cx', px.toFixed(1));
       c.setAttribute('cy', py.toFixed(1));
@@ -309,7 +361,13 @@ export function initHero(root) {
     root.style.setProperty('--gb', gb.toFixed(3));
 
     if (lens && !lens.lost) {
-      lens.draw({ off, hot: [hR, hB], gels: [gr * 0.95, gb * 0.95], matrix: theme() === 'matrix', t });
+      lens.draw({
+        off,
+        hot: [hR, hB],
+        gels: [gr * 0.95, gb * 0.95],
+        matrix: theme() === 'matrix',
+        t,
+      });
       root.classList.add('gl');
     } else if (lens) {
       root.classList.remove('gl');

@@ -9,13 +9,13 @@ export async function getStaticPaths() {
 }
 
 const { director } = Astro.props;
-const collection = director.collectionSlug ? collections.find((c) => c.slug === director.collectionSlug) : null;
+const collection = director.collectionSlug
+  ? collections.find((c) => c.slug === director.collectionSlug)
+  : null;
 const filmographyIds = collection ? collection.movieIds : [];
 const filmography = filmographyIds.map((id) => movieById.get(id)).filter(Boolean);
 const archiveFilms = director.films.filter((f) => f.movieId != null && movieById.has(f.movieId));
-const cards = filmography.length
-  ? filmography
-  : archiveFilms.map((f) => movieById.get(f.movieId));
+const cards = filmography.length ? filmography : archiveFilms.map((f) => movieById.get(f.movieId));
 const gridFilms = cards.map((m) => ({
   slug: m.slug,
   title: m.title,
@@ -32,11 +32,43 @@ const portrait = tmdbImg(director.profile, 'w185') ?? director.portraitUrl ?? nu
 const bioParas = (director.bio ?? '').split(/\n+/).filter(Boolean).slice(0, 3);
 const src = director.sourceAvgs ?? {};
 const stats = [
-  { id: 'my', label: 'My average', value: director.myAvg != null ? fmt1(director.myAvg) : '–', unit: '/ 10', note: `${director.myCount} rated`, mine: true },
-  { id: 'asl', label: 'Average shot length', value: director.aslAvg != null ? `${director.aslAvg}s` : '–', unit: '', note: `${director.aslCount} films measured`, mine: true },
-  { id: 'tmdb', label: 'TMDB average', value: src.tmdb ? fmt1(src.tmdb.avg) : '–', unit: '/ 10', note: src.tmdb ? `${src.tmdb.count} films` : 'no data' },
-  { id: 'imdb', label: 'IMDb average', value: src.imdb ? fmt1(src.imdb.avg) : '–', unit: '/ 10', note: src.imdb ? `${src.imdb.count} films` : 'no data' },
-  { id: 'metacritic', label: 'Metacritic average', value: src.metacritic ? String(Math.round(src.metacritic.avg)) : '–', unit: '/ 100', note: src.metacritic ? `${src.metacritic.count} films` : 'no data' },
+  {
+    id: 'my',
+    label: 'My average',
+    value: director.myAvg != null ? fmt1(director.myAvg) : '–',
+    unit: '/ 10',
+    note: `${director.myCount} rated`,
+    mine: true,
+  },
+  {
+    id: 'asl',
+    label: 'Average shot length',
+    value: director.aslAvg != null ? `${director.aslAvg}s` : '–',
+    unit: '',
+    note: `${director.aslCount} films measured`,
+    mine: true,
+  },
+  {
+    id: 'tmdb',
+    label: 'TMDB average',
+    value: src.tmdb ? fmt1(src.tmdb.avg) : '–',
+    unit: '/ 10',
+    note: src.tmdb ? `${src.tmdb.count} films` : 'no data',
+  },
+  {
+    id: 'imdb',
+    label: 'IMDb average',
+    value: src.imdb ? fmt1(src.imdb.avg) : '–',
+    unit: '/ 10',
+    note: src.imdb ? `${src.imdb.count} films` : 'no data',
+  },
+  {
+    id: 'metacritic',
+    label: 'Metacritic average',
+    value: src.metacritic ? String(Math.round(src.metacritic.avg)) : '–',
+    unit: '/ 100',
+    note: src.metacritic ? `${src.metacritic.count} films` : 'no data',
+  },
 ];
 const tabs = [
   bioParas.length > 0 && { key: 'bio', label: 'Biography' },
@@ -46,19 +78,42 @@ const tabs = [
 const firstTab = tabs[0]?.key;
 ---
 
-<Base title={director.name} description={`${director.name}: films, ratings, and average shot length.`}>
-  <section class="wrap" style="padding-top:3rem; display:flex; gap:2rem; align-items:flex-start; flex-wrap:wrap;">
-    {portrait && <img src={portrait} alt={director.name} width="140" height="210" data-testid="director-portrait" style="border-radius:6px; border:1px solid var(--border); flex-shrink:0; height:auto; max-height:210px; object-fit:cover;" />}
+<Base
+  title={director.name}
+  description={`${director.name}: films, ratings, and average shot length.`}
+>
+  <section
+    class="wrap"
+    style="padding-top:3rem; display:flex; gap:2rem; align-items:flex-start; flex-wrap:wrap;"
+  >
+    {portrait && (
+      <img
+        src={portrait}
+        alt={director.name}
+        width="140"
+        height="210"
+        data-testid="director-portrait"
+        style="border-radius:6px; border:1px solid var(--border); flex-shrink:0; height:auto; max-height:210px; object-fit:cover;"
+      />
+    )}
     <div style="flex:1; min-width:280px;">
-      <p class="faint small" style="letter-spacing:0.15em; text-transform:uppercase; margin:0;">Hall of fame</p>
+      <p class="faint small" style="letter-spacing:0.15em; text-transform:uppercase; margin:0;">
+        Hall of fame
+      </p>
       <h1 style="font-size:clamp(2rem, 4.5vw, 3rem);">{director.name}</h1>
       {(director.born || director.died) && (
         <p class="muted small" style="margin-top:-0.3rem;">
-          {director.born?.slice(0, 4)}{director.died ? `–${director.died.slice(0, 4)}` : ''}
+          {director.born?.slice(0, 4)}
+          {director.died ? `–${director.died.slice(0, 4)}` : ''}
         </p>
       )}
       {collection && (
-        <a class="btn" style="text-decoration:none; margin-top:0.6rem;" href={withBase(`/collection/${collection.slug}`)} data-testid="director-collection">
+        <a
+          class="btn"
+          style="text-decoration:none; margin-top:0.6rem;"
+          href={withBase(`/collection/${collection.slug}`)}
+          data-testid="director-collection"
+        >
           Complete filmography · {filmography.length} films →
         </a>
       )}
@@ -70,7 +125,15 @@ const firstTab = tabs[0]?.key;
       {stats.map((st) => (
         <div class="panel" style="padding:0.8rem 1.2rem;" data-testid={`stat-${st.id}`}>
           <div class="faint small">{st.label}</div>
-          <div class="score-badge" style={st.mine ? undefined : 'color:var(--ink);'}>{st.value}{st.unit && <> <small>{st.unit}</small></>}</div>
+          <div class="score-badge" style={st.mine ? undefined : 'color:var(--ink);'}>
+            {st.value}
+            {st.unit && (
+              <>
+                {' '}
+                <small>{st.unit}</small>
+              </>
+            )}
+          </div>
           <div class="faint small">{st.note}</div>
         </div>
       ))}
@@ -79,9 +142,21 @@ const firstTab = tabs[0]?.key;
 
   <section class="wrap" style="margin-top:2.4rem;">
     {tabs.length > 1 && (
-      <div class="seg" role="tablist" aria-label="Director sections" data-director-tabs style="margin-bottom:1.4rem;">
+      <div
+        class="seg"
+        role="tablist"
+        aria-label="Director sections"
+        data-director-tabs
+        style="margin-bottom:1.4rem;"
+      >
         {tabs.map((t) => (
-          <button class={t.key === firstTab ? 'active' : undefined} role="tab" aria-selected={t.key === firstTab ? 'true' : 'false'} data-tab-btn={t.key} data-testid={`tab-${t.key}`}>
+          <button
+            class={t.key === firstTab ? 'active' : undefined}
+            role="tab"
+            aria-selected={t.key === firstTab ? 'true' : 'false'}
+            data-tab-btn={t.key}
+            data-testid={`tab-${t.key}`}
+          >
             {t.label}
           </button>
         ))}
@@ -105,7 +180,14 @@ const firstTab = tabs[0]?.key;
           <span class="shelf-note">average seconds per shot, film by film</span>
         </div>
         <table class="data-table">
-          <thead><tr><th>Film</th><th>Year</th><th>ASL</th><th>My rating</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Film</th>
+              <th>Year</th>
+              <th>ASL</th>
+              <th>My rating</th>
+            </tr>
+          </thead>
           <tbody>
             {director.films.map((f) => {
               const rec = f.movieId != null ? movieById.get(f.movieId) : null;
@@ -128,7 +210,11 @@ const firstTab = tabs[0]?.key;
         <div class="shelf-head">
           <h2>Biography</h2>
         </div>
-        {bioParas.map((p) => <p class="muted" style="max-width:var(--measure);">{p}</p>)}
+        {bioParas.map((p) => (
+          <p class="muted" style="max-width:var(--measure);">
+            {p}
+          </p>
+        ))}
       </div>
     )}
   </section>

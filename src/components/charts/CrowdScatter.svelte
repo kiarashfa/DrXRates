@@ -26,13 +26,26 @@
       const key = `${Math.round(x(imdb))} ${Math.round(y(my))}`;
       counts.set(key, (counts.get(key) ?? 0) + 1);
     }
-    const path = (keep) => [...counts].filter(([, n]) => keep(n)).map(([k]) => `M${k}h0`).join('');
-    const hot = [...crowd.higher.slice(0, marks).map((f) => ({ ...f, up: true })), ...crowd.lower.slice(0, marks).map((f) => ({ ...f, up: false }))]
-      .map((f) => ({ ...f, cx: x(f.imdb), cy: y(f.x), anchor: v.cls === 'wide' && f.up ? 'end' : 'start' }));
+    const path = (keep) =>
+      [...counts]
+        .filter(([, n]) => keep(n))
+        .map(([k]) => `M${k}h0`)
+        .join('');
+    const hot = [
+      ...crowd.higher.slice(0, marks).map((f) => ({ ...f, up: true })),
+      ...crowd.lower.slice(0, marks).map((f) => ({ ...f, up: false })),
+    ].map((f) => ({
+      ...f,
+      cx: x(f.imdb),
+      cy: y(f.x),
+      anchor: v.cls === 'wide' && f.up ? 'end' : 'start',
+    }));
     // Keep labels on the same side at least one line apart.
     for (const side of ['end', 'start']) {
       const group = hot.filter((h) => h.anchor === side).sort((a, b) => a.cy - b.cy);
-      group.forEach((h, i) => (h.ly = i && h.cy - group[i - 1].ly < 13 ? group[i - 1].ly + 13 : h.cy));
+      group.forEach(
+        (h, i) => (h.ly = i && h.cy - group[i - 1].ly < 13 ? group[i - 1].ly + 13 : h.cy),
+      );
     }
     return {
       ...v,
@@ -51,8 +64,12 @@
 </script>
 
 {#each variants as g}
-  <svg viewBox={`0 0 ${g.W} ${g.H}`} class={`chart ${g.cls}`} role="img"
-    aria-label={`Scatter plot of Dr. X's score against IMDb's for ${crowd.n} films; the line marks equal standing on both scales.`}>
+  <svg
+    viewBox={`0 0 ${g.W} ${g.H}`}
+    class={`chart ${g.cls}`}
+    role="img"
+    aria-label={`Scatter plot of Dr. X's score against IMDb's for ${crowd.n} films; the line marks equal standing on both scales.`}
+  >
     {#each g.yTicks as t}
       <line x1={g.L} x2={g.W - g.R} y1={g.y(t)} y2={g.y(t)} class="grid" />
       <text x={g.L - 7} y={g.y(t) + 4} text-anchor="end" class="tick">{t}</text>
@@ -71,26 +88,78 @@
       <g>
         <title>{h.title} ({h.year}): Dr. X {fmtScore(h.x)}, IMDb {fmtScore(h.imdb)}</title>
         <circle cx={h.cx} cy={h.cy} r="4.5" class="hot" />
-        <text x={h.cx + (h.anchor === 'end' ? -9 : 9)} y={h.ly + 4} text-anchor={h.anchor} class="label">{h.title}</text>
+        <text
+          x={h.cx + (h.anchor === 'end' ? -9 : 9)}
+          y={h.ly + 4}
+          text-anchor={h.anchor}
+          class="label">{h.title}</text
+        >
       </g>
     {/each}
   </svg>
 {/each}
 
 <style>
-  .chart { width: 100%; height: auto; display: block; overflow: visible; }
-  .narrow { display: none; }
-  @media (max-width: 640px) {
-    .wide { display: none; }
-    .narrow { display: block; }
+  .chart {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow: visible;
   }
-  .grid { stroke: var(--border); stroke-width: 1; }
-  .tick { fill: var(--ink-faint); font: 11px var(--font-ui); }
-  .axis { fill: var(--ink-muted); font: 11.5px var(--font-ui); }
-  .dots { fill: none; stroke: var(--ink-muted); stroke-opacity: 0.3; stroke-width: 5; stroke-linecap: round; }
-  .dots.many { stroke-opacity: 0.6; }
-  .curve { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
-  .hot { fill: var(--accent); stroke: var(--bg); stroke-width: 2; }
-  .label { fill: var(--ink); font: 600 11.5px var(--font-ui); paint-order: stroke; stroke: var(--bg); stroke-width: 3px; stroke-linejoin: round; }
-  :global(:root[data-theme='matrix']) .curve { filter: drop-shadow(0 0 3px var(--accent)); }
+  .narrow {
+    display: none;
+  }
+  @media (max-width: 640px) {
+    .wide {
+      display: none;
+    }
+    .narrow {
+      display: block;
+    }
+  }
+  .grid {
+    stroke: var(--border);
+    stroke-width: 1;
+  }
+  .tick {
+    fill: var(--ink-faint);
+    font: 11px var(--font-ui);
+  }
+  .axis {
+    fill: var(--ink-muted);
+    font: 11.5px var(--font-ui);
+  }
+  .dots {
+    fill: none;
+    stroke: var(--ink-muted);
+    stroke-opacity: 0.3;
+    stroke-width: 5;
+    stroke-linecap: round;
+  }
+  .dots.many {
+    stroke-opacity: 0.6;
+  }
+  .curve {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+  .hot {
+    fill: var(--accent);
+    stroke: var(--bg);
+    stroke-width: 2;
+  }
+  .label {
+    fill: var(--ink);
+    font: 600 11.5px var(--font-ui);
+    paint-order: stroke;
+    stroke: var(--bg);
+    stroke-width: 3px;
+    stroke-linejoin: round;
+  }
+  :global(:root[data-theme='matrix']) .curve {
+    filter: drop-shadow(0 0 3px var(--accent));
+  }
 </style>

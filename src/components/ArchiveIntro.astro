@@ -7,8 +7,10 @@ import { withBase, tmdbImg } from '../lib/util.js';
 
 // A fixed spread of famous films (seeded, so the wall only changes with the data).
 let seed = 20261117;
-const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-const famous = movies.filter((m) => m.poster && !m.poster.startsWith('http') && (m.omdb?.imdbVotes ?? 0) >= 200000);
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const famous = movies.filter(
+  (m) => m.poster && !m.poster.startsWith('http') && (m.omdb?.imdbVotes ?? 0) >= 200000,
+);
 for (let i = famous.length - 1; i > 0; i--) {
   const j = Math.floor(rnd() * (i + 1));
   [famous[i], famous[j]] = [famous[j], famous[i]];
@@ -28,56 +30,192 @@ const quick = [
 
 <section class="wrap ai" data-testid="archive-intro">
   <div class="ai-wall" aria-hidden="true">
-    {wall.map((m) => <img src={BLANK} data-src={tmdbImg(m.poster, 'w154')} alt="" width="154" height="231" decoding="async" />)}
+    {wall.map((m) => (
+      <img
+        src={BLANK}
+        data-src={tmdbImg(m.poster, 'w154')}
+        alt=""
+        width="154"
+        height="231"
+        decoding="async"
+      />
+    ))}
   </div>
   <div class="ai-cta">
     <p class="ai-kick">The archive</p>
     <h2>{meta.counts.movies.toLocaleString('en-US')} films on the shelf</h2>
-    <p class="ai-lede">Every film has a page, rated or not. Search, filter by decade or genre, sort by any score.</p>
+    <p class="ai-lede">
+      Every film has a page, rated or not. Search, filter by decade or genre, sort by any score.
+    </p>
     <form class="ai-search" action={withBase('/archive')} method="get" role="search">
-      <svg class="icon" aria-hidden="true"><use href={`${withBase('/icons.svg')}#i-search`}></use></svg>
-      <input type="search" name="q" placeholder="Search the archive…" aria-label="Search the archive" autocomplete="off" data-testid="archive-intro-search" />
-      <button class="btn" type="submit">Search</button>
+      <svg class="icon" aria-hidden="true">
+        <use href={`${withBase('/icons.svg')}#i-search`}></use>
+      </svg>
+      <input
+        type="search"
+        name="q"
+        placeholder="Search the archive…"
+        aria-label="Search the archive"
+        autocomplete="off"
+        data-testid="archive-intro-search"
+      />
+      <button class="btn" type="submit">
+        Search
+      </button>
     </form>
-    <div class="ai-quick">{quick.map(([label, qs]) => <a href={withBase(`/archive${qs}`)}>{label}</a>)}</div>
-    <a class="ai-all" href={withBase('/archive')}>Open the archive →</a>
+    <div class="ai-quick">
+      {quick.map(([label, qs]) => (
+        <a href={withBase(`/archive${qs}`)}>{label}</a>
+      ))}
+    </div>
+    <a class="ai-all" href={withBase('/archive')}>
+      Open the archive →
+    </a>
   </div>
 </section>
 
 <script>
   const wall = document.querySelector('.ai-wall');
-  const show = () => wall?.querySelectorAll('img[data-src]').forEach((img) => ((img as HTMLImageElement).src = (img as HTMLImageElement).dataset.src!));
+  const show = () =>
+    wall
+      ?.querySelectorAll('img[data-src]')
+      .forEach((img) => ((img as HTMLImageElement).src = (img as HTMLImageElement).dataset.src!));
   if (wall && 'IntersectionObserver' in window) {
-    const io = new IntersectionObserver((es) => es.some((e) => e.isIntersecting) && (show(), io.disconnect()), { rootMargin: '600px 0px' });
+    const io = new IntersectionObserver(
+      (es) => es.some((e) => e.isIntersecting) && (show(), io.disconnect()),
+      { rootMargin: '600px 0px' },
+    );
     io.observe(wall);
   } else show();
 </script>
 
 <style>
-  .ai { position: relative; margin-top: 3.4rem; }
+  .ai {
+    position: relative;
+    margin-top: 3.4rem;
+  }
   /* The wall is a backdrop: its top row reads, then it fades into the page under the search. */
-  .ai-wall { position: relative; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 6px; border-radius: 6px; overflow: hidden; }
-  .ai-wall img { width: 100%; height: auto; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 2px; background: var(--bg-raised); }
-  .ai-wall::after { content: ''; position: absolute; inset: -1px; pointer-events: none;
-    background: linear-gradient(color-mix(in srgb, var(--bg) 8%, transparent), color-mix(in srgb, var(--bg) 62%, transparent) 34%, color-mix(in srgb, var(--bg) 92%, transparent) 58%, var(--bg) 78%); }
-  .ai-cta { position: relative; z-index: 2; margin: -13.5rem auto 0; text-align: center; width: min(600px, 100%); }
-  .ai-kick { font: 600 0.66rem/1.3 var(--font-ui); letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin: 0 0 0.35rem; }
-  .ai-cta h2 { font-size: clamp(1.9rem, 4.4vw, 3rem); margin: 0 0 0.35rem; }
-  .ai-lede { margin: 0 0 1.1rem; color: var(--ink-muted); }
-  .ai-search { display: flex; align-items: center; gap: 0.6rem; padding: 0.4rem 0.4rem 0.4rem 1.1rem; border: 1px solid var(--border-strong); border-radius: 999px;
-    background: var(--bg-panel); box-shadow: 0 14px 36px rgb(0 0 0 / 0.3); }
-  .ai-search:focus-within { border-color: var(--accent); }
-  .ai-search .icon { width: 18px; height: 18px; flex: none; color: var(--ink-faint); }
-  .ai-search input { flex: 1; min-width: 0; border: 0; background: none; color: var(--ink); font: inherit; padding: 0.45rem 0; outline: none; }
-  .ai-search .btn { border-radius: 999px; }
-  .ai-quick { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem; margin-top: 0.9rem; font-size: 0.8rem; }
-  .ai-quick a { padding: 0.22em 0.8em; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--bg-panel); text-decoration: none; color: var(--ink-muted); }
-  .ai-quick a:hover { color: var(--accent); border-color: var(--accent); }
-  .ai-all { display: inline-block; margin-top: 1rem; color: var(--accent); text-decoration: none; font-size: 0.86rem; }
-  .ai-all:hover { text-decoration: underline; }
+  .ai-wall {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 6px;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .ai-wall img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    border-radius: 2px;
+    background: var(--bg-raised);
+  }
+  .ai-wall::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    pointer-events: none;
+    background: linear-gradient(
+      color-mix(in srgb, var(--bg) 8%, transparent),
+      color-mix(in srgb, var(--bg) 62%, transparent) 34%,
+      color-mix(in srgb, var(--bg) 92%, transparent) 58%,
+      var(--bg) 78%
+    );
+  }
+  .ai-cta {
+    position: relative;
+    z-index: 2;
+    margin: -13.5rem auto 0;
+    text-align: center;
+    width: min(600px, 100%);
+  }
+  .ai-kick {
+    font: 600 0.66rem/1.3 var(--font-ui);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 0.35rem;
+  }
+  .ai-cta h2 {
+    font-size: clamp(1.9rem, 4.4vw, 3rem);
+    margin: 0 0 0.35rem;
+  }
+  .ai-lede {
+    margin: 0 0 1.1rem;
+    color: var(--ink-muted);
+  }
+  .ai-search {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0.4rem 0.4rem 1.1rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: var(--bg-panel);
+    box-shadow: 0 14px 36px rgb(0 0 0 / 0.3);
+  }
+  .ai-search:focus-within {
+    border-color: var(--accent);
+  }
+  .ai-search .icon {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    color: var(--ink-faint);
+  }
+  .ai-search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    padding: 0.45rem 0;
+    outline: none;
+  }
+  .ai-search .btn {
+    border-radius: 999px;
+  }
+  .ai-quick {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 0.9rem;
+    font-size: 0.8rem;
+  }
+  .ai-quick a {
+    padding: 0.22em 0.8em;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: var(--bg-panel);
+    text-decoration: none;
+    color: var(--ink-muted);
+  }
+  .ai-quick a:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .ai-all {
+    display: inline-block;
+    margin-top: 1rem;
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.86rem;
+  }
+  .ai-all:hover {
+    text-decoration: underline;
+  }
   @media (max-width: 700px) {
-    .ai-wall { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-    .ai-wall img:nth-child(n + 21) { display: none; }
-    .ai-cta { margin-top: -13rem; }
+    .ai-wall {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+    .ai-wall img:nth-child(n + 21) {
+      display: none;
+    }
+    .ai-cta {
+      margin-top: -13rem;
+    }
   }
 </style>

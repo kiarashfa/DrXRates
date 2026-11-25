@@ -8,7 +8,10 @@ const files = import.meta.glob('../../data/cups/*.json', { eager: true, import: 
 
 export const CUPS = Object.entries(files)
   .map(([path, cup]) => {
-    const fileSlug = path.split('/').pop().replace(/\.json$/, '');
+    const fileSlug = path
+      .split('/')
+      .pop()
+      .replace(/\.json$/, '');
     const problems = cupProblems(cup, fileSlug);
     if (problems.length) throw new Error(`data/cups/${fileSlug}.json: ${problems.join('; ')}`);
     const entrants = cup.entrants.map((e) => {

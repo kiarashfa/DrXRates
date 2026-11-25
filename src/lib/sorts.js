@@ -12,8 +12,24 @@ export const nullsLast = (get, dir) => (a, b) => {
 export const RATING_SORTS = {
   'my-desc': { label: 'My rating ↓', cmp: nullsLast((m) => m.my, -1), ratingSort: 'my rating' },
   'my-asc': { label: 'My rating ↑', cmp: nullsLast((m) => m.my, 1), ratingSort: 'my rating' },
-  'tmdb-desc': { label: 'TMDB rating ↓', cmp: nullsLast((m) => m.tmdb, -1), ratingSort: 'TMDB score' },
-  'tmdb-asc': { label: 'TMDB rating ↑', cmp: nullsLast((m) => m.tmdb, 1), ratingSort: 'TMDB score' },
-  'imdb-desc': { label: 'IMDb rating ↓', cmp: nullsLast((m) => m.imdb, -1), ratingSort: 'IMDb score' },
-  'imdb-asc': { label: 'IMDb rating ↑', cmp: nullsLast((m) => m.imdb, 1), ratingSort: 'IMDb score' },
+  'tmdb-desc': {
+    label: 'TMDB rating ↓',
+    cmp: nullsLast((m) => m.tmdb, -1),
+    ratingSort: 'TMDB score',
+  },
+  'tmdb-asc': {
+    label: 'TMDB rating ↑',
+    cmp: nullsLast((m) => m.tmdb, 1),
+    ratingSort: 'TMDB score',
+  },
+  'imdb-desc': {
+    label: 'IMDb rating ↓',
+    cmp: nullsLast((m) => m.imdb, -1),
+    ratingSort: 'IMDb score',
+  },
+  'imdb-asc': {
+    label: 'IMDb rating ↑',
+    cmp: nullsLast((m) => m.imdb, 1),
+    ratingSort: 'IMDb score',
+  },
 };

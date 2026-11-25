@@ -7,14 +7,27 @@ import { layoutOrbit, placePath, rings, isFilm, isNarrow } from './net.js';
 import { tmdbImg } from './util.js';
 
 const SVG = 'http://www.w3.org/2000/svg';
-const GROUP = { d: 'Directed', w: 'Wrote', a: 'Cast', c: 'Shot', m: 'Music', e: 'Edited', p: 'Design' };
+const GROUP = {
+  d: 'Directed',
+  w: 'Wrote',
+  a: 'Cast',
+  c: 'Shot',
+  m: 'Music',
+  e: 'Edited',
+  p: 'Design',
+};
 // Base node sizes (ring nodes); the centre is drawn larger by scaling.
 const SIZE = { film: [30, 45], person: 17, filmFocus: 70, personFocus: 44 };
 const SIZE_NARROW = { film: [22, 33], person: 12, filmFocus: 52, personFocus: 32 };
 const MOVE_MS = 700;
 
-export const linkClass = (r) => (r === 'a' ? 'l-cast' : r === 'd' ? 'l-dir' : r === 'w' ? 'l-content' : 'l-form');
-const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+export const linkClass = (r) =>
+  r === 'a' ? 'l-cast' : r === 'd' ? 'l-dir' : r === 'w' ? 'l-content' : 'l-form';
+const esc = (s) =>
+  String(s ?? '').replace(
+    /[&<>"]/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c],
+  );
 const short = (s, n) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const f1 = (n) => n.toFixed(1);
@@ -38,7 +51,13 @@ export class Orbit {
     this.svg.setAttribute('aria-label', 'Network of films and people');
     this.svg.innerHTML = `<defs><clipPath id="${uid}-face" clipPathUnits="objectBoundingBox"><circle cx=".5" cy=".5" r=".5"/></clipPath></defs>
       <g class="o-deco"></g><g class="o-links"></g><g class="o-path"></g><g class="o-nodes"></g><g class="o-badges"></g>`;
-    [this.gDeco, this.gLinks, this.gPath, this.gNodes, this.gBadges] = ['deco', 'links', 'path', 'nodes', 'badges'].map((n) => this.svg.querySelector(`.o-${n}`));
+    [this.gDeco, this.gLinks, this.gPath, this.gNodes, this.gBadges] = [
+      'deco',
+      'links',
+      'path',
+      'nodes',
+      'badges',
+    ].map((n) => this.svg.querySelector(`.o-${n}`));
     stage.append(this.svg);
     this.measure();
   }
@@ -91,7 +110,12 @@ export class Orbit {
       g.innerHTML = `<g class="o-shape"><rect class="o-bg" ${box} rx="2"/><image ${box} preserveAspectRatio="xMidYMid slice"/><rect class="o-ring" ${box} rx="2" vector-effect="non-scaling-stroke"/></g><text class="o-lbl"></text>`;
     } else {
       const r = this.S.person;
-      const initials = n.label.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('');
+      const initials = n.label
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((w) => w[0])
+        .join('');
       g.innerHTML = `<g class="o-shape"><circle class="o-bg" r="${r}"/><text class="o-ini" dy="0.35em" font-size="${r * 0.75}">${esc(initials)}</text><image x="${-r}" y="${-r}" width="${2 * r}" height="${2 * r}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${this.uid}-face)"/><circle class="o-ring" r="${r}" vector-effect="non-scaling-stroke"/></g><text class="o-lbl"></text>`;
     }
     this.setImage(g, key, false);
@@ -138,11 +162,17 @@ export class Orbit {
       ({ pos, deco } = layoutOrbit(view, this.W, this.H, { shrink: 0.87 }));
       placePath(this.path, pos, this.W, this.H);
     }
-    const ring = new Map([[view.focus, 0], ...view.ring1.map((m) => [m.key, 1]), ...view.ring2.map((m) => [m.key, 2])]);
+    const ring = new Map([
+      [view.focus, 0],
+      ...view.ring1.map((m) => [m.key, 1]),
+      ...view.ring2.map((m) => [m.key, 2]),
+    ]);
     const onPath = new Set(this.path ? this.path.map(([k]) => k) : []);
     for (const k of onPath) if (!ring.has(k)) ring.set(k, 3);
     this.svg.classList.toggle('has-path', !!this.path);
-    const half = isFilm(view.focus) ? (this.S.filmFocus / this.S.film[0]) * (this.S.film[1] / 2) : this.S.personFocus;
+    const half = isFilm(view.focus)
+      ? (this.S.filmFocus / this.S.film[0]) * (this.S.film[1] / 2)
+      : this.S.personFocus;
     this.onLayout?.(rings(this.W, this.H).cy + half);
     this.move(pos, ring, onPath, instant, () => {
       this.drawLinks(view.edges, pos);
@@ -166,18 +196,30 @@ export class Orbit {
       // Labels: the inner ring always (on phones only when it is small), the
       // outer ring on wide screens, the path always; the rest on hover.
       const lbl = g.lastChild;
-      lbl.classList.toggle('shown', !centre && (onPath.has(k) || (r === 1 && (!this.narrow || this.view.ring1.length <= 14)) || (r === 2 && !this.narrow)));
+      lbl.classList.toggle(
+        'shown',
+        !centre &&
+          (onPath.has(k) ||
+            (r === 1 && (!this.narrow || this.view.ring1.length <= 14)) ||
+            (r === 2 && !this.narrow)),
+      );
       lbl.textContent = short(this.resolve(k).label, r === 2 ? 16 : 20);
       if (centre) this.setImage(g, k, true);
       // Newcomers grow out of the centre; path members on the outer ring
       // drift in from beyond it.
-      const start = r === 3 ? { x: W / 2 + (p.x - W / 2) * 1.12, y: H / 2 + (p.y - H / 2) * 1.12 } : origin;
+      const start =
+        r === 3 ? { x: W / 2 + (p.x - W / 2) * 1.12, y: H / 2 + (p.y - H / 2) * 1.12 } : origin;
       from.set(k, this.cur.get(k) ?? { x: start.x, y: start.y, s: 0.3, o: 0 });
     }
     for (const [k, c] of this.cur) if (!target.has(k)) from.set(k, c);
     const to = new Map();
     for (const [k, c] of from) {
-      to.set(k, target.has(k) ? { ...target.get(k), s: this.scaleOf(k, ring.get(k) === 0), o: 1 } : { x: c.x, y: c.y, s: c.s * 0.5, o: 0 });
+      to.set(
+        k,
+        target.has(k)
+          ? { ...target.get(k), s: this.scaleOf(k, ring.get(k) === 0), o: 1 }
+          : { x: c.x, y: c.y, s: c.s * 0.5, o: 0 },
+      );
     }
     const dur = instant || this.reduce ? 0 : MOVE_MS;
     const t0 = performance.now();
@@ -187,7 +229,12 @@ export class Orbit {
       const e = ease(t);
       for (const [k, a] of from) {
         const b = to.get(k);
-        const p = { x: a.x + (b.x - a.x) * e, y: a.y + (b.y - a.y) * e, s: a.s + (b.s - a.s) * e, o: a.o + (b.o - a.o) * e };
+        const p = {
+          x: a.x + (b.x - a.x) * e,
+          y: a.y + (b.y - a.y) * e,
+          s: a.s + (b.s - a.s) * e,
+          o: a.o + (b.o - a.o) * e,
+        };
         this.cur.set(k, p);
         const g = this.els.get(k);
         g.setAttribute('transform', `translate(${f1(p.x)},${f1(p.y)})`);
@@ -214,16 +261,20 @@ export class Orbit {
   // Links between ring nodes bend toward the centre; spokes stay straight.
   d(p, q) {
     if (!p.ring || !q.ring) return `M${f1(p.x)},${f1(p.y)} L${f1(q.x)},${f1(q.y)}`;
-    const mx = (p.x + q.x) / 2, my = (p.y + q.y) / 2;
-    const cx = mx + (this.W / 2 - mx) * 0.32, cy = my + (this.H / 2 - my) * 0.32;
+    const mx = (p.x + q.x) / 2,
+      my = (p.y + q.y) / 2;
+    const cx = mx + (this.W / 2 - mx) * 0.32,
+      cy = my + (this.H / 2 - my) * 0.32;
     return `M${f1(p.x)},${f1(p.y)} Q${f1(cx)},${f1(cy)} ${f1(q.x)},${f1(q.y)}`;
   }
 
   drawLinks(edges, pos) {
     let h = '';
     for (const [a, b, r] of edges) {
-      const p = pos.get(a), q = pos.get(b);
-      if (p && q) h += `<path class="o-link ${linkClass(r)}" data-a="${a}" data-b="${b}" d="${this.d(p, q)}"/>`;
+      const p = pos.get(a),
+        q = pos.get(b);
+      if (p && q)
+        h += `<path class="o-link ${linkClass(r)}" data-a="${a}" data-b="${b}" d="${this.d(p, q)}"/>`;
     }
     this.gLinks.innerHTML = h;
     this.gLinks.classList.remove('out');
@@ -240,12 +291,14 @@ export class Orbit {
     let film = 0;
     this.path.forEach(([k], i) => {
       const delay = `animation-delay:${(Math.max(0, i - 1) * 0.28).toFixed(2)}s`;
-      if (i) links += `<path class="o-link on-path" data-a="${this.path[i - 1][0]}" data-b="${k}" d="${this.d(pos.get(this.path[i - 1][0]), pos.get(k))}" style="${delay}"/>`;
+      if (i)
+        links += `<path class="o-link on-path" data-a="${this.path[i - 1][0]}" data-b="${k}" d="${this.d(pos.get(this.path[i - 1][0]), pos.get(k))}" style="${delay}"/>`;
       if (!isFilm(k)) return;
       film++;
       const p = pos.get(k);
       const s = this.scaleOf(k, k === this.view.focus);
-      const x = p.x - (this.S.film[0] / 2) * s, y = p.y - (this.S.film[1] / 2) * s;
+      const x = p.x - (this.S.film[0] / 2) * s,
+        y = p.y - (this.S.film[1] / 2) * s;
       badges += `<g class="o-badge" transform="translate(${f1(x)},${f1(y)})"><g style="${delay}"><circle r="9"/><text dy="0.35em">${film}</text></g></g>`;
     });
     this.gPath.innerHTML = links;
@@ -265,15 +318,19 @@ export class Orbit {
       h += `<text class="o-group" x="${x}" y="${y}">${GROUP[g.r]}${g.n > 1 && !this.narrow ? ` · ${g.n}` : ''}</text>`;
       if (g.n > 1) {
         let d = '';
-        for (let i = 0; i <= 12; i++) d += `${i ? 'L' : 'M'}${at(0.86, g.a0 + ((g.a1 - g.a0) * i) / 12).join(',')}`;
+        for (let i = 0; i <= 12; i++)
+          d += `${i ? 'L' : 'M'}${at(0.86, g.a0 + ((g.a1 - g.a0) * i) / 12).join(',')}`;
         h += `<path class="o-arc" d="${d}"/>`;
       }
     }
     for (const t of deco.ticks) {
-      const [x1, y1] = at(0.82, t.a), [x2, y2] = at(0.9, t.a), [tx, ty] = at(0.73, t.a);
+      const [x1, y1] = at(0.82, t.a),
+        [x2, y2] = at(0.9, t.a),
+        [tx, ty] = at(0.73, t.a);
       h += `<line class="o-tick" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/><text class="o-year" x="${tx}" y="${f1(Number(ty) + 3)}">${t.label}</text>`;
     }
-    if (view.more) h += `<text class="o-more" role="button" tabindex="0" x="${cx}" y="${f1(cy - r1[1] - 34)}">+ ${view.more} more films · show all</text>`;
+    if (view.more)
+      h += `<text class="o-more" role="button" tabindex="0" x="${cx}" y="${f1(cy - r1[1] - 34)}">+ ${view.more} more films · show all</text>`;
     this.gDeco.innerHTML = h;
     const more = this.gDeco.querySelector('.o-more');
     if (more) {

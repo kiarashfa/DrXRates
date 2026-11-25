@@ -14,15 +14,25 @@ const DAILY_CAP = 400;
 
 const isObj = (v) => v != null && typeof v === 'object' && !Array.isArray(v);
 const isDay = (d) => /^\d{4}-\d\d-\d\d$/.test(d);
-const validMissed = (m) => Array.isArray(m) && Number.isInteger(m[0]) && Number.isInteger(m[1]) && typeof m[2] === 'string';
-const validDaily = (d) => isObj(d) && Number.isInteger(d.id) && Array.isArray(d.guesses) && d.guesses.every(Number.isInteger) && Number.isInteger(d.solved);
+const validMissed = (m) =>
+  Array.isArray(m) && Number.isInteger(m[0]) && Number.isInteger(m[1]) && typeof m[2] === 'string';
+const validDaily = (d) =>
+  isObj(d) &&
+  Number.isInteger(d.id) &&
+  Array.isArray(d.guesses) &&
+  d.guesses.every(Number.isInteger) &&
+  Number.isInteger(d.solved);
 
 function load() {
   const p = readJson(KEY);
   return {
     version: 1,
-    best: isObj(p?.best) ? Object.fromEntries(Object.entries(p.best).filter(([, v]) => Number.isFinite(v))) : {},
-    daily: isObj(p?.daily) ? Object.fromEntries(Object.entries(p.daily).filter(([d, v]) => isDay(d) && validDaily(v))) : {},
+    best: isObj(p?.best)
+      ? Object.fromEntries(Object.entries(p.best).filter(([, v]) => Number.isFinite(v)))
+      : {},
+    daily: isObj(p?.daily)
+      ? Object.fromEntries(Object.entries(p.daily).filter(([d, v]) => isDay(d) && validDaily(v)))
+      : {},
     missed: Array.isArray(p?.missed) ? p.missed.filter(validMissed) : [],
     recent: Array.isArray(p?.recent) ? p.recent.filter((k) => typeof k === 'string') : [],
     prefs: isObj(p?.prefs) ? p.prefs : {},
@@ -53,7 +63,10 @@ export function recordFrames(shown, missed, named) {
   const at = new Date().toISOString();
   store.recent = [...new Set([...shown, ...store.recent])].slice(0, RECENT_CAP);
   const drop = new Set([...named, ...missed.map(([id, n]) => `${id}:${n}`)]);
-  store.missed = [...missed.map(([id, n]) => [id, n, at]), ...store.missed.filter(([id, n]) => !drop.has(`${id}:${n}`))].slice(0, MISSED_CAP);
+  store.missed = [
+    ...missed.map(([id, n]) => [id, n, at]),
+    ...store.missed.filter(([id, n]) => !drop.has(`${id}:${n}`)),
+  ].slice(0, MISSED_CAP);
   save(store);
 }
 

@@ -8,97 +8,173 @@ import CoffeeMark from '../assets/buy-me-a-coffee.svg';
 
 // The example behind the ring: a recognisable film whose ten scores differ enough to read.
 const example = movieById.get(673);
-if (!example?.myRating) throw new Error('about: the example film for the ten-part ring is missing or unrated');
+if (!example?.myRating)
+  throw new Error('about: the example film for the ten-part ring is missing or unrated');
 
 const c = meta.counts;
 const archiveLine = `Archive generated ${meta.generatedAt.slice(0, 10)}: ${c.movies.toLocaleString()} films, ${c.rated.toLocaleString()} rated, ${c.directors} directors, ${c.collections} collections.`;
 ---
 
-<Base title="About" description="How the ten-part rating system works, and where the data comes from.">
+<Base
+  title="About"
+  description="How the ten-part rating system works, and where the data comes from."
+>
   <section class="wrap" style="padding-top:3rem; max-width:860px;">
     <h1>About the ledger</h1>
     <p class="muted">
-      This is a personal film archive: every film I watch is scored out of ten, split into two halves:
-      what the film says and how it says it.
+      This is a personal film archive: every film I watch is scored out of ten, split into two
+      halves: what the film says and how it says it.
     </p>
 
-    <h2 id="ten-parts" style="margin-top:2.4rem;">The ten-part system</h2>
+    <h2 id="ten-parts" style="margin-top:2.4rem;">
+      The ten-part system
+    </h2>
     <TenParts film={example} />
     <p class="muted small" style="margin-top:1rem;">
-      Each half is scored 0–5 per criterion and averaged; the two averages add up to the score out of ten.
-      Visitors can rate any film with the exact same system; see the scorecard on any film page.
-      How the scores spread, and how they compare with IMDb and the critics, is on the <a href={withBase('/insights')} style="color:var(--accent);">Insights</a> page.
-      How the rated films connect through the people who made them is in <a href={withBase('/net')} style="color:var(--accent);">Dr. X Net</a>.
+      Each half is scored 0–5 per criterion and averaged; the two averages add up to the score out
+      of ten. Visitors can rate any film with the exact same system; see the scorecard on any film
+      page. How the scores spread, and how they compare with IMDb and the critics, is on the{' '}
+      <a href={withBase('/insights')} style="color:var(--accent);">
+        Insights
+      </a>{' '}
+      page. How the rated films connect through the people who made them is in{' '}
+      <a href={withBase('/net')} style="color:var(--accent);">
+        Dr. X Net
+      </a>
+      .
     </p>
 
     <h2 style="margin-top:2.4rem;">Your ratings stay with you</h2>
     <p class="muted small">
-      The site is fully static: no accounts, no sign-up, no ads. Ratings, your watchlist, your Knockout brackets, your Name the Frame scores and your profile are stored in your own
-      browser's local storage, never sent to this site, never aggregated. On <a href={withBase('/user')} style="color:var(--accent);">your profile</a>, export them as one JSON
-      file and import it in another browser, or keep the same save in your own Google Drive or Dropbox.
+      The site is fully static: no accounts, no sign-up, no ads. Ratings, your watchlist, your
+      Knockout brackets, your Name the Frame scores and your profile are stored in your own
+      browser's local storage, never sent to this site, never aggregated. On{' '}
+      <a href={withBase('/user')} style="color:var(--accent);">
+        your profile
+      </a>
+      , export them as one JSON file and import it in another browser, or keep the same save in your
+      own Google Drive or Dropbox.
     </p>
 
-    <h2 id="privacy" style="margin-top:2.4rem;">Privacy</h2>
+    <h2 id="privacy" style="margin-top:2.4rem;">
+      Privacy
+    </h2>
     <p class="muted small">
-      Dr. X Rates has no server and no database. Everything you do here (ratings, watchlist, game results, your name and picture)
-      stays in your browser's local storage until you export it or connect a cloud save. Visits are counted with Google Analytics (pages
-      viewed, approximate location, device type); it never receives your ratings, watchlist, name or picture.
+      Dr. X Rates has no server and no database. Everything you do here (ratings, watchlist, game
+      results, your name and picture) stays in your browser's local storage until you export it or
+      connect a cloud save. Visits are counted with Google Analytics (pages viewed, approximate
+      location, device type); it never receives your ratings, watchlist, name or picture.
     </p>
     <p class="muted small">
-      <strong>Cloud save.</strong> If you choose to connect Google Drive or Dropbox on your profile page, your browser talks to that
-      service directly, using the permission you grant there. The site keeps one file, <code>cinema-ledger-save.json</code>, holding the
-      same data as the export file. On Google Drive it lives in the hidden app-data folder, and the only permission requested is
-      <code>drive.appdata</code>, which lets the site see that one folder and nothing else in your Drive; on Dropbox it lives in the
-      app's own folder. The site reads your account name and email only to show which account is connected. The access tokens stay
-      in your browser; nothing passes through or is stored by any server of this site, and nothing is shared with anyone.
+      <strong>Cloud save.</strong> If you choose to connect Google Drive or Dropbox on your profile
+      page, your browser talks to that service directly, using the permission you grant there. The
+      site keeps one file, <code>cinema-ledger-save.json</code>, holding the same data as the export
+      file. On Google Drive it lives in the hidden app-data folder, and the only permission
+      requested is
+      <code>drive.appdata</code>, which lets the site see that one folder and nothing else in your
+      Drive; on Dropbox it lives in the app's own folder. The site reads your account name and email
+      only to show which account is connected. The access tokens stay in your browser; nothing
+      passes through or is stored by any server of this site, and nothing is shared with anyone.
     </p>
     <p class="muted small">
-      You can disconnect at any time from your profile page, which also revokes the access; you can also remove it in your Google
-      Account (Security, Third-party apps) or in Dropbox (Settings, Connected apps). Disconnecting leaves the save file in your account;
-      delete it there if you no longer want it. "Sign out of this browser" on the profile page removes your data from the browser.
+      You can disconnect at any time from your profile page, which also revokes the access; you can
+      also remove it in your Google Account (Security, Third-party apps) or in Dropbox (Settings,
+      Connected apps). Disconnecting leaves the save file in your account; delete it there if you no
+      longer want it. "Sign out of this browser" on the profile page removes your data from the
+      browser.
     </p>
     <p class="muted small">
       Dr. X Rates' use and transfer of information received from Google APIs adheres to the
-      <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener" style="color:var(--accent);">Google API Services User Data Policy</a>,
-      including the Limited Use requirements. Questions:
-      <a href={`${REPO_URL}/issues`} target="_blank" rel="noopener" style="color:var(--accent);">open an issue on GitHub</a>.
+      <a
+        href="https://developers.google.com/terms/api-services-user-data-policy"
+        target="_blank"
+        rel="noopener"
+        style="color:var(--accent);"
+      >
+        Google API Services User Data Policy
+      </a>
+      , including the Limited Use requirements. Questions:
+      <a href={`${REPO_URL}/issues`} target="_blank" rel="noopener" style="color:var(--accent);">
+        open an issue on GitHub
+      </a>
+      .
     </p>
 
     <h2 style="margin-top:2.4rem;">Data &amp; credits</h2>
     <p class="muted small">
       Film metadata, posters, and community scores come from
-      <a href="https://www.themoviedb.org/" target="_blank" rel="noopener" style="color:var(--accent);">TMDB</a>.
-      IMDb, Rotten Tomatoes, and Metacritic scores are retrieved via the
-      <a href="https://www.omdbapi.com/" target="_blank" rel="noopener" style="color:var(--accent);">OMDb API</a>.
-      Director portraits come from TMDB or Wikimedia Commons.
-      Average shot length figures are compiled by hand, largely from
-      <a href="https://cinemetrics.uchicago.edu/" target="_blank" rel="noopener" style="color:var(--accent);">Cinemetrics</a>-style measurement.
-      My ratings are my own. The site's code is
-      <a href={REPO_URL} target="_blank" rel="noopener" style="color:var(--accent);">source-available on GitHub</a>.
+      <a
+        href="https://www.themoviedb.org/"
+        target="_blank"
+        rel="noopener"
+        style="color:var(--accent);"
+      >
+        TMDB
+      </a>
+      . IMDb, Rotten Tomatoes, and Metacritic scores are retrieved via the
+      <a
+        href="https://www.omdbapi.com/"
+        target="_blank"
+        rel="noopener"
+        style="color:var(--accent);"
+      >
+        OMDb API
+      </a>
+      . Director portraits come from TMDB or Wikimedia Commons. Average shot length figures are
+      compiled by hand, largely from
+      <a
+        href="https://cinemetrics.uchicago.edu/"
+        target="_blank"
+        rel="noopener"
+        style="color:var(--accent);"
+      >
+        Cinemetrics
+      </a>
+      -style measurement. My ratings are my own. The site's code is
+      <a href={REPO_URL} target="_blank" rel="noopener" style="color:var(--accent);">
+        source-available on GitHub
+      </a>
+      .
     </p>
     <div class="panel" style="display:flex; gap:1rem; align-items:center; margin-top:1rem;">
       <img
         src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_short-8e7b30f73a4020692ccca9c88bafe5dcb6f8a62a4c6bc55cd9ba82bb2cd95f6c.svg"
-        alt="TMDB logo" style="height:16px; width:auto;" loading="lazy"
+        alt="TMDB logo"
+        style="height:16px; width:auto;"
+        loading="lazy"
       />
-      <span class="small muted">This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
+      <span class="small muted">
+        This product uses the TMDB API but is not endorsed or certified by TMDB.
+      </span>
     </div>
     <h2 style="margin-top:2.4rem;">Support</h2>
     <p class="muted small">
-      Dr. X Rates is free, ad-free and login-free, and stays that way. If it found you your next film
-      night, you can put something toward the next hundred films.
+      Dr. X Rates is free, ad-free and login-free, and stays that way. If it found you your next
+      film night, you can put something toward the next hundred films.
     </p>
     <div class="support-links">
-      <a class="support-link" href="https://www.paypal.com/donate/?hosted_button_id=S3BD5XFBMMWSJ" target="_blank" rel="noopener">
+      <a
+        class="support-link"
+        href="https://www.paypal.com/donate/?hosted_button_id=S3BD5XFBMMWSJ"
+        target="_blank"
+        rel="noopener"
+      >
         <PayPalMark />
         <span>Donate · PayPal</span>
       </a>
-      <a class="support-link" href="https://www.buymeacoffee.com/kiarashfa" target="_blank" rel="noopener">
+      <a
+        class="support-link"
+        href="https://www.buymeacoffee.com/kiarashfa"
+        target="_blank"
+        rel="noopener"
+      >
         <CoffeeMark />
         <span>Buy Me a Coffee</span>
       </a>
     </div>
 
-    <p class="faint small" style="margin-top:1.6rem;">{archiveLine}</p>
+    <p class="faint small" style="margin-top:1.6rem;">
+      {archiveLine}
+    </p>
   </section>
 </Base>

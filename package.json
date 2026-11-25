@@ -11,7 +11,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "qa": "playwright test",
-    "brand": "node scripts/brand/brand.ts"
+    "brand": "node scripts/brand/brand.ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
@@ -27,6 +29,9 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",
-    "playwright-core": "^1.64.1"
+    "playwright-core": "^1.64.1",
+    "prettier": "3.9.10",
+    "prettier-plugin-astro": "1.1.2",
+    "prettier-plugin-svelte": "4.1.1"
   }
 }

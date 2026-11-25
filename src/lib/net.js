@@ -91,7 +91,8 @@ export function egoFilm(g, filmId, { cap = 24, full = null } = {}) {
   for (const id of people.keys()) {
     const j = g.pIdx.get(id);
     if (j == null) continue;
-    for (const f of filmsOf(g, j).keys()) if (f !== i) (shared.get(f) ?? shared.set(f, new Set()).get(f)).add(id);
+    for (const f of filmsOf(g, j).keys())
+      if (f !== i) (shared.get(f) ?? shared.set(f, new Set()).get(f)).add(id);
   }
   const strong = [...shared.entries()]
     .filter(([, s]) => s.size >= 2)
@@ -110,12 +111,16 @@ export function egoFilm(g, filmId, { cap = 24, full = null } = {}) {
   }
   for (const f of strong) {
     if (ring2.length >= cap) break;
-    if (!inRing2.has(f)) { ring2.push(f); inRing2.add(f); }
+    if (!inRing2.has(f)) {
+      ring2.push(f);
+      inRing2.add(f);
+    }
   }
   const focus = filmKey(filmId);
   const edges = [...people].map(([id, roles]) => [focus, personKey(id), roles[0]]);
   for (const f of ring2) {
-    for (const [id, roles] of creditsOf(g, f)) if (people.has(id)) edges.push([filmKey(g.films.id[f]), personKey(id), roles[0]]);
+    for (const [id, roles] of creditsOf(g, f))
+      if (people.has(id)) edges.push([filmKey(g.films.id[f]), personKey(id), roles[0]]);
   }
   return {
     focus,
@@ -136,10 +141,15 @@ export function egoPerson(g, personId, { cap1 = 36, cap2 = 18 } = {}) {
   let films = [...byFilm.keys()]; // best known first
   const total = films.length;
   if (films.length > cap1) films = films.slice(0, cap1);
-  films.sort((a, b) => (g.films.year[a] ?? 0) - (g.films.year[b] ?? 0) || String(g.films.title[a]).localeCompare(String(g.films.title[b])));
+  films.sort(
+    (a, b) =>
+      (g.films.year[a] ?? 0) - (g.films.year[b] ?? 0) ||
+      String(g.films.title[a]).localeCompare(String(g.films.title[b])),
+  );
   const co = new Map(); // person id → Map(film index → role)
   for (const f of films) {
-    for (const [id, roles] of creditsOf(g, f)) if (id !== personId) (co.get(id) ?? co.set(id, new Map()).get(id)).set(f, roles[0]);
+    for (const [id, roles] of creditsOf(g, f))
+      if (id !== personId) (co.get(id) ?? co.set(id, new Map()).get(id)).set(f, roles[0]);
   }
   const countOf = (id) => g.pCount[g.pIdx.get(id)] ?? 0;
   const ring2 = [...co.entries()]
@@ -153,23 +163,34 @@ export function egoPerson(g, personId, { cap1 = 36, cap2 = 18 } = {}) {
       const c = g.credits[f] ?? [];
       for (const k of [c[0]?.[0], c[1]?.[0]]) {
         const id = k == null ? null : g.people.id[k];
-        if (id != null && id !== personId && !taken.has(id) && ring2.length < Math.min(14, cap2)) { ring2.push(id); taken.add(id); }
+        if (id != null && id !== personId && !taken.has(id) && ring2.length < Math.min(14, cap2)) {
+          ring2.push(id);
+          taken.add(id);
+        }
       }
     }
   }
   const focus = personKey(personId);
   const edges = films.map((f) => [focus, filmKey(g.films.id[f]), byFilm.get(f)[0]]);
-  for (const id of ring2) for (const [f, role] of co.get(id) ?? []) edges.push([filmKey(g.films.id[f]), personKey(id), role]);
+  for (const id of ring2)
+    for (const [f, role] of co.get(id) ?? [])
+      edges.push([filmKey(g.films.id[f]), personKey(id), role]);
   return {
     focus,
-    ring1: films.map((f) => ({ key: filmKey(g.films.id[f]), role: byFilm.get(f)[0], roles: byFilm.get(f), year: g.films.year[f] ?? null })),
+    ring1: films.map((f) => ({
+      key: filmKey(g.films.id[f]),
+      role: byFilm.get(f)[0],
+      roles: byFilm.get(f),
+      year: g.films.year[f] ?? null,
+    })),
     ring2: ring2.map((id) => ({ key: personKey(id) })),
     edges,
     more: total - films.length,
   };
 }
 
-export const ego = (g, key, opts) => (isFilm(key) ? egoFilm(g, keyId(key), opts) : egoPerson(g, keyId(key), opts));
+export const ego = (g, key, opts) =>
+  isFilm(key) ? egoFilm(g, keyId(key), opts) : egoPerson(g, keyId(key), opts);
 
 // Six degrees: breadth-first search from `from` to `to` through credits whose
 // role is in `links`; a person at either end links through any of their own
@@ -199,12 +220,14 @@ export function findPath(g, from, to, links = DEFAULT_LINKS) {
       if (n < nF) {
         const c = g.credits[n] ?? [];
         const nb = [];
-        for (let r = 0; r < c.length; r++) for (const j of c[r] ?? []) if (ok[r] || nF + j === goal) nb.push([j, r]);
+        for (let r = 0; r < c.length; r++)
+          for (const j of c[r] ?? []) if (ok[r] || nF + j === goal) nb.push([j, r]);
         nb.sort((a, b) => byFame(a[0], b[0]));
         for (const [j, r] of nb) {
           const m = nF + j;
           if (prev[m] !== -1) continue;
-          prev[m] = n; via[m] = r;
+          prev[m] = n;
+          via[m] = r;
           if (m === goal) return trace();
           next.push(m);
         }
@@ -214,7 +237,8 @@ export function findPath(g, from, to, links = DEFAULT_LINKS) {
           if (!ok[pf[k + 1]] && n !== start) continue;
           const m = pf[k];
           if (prev[m] !== -1) continue;
-          prev[m] = n; via[m] = pf[k + 1];
+          prev[m] = n;
+          via[m] = pf[k + 1];
           if (m === goal) return trace();
           next.push(m);
         }
@@ -240,13 +264,24 @@ export function searchNet(g, query, n = 8) {
   if (words.join('').length < 2) return [];
   if (!g.index) {
     g.index = [
-      ...g.films.id.map((id, i) => ({ key: filmKey(id), w: normalize(g.films.title[i]).split(' '), rank: popOf(g, i) })),
-      ...g.people.id.map((id, j) => ({ key: personKey(id), w: normalize(g.people.name[j]).split(' '), rank: 100 + g.pCount[j] })),
+      ...g.films.id.map((id, i) => ({
+        key: filmKey(id),
+        w: normalize(g.films.title[i]).split(' '),
+        rank: popOf(g, i),
+      })),
+      ...g.people.id.map((id, j) => ({
+        key: personKey(id),
+        w: normalize(g.people.name[j]).split(' '),
+        rank: 100 + g.pCount[j],
+      })),
     ];
   }
   const hits = [];
   for (const e of g.index) if (words.every((q) => e.w.some((w) => w.startsWith(q)))) hits.push(e);
-  return hits.sort((a, b) => b.rank - a.rank || (a.key < b.key ? -1 : 1)).slice(0, n).map((e) => e.key);
+  return hits
+    .sort((a, b) => b.rank - a.rank || (a.key < b.key ? -1 : 1))
+    .slice(0, n)
+    .map((e) => e.key);
 }
 
 // ---------- layout (deterministic; positions in the stage's own pixels) ----------
@@ -257,25 +292,37 @@ export function searchNet(g, query, n = 8) {
 function arcMap(rx, ry) {
   const N = 720;
   const cum = [0];
-  let px = 0, py = -ry;
+  let px = 0,
+    py = -ry;
   for (let i = 1; i <= N; i++) {
     const t = -Math.PI / 2 + (i / N) * 2 * Math.PI;
-    const x = rx * Math.cos(t), y = ry * Math.sin(t);
+    const x = rx * Math.cos(t),
+      y = ry * Math.sin(t);
     cum.push(cum[i - 1] + Math.hypot(x - px, y - py));
-    px = x; py = y;
+    px = x;
+    py = y;
   }
   const L = cum[N];
   return (a) => {
     const f = ((((a + Math.PI / 2) / (2 * Math.PI)) % 1) + 1) % 1;
     const target = f * L;
-    let lo = 0, hi = N;
-    while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (cum[mid] < target) lo = mid; else hi = mid; }
+    let lo = 0,
+      hi = N;
+    while (hi - lo > 1) {
+      const mid = (lo + hi) >> 1;
+      if (cum[mid] < target) lo = mid;
+      else hi = mid;
+    }
     const k = (target - cum[lo]) / Math.max(1e-9, cum[hi] - cum[lo]);
     return -Math.PI / 2 + ((lo + k) / N) * 2 * Math.PI;
   };
 }
 
-const circMean = (as) => Math.atan2(as.reduce((s, a) => s + Math.sin(a), 0), as.reduce((s, a) => s + Math.cos(a), 0));
+const circMean = (as) =>
+  Math.atan2(
+    as.reduce((s, a) => s + Math.sin(a), 0),
+    as.reduce((s, a) => s + Math.cos(a), 0),
+  );
 
 export const isNarrow = (W) => W < 560;
 
@@ -283,9 +330,14 @@ export const isNarrow = (W) => W < 560;
 // an outer ring for a six-degrees path.
 export function rings(W, H, shrink = 1) {
   const narrow = isNarrow(W);
-  const cx = W / 2, cy = H / 2 + (narrow ? 0 : 6);
-  const r1 = (narrow ? [W * 0.33, H * 0.25] : [Math.min(W * 0.25, H * 0.48), H * 0.3]).map((v) => v * shrink);
-  const r2 = (narrow ? [W * 0.44, H * 0.44] : [Math.min(W * 0.45, H * 0.86), H * 0.45]).map((v) => v * shrink);
+  const cx = W / 2,
+    cy = H / 2 + (narrow ? 0 : 6);
+  const r1 = (narrow ? [W * 0.33, H * 0.25] : [Math.min(W * 0.25, H * 0.48), H * 0.3]).map(
+    (v) => v * shrink,
+  );
+  const r2 = (narrow ? [W * 0.44, H * 0.44] : [Math.min(W * 0.45, H * 0.86), H * 0.45]).map(
+    (v) => v * shrink,
+  );
   const outer = narrow ? [W * 0.46, H * 0.47] : [Math.min(W * 0.47, H * 0.92), H * 0.47];
   return { cx, cy, r1, r2, outer, narrow };
 }
@@ -318,7 +370,10 @@ export function layoutOrbit(view, W, H, { shrink = 1 } = {}) {
     let t = -Math.PI / 2 - ((groups[0]?.ns.length ?? 0) * step) / 2 - gap * step;
     for (const g of groups) {
       t += gap * step;
-      for (const m of g.ns) { m.a = t + step / 2; t += step; }
+      for (const m of g.ns) {
+        m.a = t + step / 2;
+        t += step;
+      }
       t += gap * step;
       deco.groups.push({ r: g.r, a0: g.ns[0].a, a1: g.ns.at(-1).a, n: g.ns.length });
     }
@@ -326,9 +381,17 @@ export function layoutOrbit(view, W, H, { shrink = 1 } = {}) {
   const toArc = arcMap(r1[0], r1[1]);
   for (const m of ring1) {
     m.a = toArc(m.a);
-    pos.set(m.key, { x: cx + r1[0] * Math.cos(m.a), y: cy + r1[1] * Math.sin(m.a), a: m.a, ring: 1 });
+    pos.set(m.key, {
+      x: cx + r1[0] * Math.cos(m.a),
+      y: cy + r1[1] * Math.sin(m.a),
+      a: m.a,
+      ring: 1,
+    });
   }
-  for (const g of deco.groups) { g.a0 = toArc(g.a0); g.a1 = toArc(g.a1); }
+  for (const g of deco.groups) {
+    g.a0 = toArc(g.a0);
+    g.a1 = toArc(g.a1);
+  }
   for (const t of deco.ticks) t.a = toArc(t.a);
 
   // Ring 2 sits at the mean angle of its ring-1 links, then spreads out.
@@ -338,7 +401,10 @@ export function layoutOrbit(view, W, H, { shrink = 1 } = {}) {
     (adj.get(b) ?? adj.set(b, []).get(b)).push(a);
   }
   const ring2 = view.ring2.map((m) => {
-    const as = (adj.get(m.key) ?? []).map((k) => pos.get(k)).filter((p) => p?.ring === 1).map((p) => p.a);
+    const as = (adj.get(m.key) ?? [])
+      .map((k) => pos.get(k))
+      .filter((p) => p?.ring === 1)
+      .map((p) => p.a);
     return { ...m, a: as.length ? circMean(as) : 0 };
   });
   ring2.sort((a, b) => a.a - b.a || (a.key < b.key ? -1 : 1));
@@ -346,16 +412,26 @@ export function layoutOrbit(view, W, H, { shrink = 1 } = {}) {
   if (ring2.length > 1) {
     for (let pass = 0; pass < 60; pass++) {
       for (let i = 0; i < ring2.length; i++) {
-        const a = ring2[i], b = ring2[(i + 1) % ring2.length];
+        const a = ring2[i],
+          b = ring2[(i + 1) % ring2.length];
         let d = b.a - a.a;
         if (i === ring2.length - 1) d += 2 * Math.PI;
-        if (d < minGap) { const push = (minGap - d) / 2; a.a -= push; b.a += push; }
+        if (d < minGap) {
+          const push = (minGap - d) / 2;
+          a.a -= push;
+          b.a += push;
+        }
       }
     }
   }
   ring2.forEach((m, i) => {
     const k = ring2.length > 14 && i % 2 ? 0.86 : 1; // stagger crowded rings for label room
-    pos.set(m.key, { x: cx + r2[0] * k * Math.cos(m.a), y: cy + r2[1] * k * Math.sin(m.a), a: m.a, ring: 2 });
+    pos.set(m.key, {
+      x: cx + r2[0] * k * Math.cos(m.a),
+      y: cy + r2[1] * k * Math.sin(m.a),
+      a: m.a,
+      ring: 2,
+    });
   });
   return { pos, deco };
 }
@@ -370,7 +446,10 @@ export function placePath(path, pos, W, H) {
   for (let i = path.length - 1; i >= 0; i--) {
     const key = path[i][0];
     const p = pos.get(key);
-    if (p) { if (p.ring) lastA = p.a; continue; }
+    if (p) {
+      if (p.ring) lastA = p.a;
+      continue;
+    }
     if (lastA == null) lastA = -Math.PI / 2 - step;
     const a = lastA + step;
     pos.set(key, { x: cx + outer[0] * Math.cos(a), y: cy + outer[1] * Math.sin(a), a, ring: 3 });

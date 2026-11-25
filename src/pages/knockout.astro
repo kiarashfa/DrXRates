@@ -13,16 +13,35 @@ const collectionList = collections.map((c) => ({ slug: c.slug, title: c.title, i
 // Each cup's card: its top three seeds' posters, fanned (2, 1, 3).
 const cups = CUPS.map((c) => {
   const bySeed = new Map(c.entrants.map((e) => [e.seed, e.poster]));
-  return { slug: c.slug, title: c.title, description: c.description, date: c.date, size: c.size, seeding: c.seeding, posters: [2, 1, 3].map((s) => bySeed.get(s) ?? null) };
+  return {
+    slug: c.slug,
+    title: c.title,
+    description: c.description,
+    date: c.date,
+    size: c.size,
+    seeding: c.seeding,
+    posters: [2, 1, 3].map((s) => bySeed.get(s) ?? null),
+  };
 });
 ---
 
-<Base title="Knockout" description="Pit films against each other, one matchup at a time, until one is left. Build a bracket from Dr. X's films, the archive or your own lists, or replay Dr. X's Cup.">
+<Base
+  title="Knockout"
+  description="Pit films against each other, one matchup at a time, until one is left. Build a bracket from Dr. X's films, the archive or your own lists, or replay Dr. X's Cup."
+>
   <section class="wrap page-intro">
     <h1>Knockout</h1>
     <p class="muted">Pit films against each other, one matchup at a time, until one is left.</p>
   </section>
   <section class="wrap" style="margin-top:1.6rem; min-height:70vh;">
-    <Knockout client:only="svelte" {genres} yearMin={Math.min(...years)} {yearMax} {counts} collections={collectionList} {cups} />
+    <Knockout
+      client:only="svelte"
+      {genres}
+      yearMin={Math.min(...years)}
+      {yearMax}
+      {counts}
+      collections={collectionList}
+      {cups}
+    />
   </section>
 </Base>

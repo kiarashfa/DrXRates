@@ -10,7 +10,13 @@ export function getStaticPaths() {
 const { cup } = Astro.props;
 ---
 
-<Base title={`Dr. X's Cup: ${cup.title}`} description={cup.description || `A ${cup.size}-film knockout bracket played by Dr. X. Replay it and see how often you agree.`}>
+<Base
+  title={`Dr. X's Cup: ${cup.title}`}
+  description={
+    cup.description ||
+    `A ${cup.size}-film knockout bracket played by Dr. X. Replay it and see how often you agree.`
+  }
+>
   <section class="wrap page-intro">
     <Cup client:load {cup} />
   </section>

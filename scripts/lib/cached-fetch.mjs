@@ -4,8 +4,13 @@ import path from 'node:path';
 
 // Generic cached JSON GET used by the OMDb and Wikipedia helpers.
 // The cacheKey (not the URL) names the cache file so API keys never land on disk.
-export async function cachedJson(url, { cacheDir, cacheKey, headers = {}, offline = false, shouldCache = () => true }) {
-  const hash = createHash('sha1').update(cacheKey ?? url).digest('hex');
+export async function cachedJson(
+  url,
+  { cacheDir, cacheKey, headers = {}, offline = false, shouldCache = () => true },
+) {
+  const hash = createHash('sha1')
+    .update(cacheKey ?? url)
+    .digest('hex');
   const file = path.join(cacheDir, `${hash}.json`);
   try {
     const cached = JSON.parse(await readFile(file, 'utf8'));
@@ -45,7 +50,11 @@ export async function cachedJson(url, { cacheDir, cacheKey, headers = {}, offlin
   }
   if (data != null && shouldCache(data)) {
     await mkdir(cacheDir, { recursive: true });
-    await writeFile(file, JSON.stringify({ cacheKey: cacheKey ?? url, fetchedAt: new Date().toISOString(), data }), 'utf8');
+    await writeFile(
+      file,
+      JSON.stringify({ cacheKey: cacheKey ?? url, fetchedAt: new Date().toISOString(), data }),
+      'utf8',
+    );
   }
   return { data, fromCache: false };
 }

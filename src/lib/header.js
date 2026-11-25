@@ -13,8 +13,12 @@ import { CLOUD_EVENT, CLOUD_KEY, PROVIDERS, cloudState, unsaved, ago } from './c
 const PHONE = window.matchMedia('(max-width: 860px)');
 const BASE = import.meta.env.BASE_URL || '/';
 const esc = (s) =>
-  String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-const svg = (name) => `<svg class="icon" aria-hidden="true"><use href="${withBase('/icons.svg')}#i-${name}"></use></svg>`;
+  String(s ?? '').replace(
+    /[&<>"']/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c],
+  );
+const svg = (name) =>
+  `<svg class="icon" aria-hidden="true"><use href="${withBase('/icons.svg')}#i-${name}"></use></svg>`;
 
 /* ── Menus: the desktop nav groups and both theme menus ─────────────────── */
 
@@ -61,7 +65,9 @@ function initMenus() {
       if (!g.contains(e.relatedTarget)) close(g);
     });
   }
-  document.addEventListener('pointerdown', (e) => groups.forEach((g) => !g.contains(e.target) && close(g)));
+  document.addEventListener('pointerdown', (e) =>
+    groups.forEach((g) => !g.contains(e.target) && close(g)),
+  );
   return { close, closeAll };
 }
 
@@ -119,7 +125,7 @@ function initSheets() {
           (i) =>
             `<li><a class="sheet-item" href="${withBase(i.href)}"${isCurrent(i, location.pathname, BASE) ? ' aria-current="page"' : ''}>` +
             `<span class="sheet-icon">${i.avatar ? `<span class="avatar" data-avatar>${svg(i.icon).replace('class="icon"', 'class="avatar-icon"')}</span>` : svg(i.icon)}</span>` +
-            `<span><span class="sheet-t">${esc(i.label)}</span><span class="sheet-d">${esc(i.desc ?? '')}</span></span></a></li>`
+            `<span><span class="sheet-t">${esc(i.label)}</span><span class="sheet-d">${esc(i.desc ?? '')}</span></span></a></li>`,
         )
         .join('')}</ul>`;
     document.body.append(sheet);
@@ -182,7 +188,11 @@ function initSheets() {
     if (focusBack) trigger?.focus({ preventScroll: true });
   }
 
-  triggers.forEach((t) => t.addEventListener('click', () => (openId === t.dataset.sheetTrigger ? close() : open(t.dataset.sheetTrigger))));
+  triggers.forEach((t) =>
+    t.addEventListener('click', () =>
+      openId === t.dataset.sheetTrigger ? close() : open(t.dataset.sheetTrigger),
+    ),
+  );
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && openId) {
       e.preventDefault();
@@ -220,7 +230,13 @@ function initSearch({ menus, sheets }) {
 
   const activeInput = () => (mode === 'full' ? phoneInput : input);
   const options = () => (results ? [...results.querySelectorAll('[role="option"]')] : []);
-  const outside = () => [header, document.querySelector('main'), document.querySelector('.site-footer'), document.querySelector('.tabbar')].filter(Boolean);
+  const outside = () =>
+    [
+      header,
+      document.querySelector('main'),
+      document.querySelector('.site-footer'),
+      document.querySelector('.tabbar'),
+    ].filter(Boolean);
 
   function buildPanel() {
     panel = document.createElement('div');
@@ -256,8 +272,14 @@ function initSearch({ menus, sheets }) {
   function measure() {
     const right = box.getBoundingClientRect().right;
     const logo = header.querySelector('[data-hs-logo]').getBoundingClientRect().right;
-    box.style.setProperty('--hs-w', `${Math.round(Math.max(220, Math.min(560, right - logo - 28)))}px`);
-    document.documentElement.style.setProperty('--hs-top', `${Math.round(header.getBoundingClientRect().bottom)}px`);
+    box.style.setProperty(
+      '--hs-w',
+      `${Math.round(Math.max(220, Math.min(560, right - logo - 28)))}px`,
+    );
+    document.documentElement.style.setProperty(
+      '--hs-top',
+      `${Math.round(header.getBoundingClientRect().bottom)}px`,
+    );
   }
 
   function open(as = PHONE.matches ? 'full' : 'bar') {
@@ -285,7 +307,7 @@ function initSearch({ menus, sheets }) {
     // Start loading now; a query typed meanwhile renders once it's ready.
     getEngine().then(
       () => query.trim() && render(),
-      () => {}
+      () => {},
     );
   }
 
@@ -301,25 +323,39 @@ function initSearch({ menus, sheets }) {
     setActive(-1);
     mode = null;
     activeInput().blur();
-    if (focusBack && opener instanceof HTMLElement && opener.isConnected && opener !== document.body) opener.focus({ preventScroll: true });
+    if (
+      focusBack &&
+      opener instanceof HTMLElement &&
+      opener.isConnected &&
+      opener !== document.body
+    )
+      opener.focus({ preventScroll: true });
   }
 
   // The search engine (code + index), built once; a failed load is retried on
   // the next open.
   function getEngine() {
     if (!engine) {
-      engine = Promise.all([import('./archive.js'), import('./search.js')]).then(async ([archive, s]) => {
-        const [{ list }, extra, people] = await Promise.all([
-          archive.loadArchive({ rated: true, originalTitles: true }),
-          archive.loadSearchExtra(),
-          archive.loadSearchPeople().catch(() => []),
-        ]);
-        const index = s.buildIndex(list, extra, NAV_LINKS, people);
-        return { run: (q) => s.search(index, q), posters: archive.loadPosters, faces: archive.loadPeople, minQuery: s.MIN_QUERY };
-      });
+      engine = Promise.all([import('./archive.js'), import('./search.js')]).then(
+        async ([archive, s]) => {
+          const [{ list }, extra, people] = await Promise.all([
+            archive.loadArchive({ rated: true, originalTitles: true }),
+            archive.loadSearchExtra(),
+            archive.loadSearchPeople().catch(() => []),
+          ]);
+          const index = s.buildIndex(list, extra, NAV_LINKS, people);
+          return {
+            run: (q) => s.search(index, q),
+            posters: archive.loadPosters,
+            faces: archive.loadPeople,
+            minQuery: s.MIN_QUERY,
+          };
+        },
+      );
       engine.catch(() => {
         engine = null;
-        if (results) results.innerHTML = `<p class="sr-status">Search couldn't load the archive. Check the connection and try again.</p>`;
+        if (results)
+          results.innerHTML = `<p class="sr-status">Search couldn't load the archive. Check the connection and try again.</p>`;
       });
     }
     return engine;
@@ -353,7 +389,13 @@ function initSearch({ menus, sheets }) {
       if (!list.length) return;
       e.preventDefault();
       const step = e.key === 'ArrowDown' ? 1 : -1;
-      setActive(active === -1 ? (step > 0 ? 0 : list.length - 1) : (active + step + list.length) % list.length);
+      setActive(
+        active === -1
+          ? step > 0
+            ? 0
+            : list.length - 1
+          : (active + step + list.length) % list.length,
+      );
     } else if (e.key === 'Enter') {
       const pick = list[active] ?? (query.trim() ? list[0] : null);
       if (pick) {
@@ -383,7 +425,7 @@ function initSearch({ menus, sheets }) {
       `<p class="sr-status">Search ${meta.counts.movies.toLocaleString('en-US')} films by title, original title or year, plus directors, people and collections.</p>` +
         `<div class="sr-group" role="group" aria-label="Pages"><h3 class="sr-h" aria-hidden="true">Jump to</h3>` +
         `<div class="sr-chips">${NAV_LINKS.map((p) => placeHtml({ ...p, kind: 'Page' })).join('')}</div></div>`,
-      ''
+      '',
     );
   }
 
@@ -394,13 +436,20 @@ function initSearch({ menus, sheets }) {
     const e = await getEngine().catch(() => null);
     if (!e || mine !== ticket) return;
     const r = e.run(query);
-    if (!r) return finish(`<p class="sr-status">Keep typing: at least ${e.minQuery} letters.</p>`, '');
+    if (!r)
+      return finish(`<p class="sr-status">Keep typing: at least ${e.minQuery} letters.</p>`, '');
     if (!r.films.length && !r.directors.length && !r.people.length && !r.places.length) {
-      return finish(`<p class="sr-status">Nothing in the archive matches “${esc(query.trim())}”.</p>`, 'No results');
+      return finish(
+        `<p class="sr-status">Nothing in the archive matches “${esc(query.trim())}”.</p>`,
+        'No results',
+      );
     }
     let html = '';
     if (r.films.length) {
-      const note = r.filmCount > r.films.length ? `<span class="sr-note">best ${r.films.length} of ${r.filmCount.toLocaleString('en-US')}</span>` : '';
+      const note =
+        r.filmCount > r.films.length
+          ? `<span class="sr-note">best ${r.films.length} of ${r.filmCount.toLocaleString('en-US')}</span>`
+          : '';
       html +=
         `<div class="sr-group" role="group" aria-label="Films"><h3 class="sr-h" aria-hidden="true">Films ${note}</h3><div class="sr-posters">` +
         r.films
@@ -409,7 +458,7 @@ function initSearch({ menus, sheets }) {
               `<a class="sr-film" role="option" aria-selected="false" href="${withBase(`/movie/${f.slug}`)}">` +
               `<span class="sr-poster"><span class="sr-noposter">${esc(f.title)}</span><img data-poster-id="${f.id}" alt="" decoding="async">` +
               `${f.my != null ? `<span class="rating-tag">${fmtScore(f.my)}</span>` : ''}</span>` +
-              `<span class="sr-t">${esc(f.title)}</span><span class="sr-m">${[f.year, f.directors[0]?.name].filter(Boolean).map(esc).join(' · ') || '–'}</span></a>`
+              `<span class="sr-t">${esc(f.title)}</span><span class="sr-m">${[f.year, f.directors[0]?.name].filter(Boolean).map(esc).join(' · ') || '–'}</span></a>`,
           )
           .join('') +
         `</div></div>`;
@@ -420,10 +469,16 @@ function initSearch({ menus, sheets }) {
         r.directors
           .map((d) => {
             const photo = tmdbImg(d.photo, 'w185');
-            const initials = d.name.split(/\s+/).map((w) => w[0]).slice(0, 2).join('');
+            const initials = d.name
+              .split(/\s+/)
+              .map((w) => w[0])
+              .slice(0, 2)
+              .join('');
             return (
               `<a class="sr-face" role="option" aria-selected="false" href="${withBase(`/director/${d.slug}`)}">` +
-              (photo ? `<img src="${esc(photo)}" alt="" loading="lazy" decoding="async">` : `<span class="sr-initial" aria-hidden="true">${esc(initials)}</span>`) +
+              (photo
+                ? `<img src="${esc(photo)}" alt="" loading="lazy" decoding="async">`
+                : `<span class="sr-initial" aria-hidden="true">${esc(initials)}</span>`) +
               `<span><span class="sr-t">${esc(d.name)}</span><span class="sr-m">Director${d.rated ? ` · ${d.rated} rated by Dr. X` : ''}</span></span></a>`
             );
           })
@@ -435,7 +490,11 @@ function initSearch({ menus, sheets }) {
         `<div class="sr-group" role="group" aria-label="People"><h3 class="sr-h" aria-hidden="true">People <span class="sr-note">in Dr. X Net</span></h3><div class="sr-faces">` +
         r.people
           .map((p) => {
-            const initials = p.name.split(/\s+/).map((w) => w[0]).slice(0, 2).join('');
+            const initials = p.name
+              .split(/\s+/)
+              .map((w) => w[0])
+              .slice(0, 2)
+              .join('');
             return (
               `<a class="sr-face" role="option" aria-selected="false" href="${withBase(`/net?focus=p${p.id}`)}">` +
               `<span class="sr-initial" aria-hidden="true" data-face-id="${p.id}">${esc(initials)}</span>` +
@@ -497,7 +556,9 @@ function initSearch({ menus, sheets }) {
       e.preventDefault();
       return close();
     }
-    const typing = e.target instanceof HTMLElement && e.target.matches('input, textarea, select, [contenteditable]');
+    const typing =
+      e.target instanceof HTMLElement &&
+      e.target.matches('input, textarea, select, [contenteditable]');
     const shortcut =
       (e.key?.toLowerCase() === 'k' && (e.metaKey || e.ctrlKey) && !e.altKey) ||
       (e.key === '/' && !typing && !e.metaKey && !e.ctrlKey && !e.altKey);
@@ -532,19 +593,24 @@ function initProfile() {
     line.hidden = !s;
     if (!s) return;
     const label = PROVIDERS[s.provider];
-    if (status.state === 'saving') line.innerHTML = `<span class="cloud-state" data-state="pending">Saving to ${label}…</span>`;
+    if (status.state === 'saving')
+      line.innerHTML = `<span class="cloud-state" data-state="pending">Saving to ${label}…</span>`;
     else if (pending || status.state === 'error' || status.state === 'auth')
       line.innerHTML =
         `<span class="cloud-state" data-state="${status.state === 'error' ? 'error' : 'pending'}">${status.state === 'error' ? "Couldn't save" : 'Not saved yet'}</span>` +
         `<button type="button" data-cloud-save>Save</button>`;
-    else line.innerHTML = `<span class="cloud-state" title="${label}">${s.savedAt ? `Saved ${ago(s.savedAt)}` : `Connected to ${label}`}</span>`;
+    else
+      line.innerHTML = `<span class="cloud-state" title="${label}">${s.savedAt ? `Saved ${ago(s.savedAt)}` : `Connected to ${label}`}</span>`;
   }
 
   const cloud = () => import('./cloud.js');
   function start() {
     if (autosave || !cloudState()) return;
     autosave = true;
-    cloud().then((c) => c.startAutoSave(), () => (autosave = false));
+    cloud().then(
+      (c) => c.startAutoSave(),
+      () => (autosave = false),
+    );
   }
 
   window.addEventListener(CLOUD_EVENT, (e) => {

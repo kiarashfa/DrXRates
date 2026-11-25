@@ -21,7 +21,7 @@ function loadFile(name) {
       fetchFile(name).catch((err) => {
         pending.delete(name); // let a later call retry
         throw err;
-      })
+      }),
     );
   }
   return pending.get(name);
@@ -38,7 +38,7 @@ async function loadAligned(names) {
         const p = fetchFile(n, true);
         pending.set(n, p);
         return p;
-      })
+      }),
     );
     if (new Set(files.map((f) => f.rev)).size > 1) {
       throw new Error('The archive was updated while loading. Reload the page to continue.');
@@ -104,7 +104,7 @@ export async function loadRated() {
       Object.entries(r.byId).map(([id, vals]) => {
         const scores = Object.fromEntries(r.keys.map((k, i) => [k, vals[i]]));
         return [Number(id), { scores, ...computeTotals(scores) }];
-      })
+      }),
     );
   }
   return ratedMap;
@@ -118,7 +118,12 @@ export async function loadRated() {
 //            stills (number of Dr. X's still frames, 0 if none)
 //   originalTitles  originalTitle (or null)
 // Missing values are null. Options only add fields; objects stay the same.
-export async function loadArchive({ scores = false, posters = false, rated = false, originalTitles = false } = {}) {
+export async function loadArchive({
+  scores = false,
+  posters = false,
+  rated = false,
+  originalTitles = false,
+} = {}) {
   const want = ['films', ...(scores ? ['scores'] : []), ...(posters ? ['posters'] : [])];
   const extras = [originalTitles ? loadFile('original-titles') : null, rated ? loadRated() : null];
   const [files, [orig, ratedById]] = await Promise.all([loadAligned(want), Promise.all(extras)]);
@@ -187,12 +192,16 @@ export async function loadRatedFilms() {
 const CARD_SHARDS = 128; // = CARD_SHARDS in client-data.js
 export async function loadFilms(ids) {
   const shards = [...new Set(ids.map((id) => id % CARD_SHARDS))];
-  const [files, rated] = await Promise.all([Promise.all(shards.map((s) => loadFile(`cards/${s}`))), loadRated()]);
+  const [files, rated] = await Promise.all([
+    Promise.all(shards.map((s) => loadFile(`cards/${s}`))),
+    loadRated(),
+  ]);
   const wanted = new Set(ids);
   const found = new Map();
   for (const file of files) {
     const idCol = file.keys.indexOf('id');
-    for (const row of file.rows) if (wanted.has(row[idCol])) found.set(row[idCol], cardFilm(file.keys, row, rated));
+    for (const row of file.rows)
+      if (wanted.has(row[idCol])) found.set(row[idCol], cardFilm(file.keys, row, rated));
   }
   return new Map(ids.map((id) => [id, found.get(id) ?? null]));
 }
@@ -228,7 +237,7 @@ export async function loadPeople(ids) {
     ids.map((id) => {
       const e = byShard.get(id % PEOPLE_SHARDS)[id];
       return [id, e ? { name: e[0], profile: e[1] ?? null } : null];
-    })
+    }),
   );
 }
 
@@ -241,7 +250,12 @@ const undelta = (arr) => {
 let netPending = null;
 export function loadNet() {
   netPending ??= loadFile('net')
-    .then((f) => ({ rev: f.rev, films: { ...f.films, id: undelta(f.films.id) }, people: { id: undelta(f.people.id), name: f.people.name }, credits: f.credits }))
+    .then((f) => ({
+      rev: f.rev,
+      films: { ...f.films, id: undelta(f.films.id) },
+      people: { id: undelta(f.people.id), name: f.people.name },
+      credits: f.credits,
+    }))
     .catch((err) => {
       netPending = null;
       throw err;
@@ -266,7 +280,12 @@ export async function loadNetArchive() {
   const { list } = await loadArchive();
   return {
     rev: file.rev,
-    films: { id: list.map((m) => m.id), title: list.map((m) => m.title), year: list.map((m) => m.year), pop: list.map((m) => m.pop) },
+    films: {
+      id: list.map((m) => m.id),
+      title: list.map((m) => m.title),
+      year: list.map((m) => m.year),
+      pop: list.map((m) => m.pop),
+    },
     people: { id: undelta(file.people.id), name: file.people.name },
     credits: file.credits,
   };
@@ -292,7 +311,12 @@ export function loadFrameFilms() {
         content: f.my[i][1],
         form: f.my[i][2],
         frames: f.frames[i],
-        e: { votes: f.ease[i][0] / 100, imdb: f.ease[i][1] / 100, star: f.ease[i][2] / 100, dir: f.ease[i][3] / 100 },
+        e: {
+          votes: f.ease[i][0] / 100,
+          imdb: f.ease[i][1] / 100,
+          star: f.ease[i][2] / 100,
+          dir: f.ease[i][3] / 100,
+        },
       }));
     })
     .catch((err) => {
@@ -314,7 +338,8 @@ export function loadWall() {
       const frames = [];
       let k = 0;
       films.forEach((f, fi) => {
-        for (let n = 1; n <= f.frames; n++, k++) frames.push({ f: fi, n, ar: w.ar[k] / 100, col: w.col.slice(6 * k, 6 * k + 6) });
+        for (let n = 1; n <= f.frames; n++, k++)
+          frames.push({ f: fi, n, ar: w.ar[k] / 100, col: w.col.slice(6 * k, 6 * k + 6) });
       });
       return { films, frames };
     })

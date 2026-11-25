@@ -7,10 +7,23 @@ const img = tmdbImg(poster, 'w342');
 
 <a class="movie-card" href={withBase(`/movie/${slug}`)}>
   <div class="poster">
-    {img ? <img src={img} alt={`${title} poster`} loading="lazy" width="154" height="231" /> : <div class="no-poster">{title}</div>}
+    {img ? (
+      <img src={img} alt={`${title} poster`} loading="lazy" width="154" height="231" />
+    ) : (
+      <div class="no-poster">{title}</div>
+    )}
     {my != null && <span class="rating-tag">{fmt1(my)}</span>}
     {stills > 0 && (
-      <span class="stills-tag" role="img" aria-label={`${stills} stills by Dr. X`} title={`${stills} stills`}><svg aria-hidden="true"><use href={withBase('/icons.svg#i-stills')}></use></svg></span>
+      <span
+        class="stills-tag"
+        role="img"
+        aria-label={`${stills} stills by Dr. X`}
+        title={`${stills} stills`}
+      >
+        <svg aria-hidden="true">
+          <use href={withBase('/icons.svg#i-stills')}></use>
+        </svg>
+      </span>
     )}
   </div>
   <div class="card-title">{title}</div>

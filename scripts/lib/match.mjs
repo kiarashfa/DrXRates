@@ -67,7 +67,14 @@ function votes(c) {
 }
 
 function summarize(c) {
-  return { id: c.id, title: c.title, originalTitle: c.original_title, year: candYear(c), popularity: c.popularity, votes: votes(c) };
+  return {
+    id: c.id,
+    title: c.title,
+    originalTitle: c.original_title,
+    year: candYear(c),
+    popularity: c.popularity,
+    votes: votes(c),
+  };
 }
 
 // Most-voted first (the film people actually watched), then closest to the
@@ -141,16 +148,21 @@ export async function matchMovie({ title, year }, { overrides = {}, offline = fa
       seen.add(c.id);
     }
   }
-  if (!hadYearResults && results.length && year) searchNote = 'matched via year-less search, year within ±1';
+  if (!hadYearResults && results.length && year)
+    searchNote = 'matched via year-less search, year within ±1';
 
   if (!results.length) {
     // Exact title exists but under a different year: probably a year typo in Excel.
-    const exactWrongYear = yearlessAll.filter((c) =>
-      titlesEqual(normalizeTitle(c.title), norm) || titlesEqual(normalizeTitle(c.original_title || ''), norm)
+    const exactWrongYear = yearlessAll.filter(
+      (c) =>
+        titlesEqual(normalizeTitle(c.title), norm) ||
+        titlesEqual(normalizeTitle(c.original_title || ''), norm),
     );
     if (exactWrongYear.length) {
       const pick = [...exactWrongYear].sort(
-        (a, b) => Math.abs((candYear(a) ?? 9999) - year) - Math.abs((candYear(b) ?? 9999) - year) || votes(b) - votes(a)
+        (a, b) =>
+          Math.abs((candYear(a) ?? 9999) - year) - Math.abs((candYear(b) ?? 9999) - year) ||
+          votes(b) - votes(a),
       )[0];
       return {
         id: pick.id,
@@ -176,20 +188,28 @@ export async function matchMovie({ title, year }, { overrides = {}, offline = fa
   const plausible = (c) =>
     fromYearSearch.has(c.id) || !year || (candYear(c) != null && Math.abs(candYear(c) - year) <= 1);
   const isExactTitle = (c) =>
-    titlesEqual(normalizeTitle(c.title), norm) || titlesEqual(normalizeTitle(c.original_title || ''), norm);
+    titlesEqual(normalizeTitle(c.title), norm) ||
+    titlesEqual(normalizeTitle(c.original_title || ''), norm);
   // Subtitle completion: 'Home Alone 2' → 'Home Alone 2: Lost in New York'.
   const isSubtitle = (c) =>
     subtitleMatch(normalizeTitle(c.title), c.title, norm) ||
     subtitleMatch(normalizeTitle(c.original_title || ''), c.original_title || '', norm);
-  const exact = rank(results.filter((c) => plausible(c) && isExactTitle(c)), year);
-  const subtitle = rank(results.filter((c) => plausible(c) && !isExactTitle(c) && isSubtitle(c)), year);
+  const exact = rank(
+    results.filter((c) => plausible(c) && isExactTitle(c)),
+    year,
+  );
+  const subtitle = rank(
+    results.filter((c) => plausible(c) && !isExactTitle(c) && isSubtitle(c)),
+    year,
+  );
 
   // An obscure exact-title namesake (<50 votes) must not beat a famous subtitle
   // completion ('Days of Future Past' 2013, 0 votes vs 'X-Men: Days of Future
   // Past'). A known exact-title film always wins ('By the Sea' stays Jolie's,
   // not 'Manchester by the Sea').
   const useSubtitle =
-    subtitle.length > 0 && (!exact.length || (votes(exact[0]) < 50 && clearFavourite([subtitle[0], exact[0]])));
+    subtitle.length > 0 &&
+    (!exact.length || (votes(exact[0]) < 50 && clearFavourite([subtitle[0], exact[0]])));
   const pool = useSubtitle ? subtitle : exact;
   if (pool.length) {
     const pick = pool[0];
@@ -204,29 +224,42 @@ export async function matchMovie({ title, year }, { overrides = {}, offline = fa
       notes.push(
         clear
           ? `picked the clear favourite of ${pool.length} ${useSubtitle ? 'candidates' : 'same-title films'} (${votes(pool[0])} votes vs ${votes(pool[1])})`
-          : `${pool.length} ${useSubtitle ? 'subtitle-completion candidates' : 'same-title films (remake/re-release?)'}; verify the pick`
+          : `${pool.length} ${useSubtitle ? 'subtitle-completion candidates' : 'same-title films (remake/re-release?)'}; verify the pick`,
       );
     }
-    if (useSubtitle && exact.length) notes.push(`out-votes the exact-title namesake (${votes(exact[0])} votes)`);
+    if (useSubtitle && exact.length)
+      notes.push(`out-votes the exact-title namesake (${votes(exact[0])} votes)`);
     if (searchNote) notes.push(searchNote);
     if (yearOff) notes.push(`TMDB dates it ${candYear(pick)}`);
     return {
       id: pick.id,
       status: clear ? 'loose' : 'ambiguous',
-      review: { title, year, chosen: summarize(pick), reason: notes.join('; '), candidates: pool.slice(0, 4).map(summarize) },
+      review: {
+        title,
+        year,
+        chosen: summarize(pick),
+        reason: notes.join('; '),
+        candidates: pool.slice(0, 4).map(summarize),
+      },
     };
   }
 
   // No exact title hit: rank by edit distance, then votes.
   const ranked = [...results].sort((a, b) => {
-    const da = Math.min(levenshtein(normalizeTitle(a.title), norm), levenshtein(normalizeTitle(a.original_title || ''), norm));
-    const db = Math.min(levenshtein(normalizeTitle(b.title), norm), levenshtein(normalizeTitle(b.original_title || ''), norm));
+    const da = Math.min(
+      levenshtein(normalizeTitle(a.title), norm),
+      levenshtein(normalizeTitle(a.original_title || ''), norm),
+    );
+    const db = Math.min(
+      levenshtein(normalizeTitle(b.title), norm),
+      levenshtein(normalizeTitle(b.original_title || ''), norm),
+    );
     return da - db || votes(b) - votes(a);
   });
   const best = ranked[0];
   const dist = Math.min(
     levenshtein(normalizeTitle(best.title), norm),
-    levenshtein(normalizeTitle(best.original_title || ''), norm)
+    levenshtein(normalizeTitle(best.original_title || ''), norm),
   );
   if (dist <= Math.max(2, Math.floor(norm.length * 0.2))) {
     return {

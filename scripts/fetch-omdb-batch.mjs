@@ -39,13 +39,19 @@ async function main() {
   // Same id source and priority as the main build: rated first, then vote count.
   const queue = movies
     .filter((m) => m.imdbId)
-    .sort((a, b) => (b.myRating ? 1 : 0) - (a.myRating ? 1 : 0) || (b.tmdbRating?.votes ?? 0) - (a.tmdbRating?.votes ?? 0));
+    .sort(
+      (a, b) =>
+        (b.myRating ? 1 : 0) - (a.myRating ? 1 : 0) ||
+        (b.tmdbRating?.votes ?? 0) - (a.tmdbRating?.votes ?? 0),
+    );
 
   const cachedAlready = queue.filter((m) => omdbHasCached(m.imdbId));
   const todo = queue.filter((m) => !omdbHasCached(m.imdbId));
 
   console.log(`OMDb batch${batch ? ` #${batch}` : ''} (${new Date().toISOString().slice(0, 16)})`);
-  console.log(`  ${queue.length} movies with an IMDb id · ${cachedAlready.length} already cached · ${todo.length} still to fetch`);
+  console.log(
+    `  ${queue.length} movies with an IMDb id · ${cachedAlready.length} already cached · ${todo.length} still to fetch`,
+  );
 
   if (!todo.length) {
     console.log('  Nothing left to fetch: coverage is complete. 🎬');
@@ -86,7 +92,9 @@ async function main() {
   console.log('');
   console.log(`  Overall coverage: ${nowCached}/${queue.length} movies cached (${pct}%)`);
   if (remaining > 0) {
-    console.log(`  Remaining: ${remaining} (roughly ${Math.ceil(remaining / limit)} more daily run(s)).`);
+    console.log(
+      `  Remaining: ${remaining} (roughly ${Math.ceil(remaining / limit)} more daily run(s)).`,
+    );
   } else {
     console.log('  All done. Run `npm run data` once more so the site JSON includes everything.');
   }

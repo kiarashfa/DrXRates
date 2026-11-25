@@ -73,14 +73,20 @@ export function prepareFrames(frames) {
 
 // Frames of the films that match, in their original order. A film matches a
 // text on its title or a director's name.
-export function filterFrames(frames, films, { q = '', decade = '', genre = '', top = false, family = '' } = {}) {
+export function filterFrames(
+  frames,
+  films,
+  { q = '', decade = '', genre = '', top = false, family = '' } = {},
+) {
   const needle = q.trim().toLowerCase();
   const ok = films.map(
     (f) =>
-      (!needle || f.title.toLowerCase().includes(needle) || f.directors.some((d) => d.toLowerCase().includes(needle))) &&
+      (!needle ||
+        f.title.toLowerCase().includes(needle) ||
+        f.directors.some((d) => d.toLowerCase().includes(needle))) &&
       (!decade || (f.year != null && Math.floor(f.year / 10) * 10 === Number(decade))) &&
       (!genre || f.genres.includes(genre)) &&
-      (!top || f.my >= 8)
+      (!top || f.my >= 8),
   );
   return frames.filter((fr) => ok[fr.f] && (!family || fr.fam === family));
 }
@@ -172,7 +178,8 @@ export function driftCells(zoom, px, py, sw, sh) {
     const off = ((((c % 3) + 3) % 3) * ch) / 3;
     const r0 = Math.floor((-py - off) / ch) - 1;
     const r1 = Math.ceil((sh - py - off) / ch) + 1;
-    for (let r = r0; r <= r1; r++) out.push({ key: `${zoom}:${c}:${r}`, c, r, x: c * cw, y: r * ch + off, w, h });
+    for (let r = r0; r <= r1; r++)
+      out.push({ key: `${zoom}:${c}:${r}`, c, r, x: c * cw, y: r * ch + off, w, h });
   }
   return out;
 }

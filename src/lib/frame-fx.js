@@ -1,7 +1,8 @@
 // Name the Frame: the effects that need more than CSS, as plain DOM (styled
 // from FramePlayer.svelte through the fx-* classes). Each returns nothing and
 // cleans up after itself; prefers-reduced-motion skips the moving parts.
-const reduced = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reduced = () =>
+  typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 const rnd = (a, b) => a + Math.random() * (b - a);
 
 // Confetti bursting from an element (a right answer's board).
@@ -61,15 +62,33 @@ export function splat(host, scale = 0.7) {
       r = Math.max(1.7, r * rnd(0.88, 0.96));
     }
     // A flung drop just past the end of the line, stretched along its path.
-    if (Math.random() < 0.75) mist.push({ x: x + Math.cos(a) * rnd(5, 12) * 1.5, y: y + Math.sin(a) * rnd(5, 12), rx: rnd(1.6, 3), ry: rnd(1, 1.7), rot: (a * 180) / Math.PI, d: len });
+    if (Math.random() < 0.75)
+      mist.push({
+        x: x + Math.cos(a) * rnd(5, 12) * 1.5,
+        y: y + Math.sin(a) * rnd(5, 12),
+        rx: rnd(1.6, 3),
+        ry: rnd(1, 1.7),
+        rot: (a * 180) / Math.PI,
+        d: len,
+      });
   }
   for (let i = 0; i < 60; i++) {
     const a = rnd(0, Math.PI * 2);
     const d = rnd(16, 92);
     const rr = rnd(0.35, 1.4);
-    mist.push({ x: cx + Math.cos(a) * d * 1.5, y: cy + Math.sin(a) * d, rx: rr, ry: rr, rot: 0, d });
+    mist.push({
+      x: cx + Math.cos(a) * d * 1.5,
+      y: cy + Math.sin(a) * d,
+      rx: rr,
+      ry: rr,
+      rot: 0,
+      d,
+    });
   }
-  const drips = Array.from({ length: 2 + Math.floor(Math.random() * 2) }, () => ({ x: cx + rnd(-16, 16), len: rnd(18, 40) }));
+  const drips = Array.from({ length: 2 + Math.floor(Math.random() * 2) }, () => ({
+    x: cx + rnd(-16, 16),
+    len: rnd(18, 40),
+  }));
   host.innerHTML = `<svg class="fx-splat" xmlns="${SVG}" viewBox="0 0 ${W} ${H}" width="${f(W * scale)}" height="${f(H * scale)}" aria-hidden="true">
     <defs><filter id="${id}" x="-10%" y="-10%" width="120%" height="140%" color-interpolation-filters="sRGB">
       <feGaussianBlur in="SourceGraphic" stdDeviation="2.4" result="b"/>
@@ -95,11 +114,14 @@ export function splat(host, scale = 0.7) {
   svg.querySelectorAll('.fx-drop').forEach((el) => {
     const x = Number(el.getAttribute('cx'));
     const y = Number(el.getAttribute('cy'));
-    el.animate([{ transform: `translate(${cx - x}px, ${cy - y}px) scale(0.3)` }, { transform: 'none' }], {
-      duration: 90 + Number(el.dataset.d) * 1.6,
-      easing: 'cubic-bezier(.15,.8,.3,1)',
-      fill: 'backwards',
-    });
+    el.animate(
+      [{ transform: `translate(${cx - x}px, ${cy - y}px) scale(0.3)` }, { transform: 'none' }],
+      {
+        duration: 90 + Number(el.dataset.d) * 1.6,
+        easing: 'cubic-bezier(.15,.8,.3,1)',
+        fill: 'backwards',
+      },
+    );
   });
   // Drips: a thin trail grows and a bead slides down, slowing as it goes.
   svg.querySelectorAll('.fx-drip').forEach((g, i) => {
