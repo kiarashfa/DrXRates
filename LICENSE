@@ -168,3 +168,24 @@ written agreement signed by Licensor granting You additional rights.
 Requests for permissions beyond this License — including commercial use,
 hosting, or distribution of Derivative Works — may be directed to Licensor
 at kiarashfa@gmail.com.
+
+Appendix: Project-Specific Terms
+
+This Appendix forms part of this License as applied to Dr. X Rates. It
+supplements and clarifies the numbered Sections above. It does not remove
+any restriction in them, except where it says so expressly. The text of the
+numbered Sections is Version 1.0 of this License, unchanged.
+
+A1. Third-Party Material
+
+Third-Party Material used by this project is identified in the file
+THIRD_PARTY.md at the root of this repository. Section 6 applies to
+everything listed in that file: it is governed solely by its original
+license, it is not covered by this License, and this License does not apply
+to it.
+
+A2. Film Images
+
+The film still frames, posters, backdrops, and other images of films that
+the Software shows belong to their respective rights holders. They are
+excluded from this License, and this License grants no rights in them.
