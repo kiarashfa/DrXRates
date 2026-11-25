@@ -1,15 +1,31 @@
-# Dr. X Rates
+<p>
+  <a href="https://kiarashfa.github.io/DrXRates/">
+    <img src="public/og-image.jpg" alt="Dr. X Rates: Every film, rated in ten parts." width="100%">
+  </a>
+</p>
 
-**Dr. X Rates** is a personal film archive and rating system. Every film I watch is scored out of ten: five points of **content** (originality, character, continuity, suspense, meaning) and five of **form** (acting, cinematography, sound, directing, production design).
+<div align="center">
 
-Browse and search 20,000+ films, 1,300+ of them rated, with curated collections, director pages with average-shot-length data, and scores from TMDB, IMDb, Rotten Tomatoes and Metacritic. Nearly every rated film has Dr. X's own still frames: a lead frame and, for many, whole scenes, in a gallery with a full-screen viewer. Search any film, director or collection from any page (Ctrl K). Rate any film yourself with the same ten-part system, keep a watchlist, let the site pick a film for tonight, compare any two films side by side, run knockout brackets (or replay Dr. X's Cup), play Name the Frame (name the film from one of Dr. X's frames, with a Daily Reel, typed answers and party play), and see how your taste matches Dr. X's. Insights sets Dr. X's ratings against IMDb and the critics, content against form, and shot length across decades. Dr. X Net draws the rated films (or the whole archive) as a network of films and the people who made them, and connects any two in six degrees. Your ratings, watchlist, brackets and game scores stay in your browser. No sign-up, no accounts, no ads.
+[![Live site](https://img.shields.io/badge/Live_site-kiarashfa.github.io%2FDrXRates-c9a45c?style=for-the-badge)](https://kiarashfa.github.io/DrXRates/) [![Donate with PayPal](https://img.shields.io/badge/Donate_on_PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/donate/?hosted_button_id=S3BD5XFBMMWSJ) [![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-FFDD00?style=for-the-badge&logo=buymeacoffee&logoColor=black)](https://www.buymeacoffee.com/kiarashfa)
+
+![Website status](https://img.shields.io/website?url=https%3A%2F%2Fkiarashfa.github.io%2FDrXRates%2F&label=website&style=flat) ![Deployment](https://img.shields.io/github/deployments/kiarashfa/DrXRates/github-pages?style=flat) ![Last commit](https://img.shields.io/github/last-commit/kiarashfa/DrXRates?style=flat) ![Commit activity](https://img.shields.io/github/commit-activity/y/kiarashfa/DrXRates?style=flat) ![Created](https://img.shields.io/github/created-at/kiarashfa/DrXRates?style=flat) ![Stars](https://img.shields.io/github/stars/kiarashfa/DrXRates?style=flat)
+
+</div>
+
+**Dr. X Rates** is a personal film archive and rating system. Every film is scored out of ten by Dr. X: five points for content (originality, character, continuity, suspense, meaning) and five for form (acting, cinematography, sound, directing, production design).
+
+You can browse and search more than 20,000 films with scores from TMDB, IMDb, Rotten Tomatoes and Metacritic, rate films yourself with the same ten-part system, compare two films side by side, play Name the Frame, and see how your taste matches Dr. X's. Your ratings, watchlist and game scores stay in your browser.
+
+Under the hood, it is a static site built with Astro and Svelte. Every film page is generated ahead of time from TMDB and OMDb data, so browsing needs no server.
+
+## License and credits
+
+The code is released under the [KFA Source-Available License 1.0](LICENSE). It is **source-available, not open source**: you can read it, fork it and run it privately, but deploying it, modifying it and commercial use need written permission.
+
+Third-party software, data and media are credited in [THIRD_PARTY.md](THIRD_PARTY.md).
 
 ---
 
-Film data and posters from [TMDB](https://www.themoviedb.org/). This product uses the TMDB API but is not endorsed or certified by TMDB. Supplementary ratings via the [OMDb API](https://www.omdbapi.com/).
-
 © 2026 Kiarash Farajzadehahary.
-
-⚖ Licensed under the [KFA Source-Available License 1.0](LICENSE).
 
 Made with ❤️ for cinephiles.
