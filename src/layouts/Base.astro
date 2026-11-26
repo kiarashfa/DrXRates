@@ -3,7 +3,7 @@ import '../styles/global.css';
 import SiteHeader from '../components/SiteHeader.astro';
 import { SITE_TITLE, SITE_AUTHOR, THEME_BG, withBase } from '../lib/util.js';
 import { NAV_LINKS } from '../lib/nav.js';
-import { GA_MEASUREMENT_ID } from '../lib/analytics';
+import ConsentBar from '../components/ConsentBar.astro';
 // The two faces above-the-fold text uses (same hashed files the CSS loads),
 // preloaded so they usually arrive before first paint.
 import displayFont from '@fontsource-variable/eb-garamond/files/eb-garamond-latin-wght-normal.woff2?url';
@@ -90,30 +90,6 @@ const copyrightYears =
         } catch (e) {}
       })();
     </script>
-    {import.meta.env.PROD && <script is:inline define:vars={{ gaId: GA_MEASUREMENT_ID }}>
-      // Google tag (gtag.js). Skipped on localhost so `npm run preview` and the
-      // QA runs (both serve the production build) never count as visits.
-      if (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
-        var s = document.createElement('script');
-        s.async = true;
-        s.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
-        document.head.appendChild(s);
-        window.dataLayer = window.dataLayer || [];
-        window.gtag = function () {
-          dataLayer.push(arguments);
-        };
-        gtag('js', new Date());
-        // A Dropbox sign-in returns with ?code=&state= on the URL: count the page without them.
-        var q = new URLSearchParams(location.search);
-        gtag(
-          'config',
-          gaId,
-          q.has('code') && q.has('state')
-            ? { page_location: location.origin + location.pathname }
-            : {},
-        );
-      }
-    </script>}
   </head>
   <body>
     <SiteHeader />
@@ -132,6 +108,9 @@ const copyrightYears =
               {NAV_LINKS.filter((l) => !l.href.includes('#') && l.footer !== false).map((l) => (
                 <a href={withBase(l.href)}>{l.label}</a>
               ))}
+              <a href={`${withBase('/about')}#privacy`} data-consent-open>
+                Cookie settings
+              </a>
             </nav>
           </div>
           <span>
@@ -151,5 +130,6 @@ const copyrightYears =
         </div>
       </div>
     </footer>
+    <ConsentBar />
   </body>
 </html>
